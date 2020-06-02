@@ -142,11 +142,24 @@ See:
  + [[https://stackoverflow.com/questions/7241993/is-it-smart-to-replace-boostthread-and-boostmutex-with-c11-equivalents][c++ -
    Is it smart to replace boost::thread and boost::mutex with c++11
    equivalents? - Stack Overflow]]
-** Compiling a Boost project with CMake 
+** Boost projects with CMake / system-wide boost installation 
 
 Some boost libraries are not header-only and requires linking against
 a pre-compiled static or shared library. The compilation procedure can
-be simplified with the CMake module [[https://cmake.org/cmake/help/latest/module/FindBoost.html][FindBoost.]]
+be simplified with the CMake module [[https://cmake.org/cmake/help/latest/module/FindBoost.html][FindBoost.]]  
+
+  + Note: This procedure assumes a _system-wide installation_ of Boost
+    libraries a Unix-like operating system at directories _/usr/include_
+    and _/lib_. It may not work if the boost libraries are installed on
+    those directories.
+
+  + Note: Boost can be installed in a system-wide way by manual
+    compilation or by using the current Linux distribution package
+    manager. Although the system-wide setup is easier to use, it has
+    some drawbacks, it is not possible to control the version of the
+    library installed, if the setup method was the package manager and
+    also multiple versions of the library cannot coexist as new
+    version will override the existing library headers [Dependency Hell].
 
 Some non header-only Boost libraries are:
  + date_time 
@@ -296,7 +309,411 @@ Program output:
    wpB =  Waypoint{ location = Bern ; lat = 40.948 ; long = 7.4474 } 
 #+END_SRC
 
-** Compiling a Boost project with CMake and Conan 
+** Boost projects with CMake / local boost installation 
+*** Overview 
+
+This section shows how to install boost manually to a custom directory
+on a Linux system without overriding any system installation of boost
+at /usr/include, /lib or /lib64. 
+
+Rationale: 
+
+  + Although the package managers of Linux distributions are
+    convenient for installing development libraries, they have the
+    following drawbacks: they do not allow installing a specific
+    version of a library; installing a new version of the library,
+    overrides the old one and multiple versions cannot coexist.
+
+Documentation:
+
+  + [[https://www.boost.org/doc/libs/1_73_0/more/getting_started/unix-variants.html#get-boost][Boost Getting Started on Unix Variants - 1.73.0]]
+
+  + [[https://www.boost.org/doc/libs/1_73_0/libs/log/doc/html/log/installation/config.html][Configuring and building the library - 1.73.0]]
+
+  + [[https://stackoverflow.com/questions/9751271/how-to-build-boost-static-libs][c++ - How to build boost static libs? - Stack Overflow]]
+
+Source code downloading: 
+
+  * Github Repository:
+    + https://github.com/boostorg/boost  
+
+  * Only - Current release:
+    + https://www.boost.org/users/download  
+
+  * Source code for old releases:
+    + https://sourceforge.net/projects/boost/files/  
+
+  * Pre-compiled Windows Binaries:
+    + https://sourceforge.net/projects/boost/files/boost-binaries/
+
+*** Downloading and installing 
+
+Download boost sources with GIT shallow clone:
+
+  + Clone just a single commit of boost repository
+    ([[https://github.com/boostorg/boost][boostorg/boost]]) which tag is 'boost-1.70.0' into directory
+    ./boost-src 
+
+#+BEGIN_SRC sh 
+  $ git clone --recurse-submodule -b boost-1.70.0  https://github.com/boostorg/boost --depth=1 boost-src 
+  $ cd boost-src 
+#+END_SRC
+
+Create the directory _libs_  ($HOME/libs)for installing the Boost libraries 
+
+#+BEGIN_SRC sh  
+  $ mkdir -p ~/libs
+#+END_SRC
+
+  + Build the *b2* 
+
+#+BEGIN_SRC sh 
+  $ ./bootstrap.sh --prefix=$HOME/libs/boost/1.70.0 
+  Building Boost.Build engine with toolset gcc... 
+  ... ... ...   ... ... ...   ... ... ...   ... ... ...   ... ... ... 
+  ... ... ...   ... ... ...   ... ... ...   ... ... ...   ... ... ... 
+#+END_SRC
+
+  + Install and compile (Drink a coffee ☕ and wait the compilation ... ...)
+    + It installs the library to the directory $HOME/libs  
+
+#+BEGIN_SRC sh 
+$ ./b2 install --prefix=$HOME/libs --link=static                                        │boost/
+Performing configuration checks                                                         │
+                                                                                        │mxpkf8@localhost 16:05 ~/libs
+    - default address-model    : 64-bit (cached)                                        │$ rm -rf boost 
+    - default architecture     : x86 (cached)                                           │
+    - symlinks supported       : yes (cached)                                           │mxpkf8@localhost 16:06 ~/libs
+    - C++11 mutex              : yes (cached)                                           │$ ls
+    - lockfree boost::atomic_flag : no  (cached)            
+  ... ... ...   ... ... ...   ... ... ...   ... ... ... 
+  ... ... ...   ... ... ...   ... ... ...   ... ... ... 
+#+END_SRC
+
+ + Check installation 
+
+#+BEGIN_SRC sh 
+   $ tree -L 3 ~/libs
+   ├── include
+   │   └── boost
+   │       ├── aligned_storage.hpp
+   │       ├── call_traits.hpp
+   │       ├── compressed_pair.hpp
+   ... ... ...    ... ... ...    ... ... ...    ... ... ... 
+   ... ... ...    ... ... ...    ... ... ...    ... ... ... 
+   │       ├── variant
+   │       ├── variant.hpp
+   │       └── vmd
+   └── lib
+       ├── cmake
+       │   ├── boost_fiber-1.70.0
+       │   ├── boost_fiber_numa-1.70.0
+   ... ... ...    ... ... ...    ... ... ...    ... ... ... 
+   ... ... ...    ... ... ...    ... ... ...    ... ... ... 
+       ├── libboost_filesystem.so.1.70 -> libboost_filesystem.so.1.70.0
+       └── libboost_filesystem.so.1.70.0
+
+   17 directories, 19 files
+#+END_SRC
+*** Manual compilation
+
+ *Sample file* 
+
+File: test_boost.cpp 
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+  #include <fstream>
+  #include <string>
+  #include <boost/date_time/gregorian/gregorian.hpp>
+
+  namespace gr = boost::gregorian;
+  namespace dt = boost::date_time;
+
+  int main()
+  {
+    std::puts("=========== Boost Date Time ===============\n");
+    auto d1 = gr::date(2009, 10, 20);
+    std::cout << " date1 = " << d1 << std::endl;
+    auto mdate = gr::date(2012, 06, 21);
+    std::string text = " Date mdate is equal to: " + gr::to_iso_string(mdate) + "\n";
+    std::cout << " Text => " << text;
+    return 0;
+  }
+#+END_SRC
+ 
+  *Manual compilation with dynamic linking* 
+
+#+BEGIN_SRC sh 
+  $ g++ test-boost.cpp -o test-boost1.elf -g -lboost_date_time -I$HOME/libs/include -L$HOME/libs/lib
+#+END_SRC
+
+Attempt to run: 
+  + Failure happens because the linker cannot find the boost_date
+    shared library in any the default directories in the search order:
+    directories in binary artifact RPATH; $LD_LIBRARY_PATH variable;
+    directories in /etc/ld.conf; /lib or /usr/lib.
+  + On Windows, the search order is different, the first directory to
+    be searched is the current directory. 
+
+#+BEGIN_SRC sh
+  $ ./test-boost1.elf 
+  ./test-boost1.elf: error while loading shared libraries
+ : libboost_date_time.so.1.70.0: cannot open shared object file: No such file or directory
+#+END_SRC
+
+Check dependencies: 
+
+#+BEGIN_SRC sh 
+  $ ldd test-boost1.elf 
+          linux-vdso.so.1 (0x00007fffe5d76000)
+          libboost_date_time.so.1.70.0 => not found
+          libstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007f48b78bc000)
+          libm.so.6 => /lib64/libm.so.6 (0x00007f48b7776000)
+          libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007f48b775b000)
+          libc.so.6 => /lib64/libc.so.6 (0x00007f48b7591000)
+          /lib64/ld-linux-x86-64.so.2 (0x00007f48b7acf000)
+#+END_SRC
+
+Solution 1: 
+ + Put the shared library in LD_LIBRARY_PATH environment variable. 
+
+#+BEGIN_SRC sh 
+  $ env LD_LIBRARY_PATH=$HOME/libs/lib ./test-boost1.elf
+  =========== Boost Date Time ===============
+
+   date1 = 2009-Oct-20
+   Text =>  Date mdate is equal to: 20120621
+#+END_SRC
+
+Solution 2: 
+
+  + Bundle the library with the application in the same directory and
+    run the application setting LD_LIBRARY_PATH 
+
+#+BEGIN_SRC sh 
+  $ cp ~/libs/lib/libboost_date_time.so.1.70.0 .
+
+  $ env LD_LIBRARY_PATH=$PWD ldd ./test-boost1.elf
+          linux-vdso.so.1 (0x00007ffff9f1b000)
+          libboost_date_time.so.1.70.0 => /home/mxpkf8/libboost_date_time.so.1.70.0 (0x00007fad75ba5000)
+          libstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007fad75994000)
+    ... .... .... ....   ... .... .... ....   ... .... .... ....   ... .... .... .... 
+    ... .... .... ....   ... .... .... ....   ... .... .... ....   ... .... .... .... 
+
+  $ env LD_LIBRARY_PATH=$PWD ./test-boost1.elf
+  =========== Boost Date Time ===============
+
+   date1 = 2009-Oct-20
+   Text =>  Date mdate is equal to: 20120621
+#+END_SRC
+
+Solution 3, compile with RPATH containing the executable's directory (./):
+
+  + This procedure allows running the application without setting
+    LD_LIBRARY_PATH environment variable.
+
+  + By setting the rpath to "$ORIGIN", the application becomes
+    relocatable, it can be moved with the shared libraries to other
+    directories without any linking errors. The linker searches the
+    shared libraries at the executable's directory just like in
+    Windows.
+
+#+BEGIN_SRC sh 
+  # Copy shared library to current directory 
+  $ cp ~/libs/lib/libboost_date_time.so.1.70.0 .
+
+  # Compile with dynamic linking, setting the RPATH to the executable's directory 
+  $ g++ test-boost.cpp -o test-boost3.elf -g -Wl,-rpath='$ORIGIN'  -lboost_date_time -I$HOME/libs/include -L$HOME/libs/lib 
+
+  # --- Check Dependencies ------------------#
+  $ ldd test-boost3.elf 
+          linux-vdso.so.1 (0x00007ffe49d83000)
+          libboost_date_time.so.1.70.0 => ./libboost_date_time.so.1.70.0 (0x00007f8d96229000)
+          libstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007f8d96018000
+     ... ....    ... ....    ... ....    ... ....    ... ....    ... .... 
+     ... ....    ... ....    ... ....    ... ....    ... ....    ... .... 
+
+   # ----- Run the application -------------#
+   $ ./test-boost3.elf 
+   =========== Boost Date Time ===============
+
+    date1 = 2009-Oct-20
+    Text =>  Date mdate is equal to: 20120621
+
+   # -------- Move the app to a new directory -------#
+   $ mkdir -p app 
+   $ mv test-boost3.elf libboost_date_time.so.1.70.0 app
+
+   # ------ Test the application again --------------#
+   $ app/test-boost3.elf 
+   =========== Boost Date Time ===============
+
+    date1 = 2009-Oct-20
+    Text =>  Date mdate is equal to: 20120621
+#+END_SRC
+
+Display all libraries used by the application: 
+
+#+BEGIN_SRC sh 
+   env LD_DEBUG=libs app/test-boost3.elf                                                                                                                              
+      431158:     find library=libboost_date_time.so.1.70.0 [0]; searching                                                                                             
+      431158:      search path=/home/mxpkf8/app/tls/haswell/x86_64:/home/mxpkf8/app/tls/haswell:/home/mxpkf8/app/tls/x86_64:/home/mxpkf8/app/tls:/home/mxpkf8/app/haswe
+  ll/x86_64:/home/mxpkf8/app/haswell:/home/mxpkf8/app/x86_64:/home/mxpkf8/app             (RPATH from file app/test-boost3.elf)
+      431158:       trying file=/home/mxpkf8/app/tls/haswell/x86_64/libboost_date_time.so.1.70.0
+
+   ... ... ....  ... ... ....  ... ... ....  ... ... .... 
+    ... ... ....  ... ... ....  ... ... ....  ... ... .... 
+
+      431158:     find library=libstdc++.so.6 [0]; searching                                                                                                           
+      431158:      search path=/home/mxpkf8/app           (RPATH from file app/test-boost3.elf)
+      431158:       trying file=/home/mxpkf8/app/libstdc++.so.6
+      431158:      search cache=/etc/ld.so.cache
+      431158:       trying file=/lib64/libstdc++.so.6
+      431158:
+      431158:     find library=libm.so.6 [0]; searching
+      431158:      search path=/home/mxpkf8/app           (RPATH from file app/test-boost3.elf)
+      431158:       trying file=/home/mxpkf8/app/libm.so.6
+      431158:      search cache=/etc/ld.so.cache
+      431158:       trying file=/lib64/libm.so.6
+   ... ... ....  ... ... ....  ... ... ....  ... ... .... 
+
+#+END_SRC
+
+  *Manual compilation with static linking* 
+
+ + Static linking appends the library's object code to the executable
+   binary which makes the distribution and deployment easier.
+
+ + Note: some open source licenses, such as LGPL, GPL2 and GPL3, only
+   allow static linking with the application only if it is also
+   open source licensed under the same license with source code
+   disclosure. 
+
+ + Compile manually with static linking against boost libraries
+   [Approach 1]
+   * -I./<PATH-TO-HEADERS> (Files: *.h, *.hxx, *.hpp)
+   * -L./<PATH-TO-LIBRARIES> (Files: *.so, *.)
+
+#+BEGIN_SRC sh 
+  $ g++ test-boost.cpp -o test-boost2.elf -g \
+      $HOME/libs/lib/libboost_date_time.a \
+      -I$HOME/libs/include \
+      -L$HOME/libs/lib 
+#+END_SRC
+
+ + Run executable 
+
+#+BEGIN_SRC sh 
+  $ ./test-boost2.elf 
+  =========== Boost Date Time ===============
+
+   date1 = 2009-Oct-20
+   Text =>  Date mdate is equal to: 20120621
+#+END_SRC
+*** Compilation with CMake 
+
+ *Building with CMake / Approach 1* 
+
+File: CMakeLists.txt [VERSION 1]
+
+#+BEGIN_SRC sh 
+  cmake_minimum_required(VERSION 2.8)
+  project(boost-manually)
+
+  #========================================#
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_VERBOSE_MAKEFILE ON)
+
+  #=========== Find-Package =============#
+  set(Boost_USE_STATIC_LIBS ON)
+  set(Boost_NO_SYSTEM_PATHS TRUE)
+
+  find_package(Boost REQUIRED date_time serialization )
+
+  #=========== Targets ======================#
+  add_executable(test-boost-app test-boost.cpp)
+  target_link_libraries(test-boost-app Boost::date_time)
+#+END_SRC
+
+Build from command line: 
+
+#+BEGIN_SRC sh 
+  # Configure 
+  #--------------------------------------------
+  $ cmake -H. -B_build -DCMAKE_BUILD_TYPE=Debug \
+              -DBoost_NO_BOOST_CMAKE=TRUE \
+              -DBoost_NO_SYSTEM_PATHS=TRUE \
+              -DBOOST_ROOT:PATHNAME=$HOME/libs \
+              -DBoost_LIBRARY_DIR:FILEPATH=$HOME/libs/lib
+
+  # Compile 
+  #--------------------------------------------
+  $ cmake --build _build --target 
+
+  # Run 
+  #--------------------------------------------
+  $ _build/test-boost-app 
+  =========== Boost Date Time ===============
+
+   date1 = 2009-Oct-20
+   Text =>  Date mdate is equal to: 20120621
+
+#+END_SRC
+
+ *Building with CMake / Approach 2* 
+
+ + The CMake-related variables are set in the CMakeLists.txt file. 
+
+File: CMakeLists.txt [VERSION 2]
+
+#+BEGIN_SRC sh 
+   cmake_minimum_required(VERSION 2.8)
+   project(boost-manually)
+   #========================================#
+
+   set(CMAKE_CXX_STANDARD 17)
+   set(CMAKE_VERBOSE_MAKEFILE ON)
+
+   #=========== Find-Package =============#
+
+   set(Boost_USE_STATIC_LIBS      ON)
+   set(Boost_NO_SYSTEM_PATHS      TRUE)
+   set(BOOST_ROOT        $ENV{HOME}/libs)
+   set(BOOST_LIBRARY_DIR $ENV{HOME}/libs)
+
+   message([TRACE] " BOOST_LIBRARY_DIR = ${BOOST_LIBRARY_DIR}")
+
+   find_package(Boost REQUIRED date_time serialization )
+
+   #=========== Targets ======================#
+
+   add_executable(test-boost-app test-boost.cpp)
+   target_link_libraries(test-boost-app Boost::date_time)
+#+END_SRC
+
+Build: 
+
+#+BEGIN_SRC sh 
+   #--------- Configure -----------#
+   $ cmake -H. -B_build 
+   [TRACE] BOOST_LIBRARY_DIR = /home/mxpkf8/libs
+   -- Configuring done
+   -- Generating done
+   -- Build files have been written to: /home/mxpkf8/_build
+
+   #--------- Build / Compile -----#
+   $ cmake --build _build --target
+
+   #--------- Run -----------------#
+   $ _build/test-boost-app 
+   =========== Boost Date Time ===============
+
+    date1 = 2009-Oct-20
+    Text =>  Date mdate is equal to: 20120621
+#+END_SRC
+
+** Boost project with CMake and Conan 
 
 Conan package manager allows a project use mutiple versions of Boost
 libraries without prior manual installation that is time consuming as
@@ -2678,8 +3095,8 @@ Run program as client in terminal 2:
    => Enter line: new data
    => Enter line: ^C
 #+END_SRC
-*** Example: Memory Mapped Files 
-**** Overview 
+** Memory Mapped Files 
+*** Overview 
 
 Most operating systems have system-calls or APIs for mapping files
 into a process' address space or virtual memory which allows reading
@@ -2723,7 +3140,7 @@ See also:
  + [[http://blogs.microsoft.co.il/sasha/2016/01/21/myth-busting-memory-mapped-files-and-shared-memory-on-windows/][Myth-Busting: Memory-Mapped Files and Shared Memory on Windows | All Your Base Are Belong To Us]]
  + [[https://en.wikipedia.org/wiki/Memory-mapped_file][Memory-mapped file - Wikipedia]]
  + [[https://pymotw.com/2/mmap/][mmap – Memory-map files - Python Module of the Week]]
-**** Code 
+*** Example - allocating objects in a memory mapped file 
 
  *File*:
   + [[file:src/boost/boost-memory-mapped-file.cpp][file:src/boost/boost-memory-mapped-file.cpp]]
@@ -2924,7 +3341,204 @@ Running for the third time:
    pVector[3] = 10
    pVector[4] = 4.51
 #+END_SRC
+*** Example - reading complex binary files 
 
+Many complex binary files such as ELF (Unix object-code binary format), PE32
+(Windows NT object-code binary format), JPEG images are defined by
+C-structs which makes cumbersome and error-prone reading those types
+of files with read/write functions. File memory mapping makes easier
+to parse those complex binary files as it is not necessary to read
+byte-by-byte, instead all it is needed is to cast file mapped address
+to the binary format structs.
+
+For instance, the ELF (Executable Linkable Format) header is defined
+by the following C-struct. (Reference: [[http://man7.org/linux/man-pages/man5/elf.5.html][Linux Manpage]])
+
+#+BEGIN_SRC cpp 
+  typedef struct {
+      unsigned char e_ident[EI_NIDENT];
+      uint16_t      e_type;
+      uint16_t      e_machine;
+      uint32_t      e_version;
+      ElfN_Addr     e_entry;
+      ElfN_Off      e_phoff;
+      ElfN_Off      e_shoff;
+      uint32_t      e_flags;
+      uint16_t      e_ehsize;
+      uint16_t      e_phentsize;
+      uint16_t      e_phnum;
+      uint16_t      e_shentsize;
+      uint16_t      e_shnum;
+      uint16_t      e_shstrndx;
+  } ElfN_Ehdr;
+#+END_SRC
+
+  *Example:* 
+
+File: read-elf.cpp
+  + => Read ELF header of an Unix executable.
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+  #include <iomanip>
+  #include <cassert>
+  #include <map>
+
+  #include <boost/interprocess/file_mapping.hpp>
+  #include <boost/interprocess/managed_mapped_file.hpp>
+  #include <boost/interprocess/mapped_region.hpp>
+
+  namespace bi = boost::interprocess;
+
+  #define EI_NIDENT 16
+
+  using uintN_t = uint64_t;
+  using ElfN_Addr = uintN_t;
+  using ElfN_Off  = uintN_t;
+
+  // ELF Header extracted from:
+  //  =>> http://man7.org/linux/man-pages/man5/elf.5.html
+  typedef struct {
+      unsigned char e_ident[EI_NIDENT];
+      uint16_t      e_type;
+      uint16_t      e_machine;
+      uint32_t      e_version;
+      ElfN_Addr     e_entry;
+      ElfN_Off      e_phoff;
+      ElfN_Off      e_shoff;
+      uint32_t      e_flags;
+      uint16_t      e_ehsize;
+      uint16_t      e_phentsize;
+      uint16_t      e_phnum;
+      uint16_t      e_shentsize;
+      uint16_t      e_shnum;
+      uint16_t      e_shstrndx;
+  } ElfN_Ehdr;
+
+  // Instruction set ISA type database
+  static 
+  std::map<uint8_t, const char*> isa_type_database =
+              {
+                  {0x00, "No specified"}
+                  ,{0x02, "Sparc"}
+                  ,{0x03, "x86"}
+                  ,{0x08, "MIPS"}
+                  ,{0x14, "Power PC"}
+                  ,{0x16, "S390"}
+                  ,{0x28, "ARM"}
+                  ,{0x2A, "SuperH"}
+                  ,{0x3E, "x86-64"}
+                  ,{0xB7, "AArch64"}
+                  ,{0xF3, "RISC-V"}
+  };
+
+  static std::ostream&
+  operator<<(std::ostream& os, const std::vector<std::uint8_t>& byte_array)
+  {
+      for(const auto& ch: byte_array)
+      {
+          if(std::isprint(ch))
+              os << ch << "";
+          else
+              os << "\\0x" << std::hex << std::setw(2) << std::setfill('0')
+                 << static_cast<int>(ch) << " "
+                 << std::dec;
+      }
+      return os;
+  }
+
+
+  int main(int argc, const char* argv[])
+  {
+      std::puts(" ===========>>> Parsing ELF Header <<==================");
+    
+      if(argc < 2) {
+          std::perror("Error: missing ELF file name as first argument.");
+          return EXIT_FAILURE;
+      }
+    
+      auto fileName = std::string(argv[1]);	
+          // Create file mapping (mf)
+      auto mf = bi::file_mapping(fileName.c_str(), bi::read_only);
+      // Map whole file to process virtual memory 
+          auto region = bi::mapped_region(mf, bi::read_only);
+    
+      void* addr = region.get_address();
+      if(addr == nullptr){
+          std::perror(" Failed to map file.");
+          return EXIT_FAILURE;
+      }
+    
+      // Read ELF header file
+      ElfN_Ehdr* elf_header = static_cast<ElfN_Ehdr*>(addr);
+      auto machine_id = elf_header->e_machine;
+    
+      auto magic_bytes = std::vector<std::uint8_t>( elf_header->e_ident
+                                                   ,elf_header->e_ident + 4);
+    
+      //std::printf("\n       Magic number = %s ", elf_header->e_ident);
+      std::cout << "             Magic Bytes = " << magic_bytes << "\n";
+      std::printf("\n            Version     = %d", elf_header->e_version);
+      std::printf("\n               Type     = %d", elf_header->e_type);
+      std::printf("\n            Machine     = %d / %s", machine_id , isa_type_database.at(machine_id));
+      std::printf("\n  Number of sections    = %d", elf_header->e_shnum);
+      std::printf("\n        Entry Point     = 0x%zX", elf_header->e_entry);		
+
+      return EXIT_SUCCESS;
+  }
+#+END_SRC
+
+Building: 
+
+#+BEGIN_SRC sh 
+  $ g++ read-elf.cpp -o read-elf.bin -std=c++1z -g -Wall -Wextra 
+#+END_SRC 
+
+Running: 
+
+#+BEGIN_SRC sh 
+  $ ./read-elf.bin /usr/bin/echo
+   ===========>>> Parsing ELF Header <<==================
+               Magic Bytes = \0x7f ELF
+
+              Version     = 1
+                 Type     = 3
+              Machine     = 62 / x86-64
+    Number of sections    = 30
+          Entry Point     = 0x1C90
+#+END_SRC
+
+Confirm result: 
+  + => 7F => 0x7F
+  + => 45 => 0x45 or char 'E'
+  + => 4c => 0x4c or char 'L'
+  + => 46 => 0x46 or char 'F'
+
+#+BEGIN_SRC sh 
+   $ readelf -h /usr/bin/echo 
+   ELF Header:
+     Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 
+     Class:                             ELF64
+     Data:                              2's complement, little endian
+     Version:                           1 (current)
+     OS/ABI:                            UNIX - System V
+     ABI Version:                       0
+     Type:                              DYN (Shared object file)
+     Machine:                           Advanced Micro Devices X86-64
+     Version:                           0x1
+     Entry point address:               0x1c90
+     Start of program headers:          64 (bytes into file)
+     Start of section headers:          40072 (bytes into file)
+     Flags:                             0x0
+     Size of this header:               64 (bytes)
+     Size of program headers:           56 (bytes)
+     Number of program headers:         11
+     Size of section headers:           64 (bytes)
+     Number of section headers:         30
+     Section header string table index: 29
+
+#+END_SRC
+ 
 ** Boost DateTime 
 *** Overview 
 
@@ -3210,7 +3824,784 @@ Add months to a date:
     date_a + 5 months  = 2006-Feb-25
 #+END_SRC
 
+** Boost Math constants
+
+The math constants library provide many recurrent, useful and accurate
+math constants for several floating point types and also templated
+math constants for generic programming.
+
+Documentation: 
+
+  + [[https://www.boost.org/doc/libs/1_71_0/libs/math/doc/html/constants.html][Chapter 4. Mathematical Constants - 1.71.0]]
+
+  + [[https://www.boost.org/doc/libs/1_71_0/libs/math/doc/html/math_toolkit/constants.html][The Mathematical Constants - 1.71.0]] 
+
+Example: 
+ + File: boost-math-constants.cpp 
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+
+  #include <boost/math/constants/constants.hpp>
+
+  template<typename FLT>
+  FLT
+  formula(FLT x, FLT y)
+  {
+      namespace bc = boost::math::constants;
+      return x * x * bc::pi<FLT>() + 4.0 * y * bc::euler_sqr<FLT>();
+  }
+
+  int main()
+  {
+      std::cout << std::setprecision(5) << std::fixed;
+
+      std::cout << "\n ====== Float Constants - IEEE754 32 bits ======"
+                << std::endl;
+      namespace fc = boost::math::float_constants;
+      std::cout << "               PI = " << fc::pi << std::endl;
+      std::cout << " e (euler number) = " << fc::euler << std::endl;
+      std::cout << "           root_e = " << fc::root_e << std::endl;
+
+
+      std::cout << "\n ====== Double Constants  - IEEE754 64 bits ===="
+                << std::endl;
+
+      namespace dc = boost::math::double_constants;
+      std::cout << "               PI = " << dc::pi << std::endl;
+      std::cout << " e (euler number) = " << dc::euler << std::endl;
+      std::cout << "           root_e = " << dc::root_e << std::endl;
+
+      std::cout << "\n ====== Templated Constants ==================="
+                << std::endl;
+
+      namespace bc = boost::math::constants;
+
+      std::cout << "      formula(4, 5) = " << formula<double>(4, 5) << std::endl;
+      std::cout << " formula(8f, 5.45f) = " << formula<float>(8.0f, 5.45f) << std::endl;
+      std::cout << "        pi<float>() = " << bc::pi<float>() << std::endl;
+      std::cout <<"       euler<float>() = " << bc::euler<float>() << std::endl;
+
+      return 0;
+  }
+#+END_SRC
+
+Program output: 
+
+#+BEGIN_SRC sh 
+   ====== Float Constants - IEEE754 32 bits ======
+                 PI = 3.14159
+   e (euler number) = 0.57722
+             root_e = 1.64872
+
+   ====== Double Constants  - IEEE754 64 bits ====
+                 PI = 3.14159
+   e (euler number) = 0.57722
+             root_e = 1.64872
+
+   ====== Templated Constants ===================
+        formula(4, 5) = 56.92904
+   formula(8f, 5.45f) = 208.32521
+          pi<float>() = 3.14159
+         euler<float>() = 0.57722
+#+END_SRC
+
 * Complementary Libraries 
+** GSL - Guideline Support Library 
+*** Overview 
+
+The _GSL - Guideline Support Library_ (not confused with GNU Scientific
+Library) contains implementations of some types and functions proposed
+by the _C++ Core Guidelines_ for helping to enhance the code quality,
+reduce mistakes and make the intent clear. Note: some types of the C++
+core guidelines such as std::span will be included in the C++20. 
+
+ *C++ Core Guidelines* - Created by ISO C++ Comitee 
+
+  + Site: https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines
+ 
+  + Repo: http://github.com/isocpp/CppCoreGuidelins
+
+ *Implementations of the GSL Library*
+
+  + Microsft's Implementation of the GSL (Most used)
+    + (First implementation of the Core Guideline Types) 
+    + https://github.com/Microsft/GSL
+
+  + GSL-Lite - Single-header file implementation of the Microsft GSL (License: MIT)
+    * [[https://github.com/martinmoene/gsl-lite]]
+
+  + Martin Moene's GSL with Melanolib:
+    + https://github.com/mbasaglia/Meanolib
+
+  + Vicente Botet Escriba's fork:
+    + http://github.com/viboes/GSL 
+
+  *Parts of GSL* 
+
+    + _Views_
+      + span<T>
+      + string_span<T>
+      + (cw) zstring
+
+    + _Owners/Containers_
+      + owner<T>
+      + unique_ptr<T> (for old compiler that does not support C++11)
+      + shared_ptr<T> (old compilers)
+      + dyn_array<T>
+      + stack_array<T>
+
+    + _Utilities_
+      + not_null<T>
+      + finally()
+
+    + _Contract Support_ (Macros)
+      + Expect() => For pre-condition validation 
+      + Ensure() => For post-condition validation 
+
+    + _Type casting conversions_
+      + narrow()
+      + narrow_cast()
+
+    + _Concepts_
+      + String
+      + Number
+      + Sortable
+      + Pointer 
+
+ *Papers* 
+
+  + *P0122R33 - span: bounds-safe views for sequences*
+    + <http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0122r3.pdf>
+
+  + *P0298R1 - A byte type definition*
+    + <http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0298r1.pdf>
+*** Type: gsl::owner 
+
+The type gsl::owner is proposed in the section [[https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Ri-raw][I11]] of the core guidelines:
+
+  + "I.11: Never transfer ownership by a raw pointer (T*) or reference (T&)" 
+
+Definition: 
+
+#+BEGIN_SRC cpp 
+  template <class T, class = std::enable_if_t<std::is_pointer<T>::value>>
+  using owner = T;
+#+END_SRC
+
+The type _owner<T>_ is just an alias for a pointer type for annotating
+raw owning pointer APIs that cannot be modified. This type allows
+distinguishing raw owning pointers from non-owning pointers, making
+the intent of the code clear. 
+
+See: 
+ + [[https://clang.llvm.org/extra/clang-tidy/checks/cppcoreguidelines-owning-memory.html][clang-tidy - cppcoreguidelines-owning-memory — Extra Clang Tools 10 documentation]]
+
+Before: 
+
+#+BEGIN_SRC cpp 
+   IBaseClass*  factoryFunction(int key)
+   {
+      if(key == VALUE1)
+      { 
+        return new Implementation1(arg1, arg2, ...);
+      }
+      if(key == VALUE1)
+      { 
+        return new Implementation2;
+      }
+      //  ... ... ... . 
+      // Invalid input 
+     return nullptr; 
+   } 
+#+END_SRC
+
+After: 
+  + The annotation gsl::owner<T> makes clear that pointer returned by
+    factoryFunction owns memory and that it must release it later by
+    calling the delete operator.
+
+#+BEGIN_SRC cpp 
+   #include <gls/pointer>
+
+   gsl::owner<IBaseClass*>  
+   factoryFunction(int key)
+   {
+      if(key == VALUE1)
+      { 
+        return new Implementation1(arg1, arg2, ...);
+      }
+      if(key == VALUE1)
+      { 
+        return new Implementation2;
+      }
+      //  ... ... ... . 
+      // Invalid input 
+     return nullptr; 
+   } 
+
+   //  --------- Usage: ------------------// 
+
+   int main()
+   { 
+       std::cout << " Choose the implementation: ";
+       int key; 
+       std::cin >> key; 
+
+      gsl::owner<IBaseClass*> object = factoryFunction(key); 
+ 
+      object->InvokeVirtualMemberFunction();
+      // ... ... ... ..
+
+     delete object;
+    }
+#+END_SRC
+
+*** Type: gsl::finally 
+
+The gsl::finally can register a callable object (lambda, functor or
+function pointer) which is called when it goes out of scope. This
+function is useful for exception-safe resource disposal or cleanup.
+
+#+BEGIN_SRC cpp   
+  {
+     int* arr = new int [10]; 
+
+     // RAII => Calls lambda when this object is out-of-scope 
+     // and its destructor is called. 
+     auto scope_guard = gsl::finally( [=]
+                     { 
+                        delete [] arr;
+                        std::puts("Resource cleaned OK.");
+                     });
+
+     for(size_t i = 0; i < 10; i++) { /** set arrary */ }   
+  } // scope_guard called here. 
+#+END_SRC
+
+*** Functions: narrow_cast and narrow
+
+The functions narrow and narrow_cast are used in several sections of
+the core guidelines, namely: 
+  + ES.46: Avoid lossy (narrowing, truncating) arithmetic conversions
+  + ES.49: If you must use a cast, use a named cast
+  + P.4: Ideally, a program should be statically type safe
+
+ *Function: narrow_cast()*
+
+ + The function narrow_cast is equivalent to a static_cast operator,
+   but it makes the clear and evident that a narrow cast is being
+   performed, a casting from type to another with _less bits_, therefore
+   with possible loss of _information_, loss of precision or
+   overflow/undeflow error.
+
+Usage: 
+
+#+BEGIN_SRC cpp 
+  #include <gls/gls> // Include all heders
+
+  double xx = 105e4;
+
+  // Same as static_cast, but the intent is more clear.  Makes easier to
+  // the reader spot that a loss of information or precision may happen.
+  // 
+  // Note: If an underflow/overflow happens in this case, it is
+  // undefined behavihor. UB
+  int nx = gsl::narrow_cast<int>(xx);
+#+END_SRC
+
+ *Function: narrow()* 
+
+  + The function _narrow<T>()_ is similar to the _narrow_cast()_, but it
+    calls std::terminate or throws an exception if there is a loss of
+    information in the narrow cast.
+
+  + The code in the next line throws a *gsl::narrowing_error* exception
+    that abnormaly terminates the program because the value 10.535e10
+    when casted to int, results in an overflow, there is not enough
+    bits to store the entire integer part of this number. This runtime
+    check makes easier to catch bugs like this. 
+
+#+BEGIN_SRC cpp 
+   #include <gls/gls> // Include all heders
+
+   double xx = 10.535e10;
+   nx = gsl::narrow<int>(xx);
+#+END_SRC
+*** Type: gsl::span (C++20)
+
+The GSL class *gsl::span<T>* (former gsl::array_view) is a _non-owning_
+representation or a _view_ for a contiguous allocated sequence of
+objects which can be a std::vector; std::array<T, size_t>;
+zero-terminated C-string, a buffer represented by the tuple (pointer,
+size) or (C-array, size). The gsl::span<T> view can also be used for
+refactoring C-style functions that takes the tuple parameters
+(pointer, size), representing a buffer, and making the function safe
+against memory corruption, out-of-bound read/write and buffer
+overflows, which can introduce security vulnerabilities.
+
+C++20 std::span documentation (not gsl::span)
+
+  + https://en.cppreference.com/w/cpp/container/span
+
+Motivating Paper: 
+
+  + P0122R3 - span: bounds-safe views for sequences of objects
+    + <http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/p0122r3.pdf>
+
+Terminology: 
+
+  + Non-owning: A gsl::span<T> object is not responsible for
+    the allocating or releasing the objects that it points to.
+
+  + View: Object that encapsulates a reference type or points to
+    existing objects that it does not own.
+
+  + Buffer: Any memory region represented by the pair (pointer, size),
+    pointer to beginning of the region and buffer size.
+
+Summary: 
+
+  + gsl::span<T> can refer to any container: std::vector;
+    std::array<T, size_t>; null-terminated character array; buffer,
+    represented by pointer + tuple.
+
+  + gsl::span<T> does not allocate any memory and copying it does not
+    copy any element, gsl:span<T> is a _view_.
+
+Use-cases for gsl::span<T>:
+
+   + Provide range checking allowing to avoid buffer overrun (aka
+     buffer overflow):  terminates the program abnormally by
+     calling std::terminate or throwing an exception (fail-fast
+     approach). The range checking can be disabled for   
+
+   + Creating functions that can take std::vector, std::aray or a
+     buffer which can be presented by a C-style aray or the pair
+     (pointer, size). 
+
+   + Refactoring: Make C-style functions that take a buffer parameter
+     represented by the pair (pointer, size) safer against buffer
+     overflow vulnerabilities. The view object gsl::span<T> has built-in
+     array-bound checking, any out-of-bounds access can either throw
+     a gsl::fail_fast exception or a call std::terminate terminating
+     the program abnormally.
+
+
+ *Constructors* 
+
+#+BEGIN_SRC cpp 
+   // --------- Constructors for dynamic-size span  -----------// 
+   gls::span(); 
+   gsL::span(nullptr_t) noexcept; 
+   gls::span(pointer ptr, index_type number_of_elements);
+   gls::span(pointer ptrFirstElement, ptrLastElement);
+   
+   template <class Container> gls::span(Container& container);
+
+   // --------- Constructors for fixed-size span ---------------//
+
+   // Array buffer of size N. i.e:  int array [10] = { 1, 2, ..., 10};
+   template <size_t N> gsl::span(element_type (&array) [N]);
+
+   template <size_t N> gsl::span(Container& container);
+   template <size_t N> gsl::span(Container const& container);
+#+END_SRC
+
+ *Memeber Functions* 
+
+|---+----------------+-------------------------------------------+----------------------------------------------------------------|
+|   | Return         | Function                                  | Description                                                    |
+|   | Type           |                                           |                                                                |
+|---+----------------+-------------------------------------------+----------------------------------------------------------------|
+| A | index_type     | size() const                              | Returns number of elements in the span                         |
+| B | index_type     | size_bytes() const                        | Returns the total size of sequence in bytes                    |
+| C | TElement*      | data() const                              | Returns pointer to first element of span.                      |
+| D | bool           | empty() const                             | Returns treu if the span is empty                              |
+| E | TElement&      | operator[](index_type idx) const          | Returns reference to idx-th element of span.                   |
+| F | TElement&      | at(index_type idx) const                  | Returns reference to idx-th element of span.                   |
+| G | gsl::span      | subspan(index_type offset, index_count n) | Obtains a new span view from offset to  (offset + n) elements. |
+|   |                |                                           |                                                                |
+| H | iterator       | being() const                             | Returns iterator to beginning of span.                         |
+| I | iterator       | end() const                               | Returns iterator to end of span.                               |
+|   |                |                                           |                                                                |
+| J | const_iterator | cbegin() const                            |                                                                |
+| L | cosnt_iterator | cend() const                              |                                                                |
+|   |                |                                           |                                                                |
+|---+----------------+-------------------------------------------+----------------------------------------------------------------|
+
+
+  + Note: E => The behavior of the operator (operator[])(index_type )
+    is undefined if idx index is out of range.
+
+  + Note: F => Throws an exception if the index idx is out of range. 
+
+ *Dynamic-size gsl::span assignment* 
+
+ + The variable sp of type gsl::span<int> can refere to fixed-size
+   array; std::vector<int>; std::array<int, size_t> and so on.
+
+ + assert(<PREDICATE>) => Terminates the program abnormally by calling
+   std::abort if the predicate is false, then shows an error message
+   indicating the file and line where the assertion has failed.
+
+#+BEGIN_SRC cpp 
+    gsl::span<int> sp;
+
+    //--------- assign C-array to span -------------- // 
+    int carr [] = {-15, 6, 10, 9, 200};
+    sp = xs;                 // sp refers to array xs 
+    assert(sp[2] == 10); 
+    assert(sp[3] == 9);
+    assert(sp.size() == 5);
+    assert()
+
+    //------ Assign fixed-size buffer (C-array) to span ---// 
+    int buffer[200] = {3, 5, 6, 10, 20};
+    sp = buffer;
+    assert(sp.size() == 200);
+    assert(sp[2] == 6);
+    assert(sp[0] == 3);
+
+    //---- Assign to buffer defined by (pointer, size) tuple to span ---// 
+    int* p_buffer = &carr; 
+    auto buffer_size = gsl::index(5);
+    sp = gsl::make_span(p_buffer, buffer_size); 
+    assert(sp.size() == 5);
+    assert(sp[0] == -15);
+    assert(sp[2] ==  10);
+   
+    //------ assign std::vector cointainer to span -------// 
+    std::vector<int> xs = {1, 2, 3, 4, 5};
+    sp = xs;                 // sp refers to vector xs 
+    assert(sp[2] == 3);
+    assrrt(sp.size() == 5);  
+
+    //------ assign std::array to span -------------------//
+    std::array<int, 6> arr = {10, 20, 30, 40, 50, 60}; 
+    sp = arr;  // sp refers to std::array arr 
+    assert(sp[2] == 30);
+    assert(sp.size() == 6)
+#+END_SRC
+
+  *Looping over gsl::span<T>* 
+
+Dataset definition: 
+
+#+BEGIN_SRC cpp 
+   int dataset [] = {200, 100, -90, 89, 610, 53, 1365};
+   std::span<int> arrview;  
+   arrview = dataset; 
+#+END_SRC
+
+Index-based loop: 
+
+#+BEGIN_SRC cpp 
+   for(auto idx = gsl::index(0); idx < arr.size(); ++idx)
+   {
+      std::cout << " Element[" << idx << "] =" << arrview[idx] << "\n";
+   }
+#+END_SRC
+ 
+Iterator-based loop: 
+
+#+BEGIN_SRC cpp 
+   for(auto it = arrview.begin(); it != arrview.end(); ++it)
+   {
+      std::cout << *it << std::endl;
+   }
+#+END_SRC
+
+Iterator-based loop using std::begin() and std::end() functions:  
+
+#+BEGIN_SRC cpp 
+   for(auto it = std::begin(arrview); it != std::end(arrview); ++it)
+   {
+      std::cout << *it << std::endl;
+   }
+#+END_SRC
+
+Range-based loop: 
+
+#+BEGIN_SRC cpp 
+   for(auto const& x:  arrview)
+   {
+      std::cout << x << "\n";
+   }
+#+END_SRC
+
+Iteration with STL algorithms (header <algorithm>)
+
+#+BEGIN_SRC cpp 
+   std::for_each(arrview.begin(), arrview.end(), [](int n)
+                {
+                    std::cout << n << "\n";
+                });
+
+  std::sort(arrview.begin(), arrview.end());
+#+END_SRC
+
+  *Function with gsl::span argument*
+
+A function that uses gsl::span<T> as argument can accept any buffer,
+C-arrray or continguous container as input.
+
+#+BEGIN_SRC cpp 
+  int sum_span_element(gsl::span<int> xs)
+  {
+      int sum = 0;
+      for(auto x: xs){ sum += x; }
+      return sum;
+  }
+
+  gsl::span<int> sp; 
+
+  // ------ Passing a C-array argument ------------------------------//
+  int carr [] = {-15, 6, 10, 9, 200};
+  sp = carr;
+  assert(sum_span_element(carr) == 210);
+  assert(sum_span_element(sp) == 210);
+
+  // ----- Passing a buffer argument defined by (pointer, size) pair ---// 
+  int* buffer_ptr  = carr; // Address of carr[0]
+  int  buffer_size = 5; 
+  sp = gsl::make_span(buffer_ptr, buffer_size);
+  assert( sum_span_element(sp) == 210 );
+  assert( sum_span_element(gsl::make_span(buffer_ptr, gsl::index(buffer_size))) == 210 );
+  assert( sum_span_element({buffer_ptr, gsl::index(buffer_size)}) == 210 );
+
+  // ---- Passing a std::vector argument ------------------//
+  std::vector<int> vec =  {10, 256, -15, 20, -8}; 
+  sp = vec; 
+  assert( sum_span_element(sp) == 263 );
+  assert( sum_span_element(vec) == 263 );
+#+END_SRC
+
+*** gsl::span code example 
+
+File: CMakeLists.txt 
+
+#+BEGIN_SRC cmake 
+  cmake_minimum_required(VERSION 3.14)
+  project(gls_experiment)
+
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_VERBOSE_MAKEFILE ON)
+
+  # See documentation at: https://cmake.org/cmake/help/latest/module/FetchContent.html
+
+  #========== Macros for automating Library Fetching =============#
+  include(FetchContent)
+
+  # Download library archive (zip, *.tar.gz, ...) from URL
+  macro(Download_Library_Url NAME URL)
+      FetchContent_Declare(${NAME} URL  ${URL})
+      FetchContent_GetProperties(${NAME})
+      message( [DOWNLOAD LIB] " VAR1 = ${${NAME}_SOURCE_DIR}")
+      if(NOT ${NAME}_POPULATED)
+          FetchContent_Populate(${NAME})
+          add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+      endif()
+  endmacro()
+
+  #============== Library Download =========================#
+
+  Download_Library_Url( gsl
+                        https://github.com/microsoft/GSL/archive/v2.0.0.zip
+                       )
+
+  # ========= Targets Settings ==========================#
+
+  add_executable(microsft_gsl  microsft_gsl.cpp)
+  target_link_libraries(microsft_gsl GSL)
+#+END_SRC
+
+File: gsl_span1.cpp 
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+  #include <iomanip>
+  #include <memory>
+  #include <vector>
+  #include <array>
+  #include <algorithm>
+  #include <numeric>
+
+  // #define GSL_UNENFORCED_ON_CONTRACT_VIOLATION
+  // #define GSL_TERMINATE_ON_CONTRACT_VIOLATION
+  #define GSL_THROW_ON_CONTRACT_VIOLATION
+
+  // ------ Headers from the GSL - Guideline Support Library ----------//
+  //-------------------------------------------------------------------//
+  //#include <gsl/gsl> // For including everything
+  #include <gsl/gsl>
+  #include <gsl/span>
+  #include <gsl/pointers>
+
+  void display_span(const char* name, gsl::span<int> xs)
+  {
+      std::cout << "  => " << name << " = [ ";
+      for(auto const& x: xs){ std::cout << x << ", "; }
+      std::cout <<  " ]\n";
+  }
+
+  template<typename T>
+  void disp(const char* label, T&& value)
+  {
+      std::cout << std::setw(5)  << "  =>> "
+                << std::setw(10) << label
+                << std::setw(4) << "="
+                << std::setw(6) << value
+                << std::endl;
+  }
+
+  int cstring_len(gsl::not_null<const char*> ptr)
+  {
+      int n = 0;
+      for(auto p = ptr.get(); *p != '\0'; ++p) n++;
+      return n;
+  }
+
+  int main()
+  {
+
+
+      std::puts("\n ==== EXPERIMENT 1 - gsl::span variable =====================\n");
+      {
+          // Variable span, non owning view that can refere to any contiguous memory,
+          // C-array buffers; buffers (pointer, size) tuple; std::vector; std::array
+          gsl::span<int> sp;
+
+          int carray [] = {10, 5, 8, 5, 6, 15};
+          sp = carray;
+
+          int* ptr_data = sp.data();
+
+          display_span("carray [A]", sp);
+          display_span("carray [B]", carray);
+          disp(" *(carray.data + 0) ", *ptr_data);
+          disp(" *(carray.data + 0) ", *(ptr_data + 1));
+
+        
+          // Display buffer defined by tuple (pointer, size)
+          int*   buffer_ptr  = carray;
+          size_t buffer_size = std::size(carray);
+          sp = gsl::make_span(buffer_ptr, buffer_size);
+          display_span("buffer", sp);
+
+          std::vector<int> vector1 = {10, 256, -15, 20, -8};
+          sp = vector1; // View refers to vector1
+          display_span("vector1 [A]", sp);
+          display_span("vector1 [B]", sp);
+
+          // Just a nice C++ wrapper for a C stack-allocated or static-allocated array
+          // It encapsulates the array: int [] std_array = {100, ...}
+          std::array<int, 7> std_array = {100, -56, 6, 87, 61, 25, 151};
+          sp = std_array;
+          display_span("std_array [A]", sp);
+          display_span("std_array [B]", sp);
+      }
+
+      std::puts("\n ==== EXPERIMENT 2 - gsl::span with std algorithms  ======\n");
+      {
+          int carray [] = {8, 10, 5, 90, 0, 14};
+          gsl::span<int> sp;
+          sp = carray;
+
+          display_span("carray <before>", sp);
+          std::sort(sp.begin(), sp.end());
+          display_span("carray <after>", sp);
+
+          auto sum = std::accumulate(sp.begin(), sp.end(), 0);
+          std::cout << " [INFO] sum of all elements  = " << sum << std::endl;
+      }
+
+      std::puts("\n ==== EXPERIMENT 3 - gsl::span methods ==================\n");
+
+       {
+           int carrayA [] = {10, 15, -8, 251, 56, 15, 100};
+           auto sp = gsl::span{carrayA};        
+
+           std::cout << std::boolalpha;
+
+           // Returns true if the view points to an empty location
+           disp("sp.empty()", sp.empty());
+           // Returns the number of elements
+           disp("sp.size()", sp.size());
+           // Returns the total size in bytes
+           disp("sp.size_byte()", sp.size_bytes());                  
+
+           // --- Access to elements with array-index operator [] -------//
+           // Note: The bound checking only happens in the debug build.
+           //       In the release build, it is disabled.
+           disp("sp[0]", sp[0]);
+           disp("sp[4]", sp[4]);
+           disp("sp[5]", sp[5]);
+
+           sp[0] = 100;
+
+           // ---- Access to elements with always enabled, throws exception
+           // if the access is out of bounds.
+           disp("sp.at(0)", sp.at(0));
+           disp("sp.at(4)", sp.at(5));
+           disp("sp.at(5)", sp.at(4));
+
+           // Note 1: The bound checking with array operator is only enabled
+           // for debug building, in the release building it can be disabled
+           // due to performance reasons.
+           //
+           // Note 2: It only throws exception, if the macro
+           // GSL_THROW_ON_CONTRACT_VIOLATION is defined before GSL includes.
+           // Otherwise, it calls std::terminate without throwing an exception.
+           try
+           {
+               disp("sp[15]", sp[15]);
+           } catch (gsl::fail_fast& ex)
+           {
+               std::cout << "  [ERROR] Failure = " << ex.what() << std::endl;
+           }
+       }
+     
+     
+      return 0;
+  }
+#+END_SRC
+
+Output: 
+
+#+BEGIN_SRC text 
+   ==== EXPERIMENT 1 - gsl::span variable =====================
+
+    => carray [A] = [ 10, 5, 8, 5, 6, 15,  ]
+    => carray [B] = [ 10, 5, 8, 5, 6, 15,  ]
+    =>>  *(carray.data + 0)    =    10
+    =>>  *(carray.data + 0)    =     5
+    => buffer = [ 10, 5, 8, 5, 6, 15,  ]
+    => vector1 [A] = [ 10, 256, -15, 20, -8,  ]
+    => vector1 [B] = [ 10, 256, -15, 20, -8,  ]
+    => std_array [A] = [ 100, -56, 6, 87, 61, 25, 151,  ]
+    => std_array [B] = [ 100, -56, 6, 87, 61, 25, 151,  ]
+
+   ==== EXPERIMENT 2 - gsl::span with std algorithms  ======
+
+    => carray <before> = [ 8, 10, 5, 90, 0, 14,  ]
+    => carray <after> = [ 0, 5, 8, 10, 14, 90,  ]
+   [INFO] sum of all elements  = 127
+
+   ==== EXPERIMENT 3 - gsl::span methods ==================
+
+    =>> sp.empty()   = false
+    =>>  sp.size()   =     7
+    =>> sp.size_byte()   =    28
+    =>>      sp[0]   =    10
+    =>>      sp[4]   =    56
+    =>>      sp[5]   =    15
+    =>>   sp.at(0)   =   100
+    =>>   sp.at(4)   =    15
+    =>>   sp.at(5)   =    56
+    [ERROR] Failure = GSL: Precondition failure at ... .../_deps/gsl-src/include/gsl/span: 499
+#+END_SRC
+
 ** Range v3 (C++20)
 
 Ranges v3 is a header-only generic library that will be included in
@@ -3759,10 +5150,12 @@ Output:
 ** Printf replacements 
 *** fmtlib (fmt) - Better printf 
 
-Fmt is a highly popular library for printing  in a formatted way just
-like the old C's printf, however fmt is type safe like std::ostream
-IO, however its format specifiers are more concise and based on Python
-ones.
+Fmt is a highly popular library for printing in similar way to the old
+C's printf. The advantage of fmt over old pritnf are the type safety
+and concise format specifiers based on Python. 
+
+ + The old C's printf is not type-safe and prone to security
+   vulnerabilities if proper care is not taken. 
 
 Web Site:
  + http://fmtlib.net/latest/index.html
@@ -3772,6 +5165,11 @@ Repository:
 
 Conan Refence: 
  + [[https://bintray.com/bincrafters/public-conan/fmt%253Abincrafters/5.3.0%253Astable][fmt/5.3.0@bincrafters/stable]] 
+
+See: 
+ + [[https://www.programiz.com/python-programming/methods/string/format][Python String format() - Python Standard Library]]
+ + [[https://www.digitalocean.com/community/tutorials/how-to-use-string-formatters-in-python-3][String Formatting with str.format() in Python 3 | DigitalOcean]]
+ + [[https://stackabuse.com/formatting-strings-with-python/][Formatting Strings with Python]]
 
  *Library Local Installation for header-only usage* 
 
@@ -4362,7 +5760,8 @@ Output:
     world
   ]
 #+END_SRC
-** CLI11 Command Liner Parser Library 
+** Command Line Parsing 
+*** CLI11 Library 
 
 
 CLI11 is a small and lightweight header-only library for command line
@@ -4504,7 +5903,158 @@ Sample program output:
    serving directory = /home/user/pages
 #+END_SRC
 
-** Cereal - Serialization Library
+*** Clipp library 
+
+Single-file header-only library for parsing command line arguments
+(command line option parsing). It supports: positional values
+(required arguments); optional values; manpage generation and so on. 
+
+  + Repository: https://github.com/muellan/clipp
+
+ *Sample Project* 
+
+File: CMakeLists.txt 
+
+#+BEGIN_SRC cmake 
+  cmake_minimum_required(VERSION 3.0)
+  project(clipp-test)
+
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_VERBOSE_MAKEFILE ON)
+
+  #============= Functions and macros ===========================#
+  
+  macro(Download_Single_Headerlib FILE URL)
+      file(DOWNLOAD ${URL} ${CMAKE_BINARY_DIR}/include/${FILE})
+      IF(NOT Download_Single_Headerlib_flag)
+         include_directories(${CMAKE_BINARY_DIR}/include)
+         set(Download_Single_Headerlib_flag TRUE)
+      ENDIF()
+  endmacro()
+
+  Download_Single_Headerlib(
+      clipp.h
+      https://raw.githubusercontent.com/muellan/clipp/v1.2.3/include/clipp.h
+      )
+
+  #============ Targets settings ==================================#
+  
+  add_executable( application application.cpp )
+#+END_SRC
+
+File: application.cpp 
+
+#+BEGIN_SRC cpp 
+  #include <iostream> 
+  #include <string> 
+
+  #include <clipp.h>
+
+  struct ServerOptions
+  {        
+          // --------- Required values -------------------//
+          int         port;
+          std::string host; 
+
+          // -------- Optional values -------------------//
+          int         loglevel                = 1; 
+          std::string name                    = "untitled";
+          bool        require_authentication  = false;    
+          bool        verbose                 = false;         
+  };
+
+  int main(int argc, char* argv []) 
+  {
+          ServerOptions opts; 
+
+          auto cli = (
+                  // --- Positional values ===>> Required --------------//
+                    clipp::value("host name", opts.host)
+                  , clipp::value("server port", opts.port)
+                 
+                  // --- Optional values ------------------------//
+                  , clipp::option("-v", "--verbose")
+                          .set(opts.verbose)
+                          .doc("Enable versbosity")
+                  , clipp::option("-a", "--require-auth")
+                          .set(opts.require_authentication)
+                          .doc("Require authentication")                
+                  , clipp::option("--loglevel") & clipp::value("set server's log level", opts.loglevel)
+                  , clipp::option("-n", "--name") & clipp::value("server name", opts.name)
+                  );
+
+          if( !clipp::parse(argc, argv, cli) ) {
+                  std::cout << clipp::make_man_page(cli, argv[0] );
+                  return EXIT_SUCCESS;
+          }
+
+          std::cout << std::boolalpha; 
+
+          std::cout << " Running server " 
+                    << " \n         port = " << opts.port 
+                    << " \n         host = " << opts.host 
+                    << " \n      verbose = " << opts.verbose
+                    << " \n require_auth = " << opts.require_authentication
+                    << " \n         name = " << opts.name
+                    << " \n   log level  = " << opts.loglevel
+                    << "\n";
+    
+          return EXIT_SUCCESS;
+  }
+#+END_SRC
+
+ *Running* 
+
+Building: 
+
+#+BEGIN_SRC sh 
+  $ cmake -H. -B_build -DCMAKE_BUILD_TYPE=Debug 
+  $ cmake --build _build --target 
+#+END_SRC
+
+Running [1]:  
+
+#+BEGIN_SRC text 
+   $ ./application 
+  SYNOPSIS
+          ./application <host name> <server port> [-v] [-a] [--loglevel <set server's log level>] [-n
+                        <server name>]
+
+  OPTIONS
+          -v, --verbose
+                      Enable versbosity
+
+          -a, --require-auth
+                      Require authentication
+#+END_SRC
+
+Running [2]: 
+
+#+BEGIN_SRC text 
+   $ ./application 127.0.0.1 8080 
+   Running server  
+           port = 8080 
+           host = 127.0.0.1 
+        verbose = false 
+   require_auth = false 
+           name = untitled 
+     log level  = 1
+#+END_SRC
+
+Running [3]: 
+
+#+BEGIN_SRC text 
+   $ ./application 127.0.0.1 8080 --verbose --name "lisp server"
+   Running server  
+           port = 8080 
+           host = 127.0.0.1 
+        verbose = true 
+   require_auth = false 
+           name = lisp server 
+     log level  = 1
+#+END_SRC
+** Serialization 
+*** Cereal - Serialization library 
 
 Cereal is a lightweight header-only library for serialization which
 supports a wide variety of serialization formats such as binary, XML
@@ -4792,6 +6342,225 @@ Program output:
    DummyClass { x = 400 ; y = -641 ; N = 300 } =>  List[  ]
 #+END_SRC
 
+*** YAS - Yet Another Serialization Library
+
+YAS - Yet Another Serialization Library - High performance ligthweight
+header-only serialization library with support for all STL containers.
+
+Repository: 
+  + https://github.com/niXman/yas
+
+More Examples: 
+ + https://github.com/niXman/yas/tree/master/examples
+
+Supported Serialization Formats: 
+
+  + binary (portable, endianess-independent)
+  + text
+  + json (not fully compatible)
+
+Problems: 
+  + Less documentation
+  + Lack of doxygen comments 
+  + Not comptabile with C++'s standard library streams such as
+    std::ostream, std::fstream, std::cout.
+
+ *CMake Project Example*
+
+ + File: CMakeLists.txt 
+
+#+BEGIN_SRC cmake 
+   cmake_minimum_required(VERSION 3.9)
+   project(YAS_PROJECT)
+
+   #========== Global Configurations =============#
+   #----------------------------------------------#
+   set(CMAKE_CXX_STANDARD 17)     
+   set(CMAKE_VERBOSE_MAKEFILE ON)
+   set(CMAKE_CXX_EXTENSIONS OFF)
+
+   #------------- Fetch Serialization Library YAS -------------------#
+
+   include( FetchContent )
+   FetchContent_Declare( yas
+       GIT_REPOSITORY  "https://github.com/niXman/yas.git"
+       GIT_TAG         "7.0.4"
+   )
+   FetchContent_MakeAvailable(yas)
+   include_directories("${yas_SOURCE_DIR}/include/" )
+
+   #========== Targets Configurations ============#
+
+   add_executable(executable serialize.cpp)
+#+END_SRC
+
+ + File: serialize.cpp 
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+  #include <deque>
+  #include <algorithm>
+  #include <numeric>
+  #include <initializer_list>
+  #include <fstream>
+
+  #include <yas/serialize.hpp>
+  #include <yas/std_types.hpp>
+  #include <yas/text_iarchive.hpp>
+  #include <yas/text_oarchive.hpp>
+
+  /** @brief Read whole input stream to a string and returns it
+    ,* Requires headers: <iostream> and <sstream>
+    ,*/
+  std::string
+  istreamToString(std::istream& is){
+      if(is.bad()){
+          throw std::runtime_error("Error: stream has errors.");
+      }
+      std::stringstream ss;
+      ss << is.rdbuf();
+      return ss.str();
+  }
+
+  class Stats
+  {
+
+      std::string m_name = "";
+      std::deque<double> m_data = {};
+  public:
+      Stats() { }
+
+      Stats(std::initializer_list<double> const& list)
+          : m_data(list.begin(), list.end()) { }
+
+      void   insert(double x){ m_data.push_back(x); }
+      double get(size_t index) const { return m_data[index]; }
+      size_t size()            const { return m_data.size(); }
+      auto begin() { return m_data.begin(); }
+      auto end()   { return m_data.end();   }
+
+      std::string name() const { return m_name; }
+      void set_name(std::string name) { m_name = name; }
+
+      double mean() const {
+          double total = std::accumulate(m_data.begin(), m_data.end(), 0.0);
+          return total / m_data.size();
+      }
+
+      double first() const { return m_data.front(); }
+      double last()  const{ return m_data.back(); }
+
+      /** Required friend function for making class printable */
+      friend std::ostream& operator<<(std::ostream& os, const Stats& stat)
+      {
+          os <<  "Stats { name = '" << stat.m_name << "' ; data = [ ";
+          for(auto x: stat.m_data) { os << x << ", "; }
+          return os << " ] }";
+      }
+
+      /** Required method for making the class serializable */
+      template<typename Archive>
+      void serialize(Archive& ar)
+      {
+          // NVP => Name-value-pair
+          ar & YAS_OBJECT_NVP(
+                "Stats"
+              ,("name", m_name)
+              ,("data", m_data)
+              );
+      }
+
+  };
+
+
+  int main()
+  {
+
+      const char* jsonfile = "program_data.json";
+
+      std::cout << "\n ==== EXPERIMENT 1 ====== Save data to file ========\n\n";
+
+      {
+          auto stats = Stats{4.5, -10.3, 58.66, 10.6, 9.615, 56.156, 90.51, -62.0};
+          stats.set_name("Price change");
+
+          // std::cout << " => Name " << stats.name() << std::endl;
+          std::cout << "   => stats = " << stats << std::endl;
+          std::cout << "   =>  mean = " << stats.mean() << std::endl;
+
+          // Remove file if it exists
+          std::remove(jsonfile);
+
+          // Save archive data in a JSON file
+          yas::save<yas::file | yas::json>(jsonfile, stats);
+      }
+
+      // Check file content
+      auto ifs = std::ifstream{jsonfile};
+      auto content = istreamToString(ifs);
+      std::cout << "\n File content = \n " << content
+                << std::endl;
+
+      std::cout << "\n ==== EXPERIMENT 2 ====== Load data from file ======\n\n";
+
+      {
+          auto statsB = Stats{};
+          yas::load<yas::file | yas::json>(jsonfile, statsB);
+          std::cout << "   => stats = " << statsB << std::endl;
+          std::cout << "   =>  mean = " << statsB.mean() << std::endl;
+      }
+
+      std::cout << "\n ==== EXPERIMENT 3 ====== Load/Save data from memory ======\n\n";
+
+      // Save to memory
+      yas::mem_ostream os;
+
+      auto statsX = Stats{14.5, 25.16, 18.66, -10.6, 62.615, +46.1566, 90.51, 62.61};
+      statsX.set_name("Oil prices");
+      {
+          auto archive = yas::binary_oarchive<yas::mem_ostream>(os);
+          archive(statsX);
+          std::cout << " StatsX = " << statsX << std::endl;
+          std::cout << " [TRACE] Saved to memory OK." << std::endl;
+      }
+
+      {
+          auto is = yas::mem_istream(os.get_intrusive_buffer());
+          auto archive = yas::binary_iarchive<yas::mem_istream>(is);
+          auto statsY = Stats();
+          archive(statsY);
+          std::cout << " [TRACE] Load from memory OK." << std::endl;
+          std::cout << " StatsY = " << statsY << std::endl;
+      }
+
+      return 0;
+  }
+
+#+END_SRC
+
+ + Program output: 
+
+#+BEGIN_SRC sh 
+   ==== EXPERIMENT 1 ====== Save data to file ========
+
+     => stats = Stats { name = 'Price change' ; data = [ 4.5, -10.3, 58.66, 10.6, 9.615, 56.156, 90.51, -62,  ] }
+     =>  mean = 19.7176
+
+   File content = 
+   {"name":"Price change","data":[4.5,-10.3,58.66,10.6,9.615,56.156,90.51,-62.0]}
+
+   ==== EXPERIMENT 2 ====== Load data from file ======
+
+     => stats = Stats { name = 'Price change' ; data = [ 4.5, -10.3, 58.66, 10.6, 9.615, 56.156, 90.51, -62,  ] }
+     =>  mean = 19.7176
+
+   ==== EXPERIMENT 3 ====== Load/Save data from memory ======
+
+   StatsX = Stats { name = 'Oil prices' ; data = [ 14.5, 25.16, 18.66, -10.6, 62.615, 46.1566, 90.51, 62.61,  ] }
+   [TRACE] Saved to memory OK.
+   [TRACE] Load from memory OK.
+   StatsY = Stats { name = 'Oil prices' ; data = [ 14.5, 25.16, 18.66, -10.6, 62.615, 46.1566, 90.51, 62.61,  ] }
+#+END_SRC
 ** Parsers 
 *** TinyXML2 - Lightweight XML parser 
 
@@ -5341,6 +7110,324 @@ Program output:
          HRK     7.410
 #+END_SRC
 
+*** nlohmann JSON Parser Library
+
+Easy to use single-file header-only library for parsing and writing
+[[http://json.org/][JSON]] (Javascript Object Notation).
+
+   + Library Repository:
+     + https://github.com/nlohmann/json
+
+   + Conan Recipe Repository:
+     + https://github.com/vthiery/conan-jsonformoderncpp
+
+   + Conan Reference:
+     + [[https://bintray.com/vthiery/conan-packages/jsonformoderncpp%253Avthiery/3.7.0%253Astable][jsonformoderncpp/3.7.0@vthiery/stable]]
+    
+  *Example:* 
+
+   + File: CMakeLists.txt
+     + Version with Conan 
+
+#+BEGIN_SRC cmake 
+   cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+   project(cppjson)
+
+   set(CMAKE_CXX_STANDARD 17)
+   set(CMAKE_VERBOSE_MAKEFILE ON)
+
+   # ============= Conan Bootstrap =============================#
+
+   # Download automatically, you can also just copy the conan.cmake file
+   if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+      message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+      file(DOWNLOAD "https://github.com/conan-io/cmake-conan/raw/v0.13/conan.cmake"
+                    "${CMAKE_BINARY_DIR}/conan.cmake")
+   endif()
+
+   include(${CMAKE_BINARY_DIR}/conan.cmake)
+
+   conan_cmake_run(REQUIRES     
+                                jsonformoderncpp/3.7.0@vthiery/stable
+                   BASIC_SETUP
+                   BUILD missing
+                   )
+   #===== Targets ===========================#
+
+   # Conan package: jsonformoderncpp/3.7.0@vthiery/stable
+   find_package(nlohmann_json 3.2.0 REQUIRED)
+   add_executable(json-parse  json-parse.cpp)
+   target_link_libraries(json-parse nlohmann_json::nlohmann_json)
+ #+END_SRC
+
+   + File: CMakeLists.txt
+     + Version without Conan with custom macro 
+
+#+BEGIN_SRC cmake 
+   cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+   project(cmake-experiment)
+
+   set(CMAKE_CXX_STANDARD 17)
+   set(CMAKE_VERBOSE_MAKEFILE ON)
+
+   macro(Download_Single_Headerlib_dir FILE PATH URL)
+       file(DOWNLOAD ${URL} ${CMAKE_BINARY_DIR}/include/${PATH}${FILE})
+       IF(NOT Download_Single_Headerlib_flag)
+          include_directories(${CMAKE_BINARY_DIR}/include)
+          set(Download_Single_Headerlib_flag TRUE)
+       ENDIF()
+   endmacro()
+
+   # #include <nlohmann/json.hpp>
+   Download_Single_Headerlib_dir(
+        json.hpp "nlohmann/"
+       "https://github.com/nlohmann/json/raw/develop/single_include/nlohmann/json.hpp"
+   )
+
+   # --------------------------------------------#
+
+   add_executable(json-parse json-parse.cpp)
+#+END_SRC
+
+   + File: json-parse.cpp 
+
+ #+BEGIN_SRC cpp 
+   #include <iostream>
+   #include <sstream>
+
+   #include <nlohmann/json.hpp>
+
+   using json = nlohmann::json;
+
+   int main()
+   {
+       std::puts("\n====== EXPERIMETN 1 - Create JSON Object ===========================");
+
+       {
+           json top;
+           top["hero1"] = "John Von Neumman / Modern Computers";
+           top["hero2"] = "Dennis Ritchie / C Language";
+           top["points"] = 200;
+           top["list_number"]  = {1, 2, 3, 3, 4, 5, 6};
+           top["list_string"]  = {"Rice", "Coffee", "Beans", "Milk"};
+
+           top["currency_basket"] = {{"USD", 10}, {"BRL", 2000}, {"CAD", 90}, {"AUD", "N/A"}};
+
+           json cd;
+           cd["latitude"]  = -23.5505;
+           cd["longitude"] = -46.6333;
+           cd["location"]  = "São Paulo city";
+
+           top["coordiante"] = cd;
+
+           std::cout << "\n VALUE OF JSON [NOT PRETTY PRINT] = "
+                     << top << std::endl;
+
+           std::cout << "\n VALUE OF JSON [PRETTY PRINT] = "
+                     << top.dump(4) << std::endl;
+
+       }
+
+        std::puts("\n====== EXPERIMETN 2 - Deserialization from string literal ===========");
+
+        {
+            json d;
+
+            try {
+                // Parsing from string literal
+                d = R"(
+                         {
+                           "x"            : 1956.2322
+                         , "y"            : 1000
+                         , "name"        : "Dennis Ritchie"
+                         , "fruits" : [ "orange", "jabuticaba", "banana", "apple"  ]
+                         , "basket" : { "BONDS": 1235, "CDS": 200.354, "FX": 500
+                                        , "market": "Emergin Markets"}
+                        }
+                  )"_json;
+            } catch(nlohmann::detail::parse_error& ex)
+            {
+                std::cout << " [ERROR] I cannot parse it: " << ex.what() << std::endl;
+            }
+
+            std::cout << "\n VALUE OF JSON PRETTY PRINT = " << d.dump(3) << std::endl;
+
+            std::cout << " [RESULT]    x = " << static_cast<double>(d["x"]) << std::endl;
+            std::cout << " [RESULT]    x = " << d["x"].get<double>() << std::endl;
+            std::cout << " [RESULT]    y = " << d["y"].get<int>()    << std::endl;
+            std::cout << " [RESULT] name = " << d["name"].get<std::string>() << std::endl;
+
+            std::cout << " [RESULT] fruit[0] = " << d["fruits"][0] << std::endl;
+            std::cout << " [RESULT] fruit[1] = " << d["fruits"][1] << std::endl;
+            std::cout << " [RESULT] fruit[2] = " << d["fruits"][2].get<std::string>() << std::endl;
+
+            std::cout << " [RESULT]  d['basket']['BONDS'] = "
+                      << d["basket"]["BONDS"].get<int>()
+                      << std::endl;
+
+            std::cout << " [RESULT]  d['basket']['CDS'] = "
+                      << d["basket"]["CDS"].get<double>()
+                      << std::endl;
+
+            std::cout << " [RESULT]  d['basket']['market'] = "
+                      << d["basket"]["market"].get<std::string>()
+                      << std::endl;
+
+            // Attempt to generate a parser error
+            try
+            {
+                // Note: Expects failure, the exception will be thrown!
+                double value = static_cast<double>(d["name"]);
+                std::cout << " [RESULT]  2 *  x = " <<  2 * value
+                          << "\n\n";
+            } catch (nlohmann::detail::type_error& ex)
+            {
+                std::cout << " [ERROR] err = " << ex.what() << std::endl;
+            }
+
+
+        }
+
+        std::puts("\n====== EXPERIMETN 3 - Deserialization from stream ===========");
+        {
+            const char* json_text = R"(
+                         {
+                           "x"            : 1956.2322
+                         , "y"            : 1000
+                         , "flag"         : true
+                         , "name"         : "Dennis Ritchie"
+                         , "asset_basket" : { "CAD": 100, "BRL": 200, "USD": 500}
+                        }
+                  )";
+
+            json js;
+            /* Input stream could be a file:
+             ,*     auto is = std::ifstream("/tmp/file");
+             ,*------------------------------------------*/
+            auto is = std::stringstream(json_text);
+            is >> js; // Extract from memory stream
+
+            std::cout << std::boolalpha;
+            std::cout << " JSON VALUE = " << js.dump(4) << std::endl;
+
+            std::cout << " =>      is_null(x) = " << js["x"].is_null()    << std::endl;
+            std::cout << " =>   is_boolean(x) = " << js["x"].is_boolean() << std::endl;
+            std::cout << " =>    is_number(x) = " << js["x"].is_number()  << std::endl;
+            std::cout << " => is_string(name) = " << js["name"].is_string()  << std::endl;
+
+            std::cout << " =>    is_string(asset_basket) = "
+                      << js["asset_basket"].is_string() << std::endl;
+
+            std::cout << " =>    is_object(asset_basket) = "
+                      << js["asset_basket"].is_object()  << std::endl;
+
+            std::puts("\n  >>>--|>>> Iterate Over JSON AST - Abstract Syntax Tree <<<|---<<< ");
+
+            for(auto const& element: js)
+                std::cout << " => element = " << element << std::endl;
+
+        }
+   }
+ #+END_SRC
+
+ Output: 
+
+ #+BEGIN_SRC sh 
+    ====== EXPERIMETN 1 - Create JSON Object ===========================
+
+     VALUE OF JSON [NOT PRETTY PRINT] = {"coordiante":{"latitude":-23.5505,"location":"São Paulo city","longitude":-46.6333}, ....}
+
+     VALUE OF JSON [PRETTY PRINT] = {
+        "coordiante": {
+            "latitude": -23.5505,
+            "location": "São Paulo city",
+            "longitude": -46.6333
+        },
+        "currency_basket": {
+            "AUD": "N/A",
+            "BRL": 2000,
+            "CAD": 90,
+            "USD": 10
+        },
+        "hero1": "John Von Neumman / Modern Computers",
+        "hero2": "Dennis Ritchie / C Language",
+        "list_number": [
+            1,
+            2,
+            3,
+            3,
+            4,
+            5,
+            6
+        ],
+        "list_string": [
+            "Rice",
+            "Coffee",
+            "Beans",
+            "Milk"
+        ],
+        "points": 200
+    }
+
+    ====== EXPERIMETN 2 - Deserialization from string literal ===========
+
+     VALUE OF JSON PRETTY PRINT = {
+       "basket": {
+          "BONDS": 1235,
+          "CDS": 200.354,
+          "FX": 500,
+          "market": "Emergin Markets"
+       },
+       "fruits": [
+          "orange",
+          "jabuticaba",
+          "banana",
+          "apple"
+       ],
+       "name": "Dennis Ritchie",
+       "x": 1956.2322,
+       "y": 1000
+    }
+     [RESULT]    x = 1956.23
+     [RESULT]    x = 1956.23
+     [RESULT]    y = 1000
+     [RESULT] name = Dennis Ritchie
+     [RESULT] fruit[0] = "orange"
+     [RESULT] fruit[1] = "jabuticaba"
+     [RESULT] fruit[2] = banana
+     [RESULT]  d['basket']['BONDS'] = 1235
+     [RESULT]  d['basket']['CDS'] = 200.354
+     [RESULT]  d['basket']['market'] = Emergin Markets
+     [ERROR] err = [json.exception.type_error.302] type must be number, but is string
+
+    ====== EXPERIMETN 3 - Deserialization from stream ===========
+     JSON VALUE = {
+        "asset_basket": {
+            "BRL": 200,
+            "CAD": 100,
+            "USD": 500
+        },
+        "flag": true,
+        "name": "Dennis Ritchie",
+        "x": 1956.2322,
+        "y": 1000
+    }
+     =>      is_null(x) = false
+     =>   is_boolean(x) = false
+     =>    is_number(x) = true
+     => is_string(name) = true
+     =>    is_string(asset_basket) = false
+     =>    is_object(asset_basket) = true
+
+      >>>--|>>> Iterate Over JSON AST - Abstract Syntax Tree <<<|---<<< 
+     => element = {"BRL":200,"CAD":100,"USD":500}
+     => element = true
+     => element = "Dennis Ritchie"
+     => element = 1956.2322
+     => element = 1000
+
+ #+END_SRC
+
 *** cpptoml configuration parser 
 
 cpptoml is a single-file header-only library for parsing [[https://github.com/toml-lang/toml][TOML]] 
@@ -5514,206 +7601,6 @@ Parse file (std::ifstream):
    path: /tmp
 #+END_SRC
 
-*** MuParser - Math expression parser 
-
-MuParser is a simple math expression parser library without any
-dependencies.
-
-Web Site: 
- + https://beltoforion.de/article.php?a=muparser
-
-Repository: 
- + https://github.com/beltoforion/muparser/
-
-Conan Reference: 
- + [[https://bintray.com/conan-community/conan/muparser%253Aconan/2.2.6%253Astable][muparser/2.2.6@conan/stable]]
-
- *Sample Project*
-
-File: *CMakeLists.txt*
-
-#+BEGIN_SRC cmake 
-  cmake_minimum_required(VERSION 3.9)
-  project(cppexperiments)
-
-  set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_VERBOSE_MAKEFILE ON)
-
-  # ============= Conan Bootstrap =============================#
-
-  # Download automatically, you can also just copy the conan.cmake file
-  if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-     message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-     file(DOWNLOAD "https://github.com/conan-io/cmake-conan/raw/v0.13/conan.cmake"
-                   "${CMAKE_BINARY_DIR}/conan.cmake")
-  endif()
-
-  include(${CMAKE_BINARY_DIR}/conan.cmake)
-
-  # Possible values "default" and "llvm8"
-  set(CONAN_PROFILE default)
-
-  conan_cmake_run(REQUIRES
-                  muparser/2.2.6@conan/stable
-                  BASIC_SETUP
-                  BUILD missing)
-
-   #======= Targets Settings ===============+#
-
-  add_executable(muparser1_formula muparser1_formula.cpp)
-  target_link_libraries(muparser1_formula muparser)
-#+END_SRC
-
-File: *muparser1_formula.cpp*
-
-#+BEGIN_SRC cpp 
-  #include <iostream>
-  #include <string>
-  #include <cmath>
-
-  #include <muParser.h>
-
-  // Defined for UNIX-like: Linux, Mac OSX, QNX, ...
-  #if __unix__
-    #include <unistd.h>
-  #endif
-
-  bool isTTY_terminal()
-  {
-     #if __unix__
-        return ::ttyname(STDIN_FILENO) != nullptr;
-     #else
-        return false;
-     #endif
-  }
-
-  double future_value(double PV, double rate, double nper)
-  {
-      return PV * std::pow(1 + rate / 100.0, nper);
-  }
-
-  int main()
-  {
-
-      mu::Parser p1;
-
-      std::puts("\n====== EXPERIMENT 1 - Simple math expression =======");
-      p1.SetExpr("2^1 + 2^3 + 2^4");
-      std::cout << " [*] p1-A value: "
-                << p1.GetExpr() << " = " << p1.Eval() << std::endl;
-
-      p1.SetExpr("3.5 * 10 - sin(3.1415) * 2.0 + sqrt(10) / 100.0 + 2^3");
-      std::cout << " [*] p1-B value: "
-                << p1.GetExpr() << " = " << p1.Eval() << std::endl;
-
-      std::puts("\n====== EXPERIMENT 2 - Expression with variables =======");
-      p1.DefineConst("pi", 3.1415);
-      double x = 10.0, y = 4.5;
-      p1.DefineVar("x", &x);
-      p1.DefineVar("y", &y);
-      p1.SetExpr(" 3 * pi + sin(pi) + 4 * x + y - 5");
-      std::cout << " [*] p1-C value: "
-                << p1.GetExpr() << " = " << p1.Eval() << std::endl;
-
-      std::puts("\n====== EXPERIMENT 3 - Expression with custom function =======");
-
-      p1.DefineFun("fv", &future_value);
-
-      p1.DefineFun("payoff", [](double S, double K){
-          return std::max(S - K, 0.0);
-      });
-
-      p1.SetExpr("fv(100, 2, 8) + payoff(100, 90)");
-      std::cout << " [*] p1-D value: " << p1.GetExpr() << " = " << p1.Eval() << std::endl;
-
-
-      std::puts("\n====== EXPERIMENT 4 - Parser error handling =======");
-
-      // When an error happens it throws an exception: mu::ParserError
-      try{
-          p1.SetExpr("10.2 * 5.0 + a * 3");
-          double value = p1.Eval();
-          std::cout << " [*] p1-E value: " << value << std::endl;
-      } catch (mu::ParserError const& ex)
-      {
-          std::cerr << " [ERROR] p1-C Parser error: " << ex.GetMsg() << std::endl;
-      }
-
-
-      std::puts("\n====== EXPERIMENT 5 - Calutor Interactive Shell ======");
-
-      if(isTTY_terminal())
-      {
-          std::cout << " === Calculator Started OK. =====" << std::endl;
-
-          mu::Parser p2;
-          double ans = 0.0;
-          p2.DefineVar("ans", &ans);
-          std::string line;
-
-          while(std::cin.good())
-          {
-              std::cout << " EXPR => ";
-              std::getline(std::cin, line);
-
-              if(line == "")
-                  continue;
-
-              if(line == "quit")
-                  break;
-
-              p2.SetExpr(line);
-              try {
-                  ans = p2.Eval();
-                  std::cout << " => ans = " << ans << "\n\n";
-              } catch(mu::ParserError const& ex)
-              {
-                  std::cerr << " [ERROR] Parser error " << ex.GetMsg() << std::endl;
-              }
-          }
-
-      }
-
-  #if _WIN32
-      std::cout << "Enter RETURN to exit. " << std::endl;
-      std::cin.get();
-  #endif
-      return 0;
-  }
-#+END_SRC
-
- *Program output:*
-
-#+BEGIN_SRC sh 
-   $ ./muparser1_formula 
-
-   ====== EXPERIMENT 1 - Simple math expression =======
-    [*] p1-A value: 2^1 + 2^3 + 2^4  = 26
-    [*] p1-B value: 3.5 * 10 - sin(3.1415) * 2.0 + sqrt(10) / 100.0 + 2^3  = 43.0314
-
-   ====== EXPERIMENT 2 - Expression with variables =======
-    [*] p1-C value:  3 * pi + sin(pi) + 4 * x + y - 5  = 48.9246
-
-   ====== EXPERIMENT 3 - Expression with custom function =======
-    [*] p1-D value: fv(100, 2, 8) + payoff(100, 90)  = 127.166
-
-   ====== EXPERIMENT 4 - Parser error handling =======
-    [ERROR] p1-C Parser error: Unexpected token "a" found at position 13.
-
-   ====== EXPERIMENT 5 - Calutor Interactive Shell ======
-    === Calculator Started OK. =====
-    EXPR => 9.81 * sin(3.1415 / 2.0) + 100 * sqrt(285.6) + exp(3.65)
-    => ans = 1738.26
-
-    EXPR => ans / 100.0 - 80.0
-    => ans = -62.6174
-
-    EXPR => ans * ans
-    => ans = 3920.94
-
-    EXPR => 
-
-#+END_SRC
 ** Unit Testing 
 *** GTest - Unit Testing Framework
 

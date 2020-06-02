@@ -1,11 +1,415 @@
 #+INCLUDE: theme/style.org 
-#+TITLE: CPP/C++ STL Input and Output 
-#+DESCRIPTION: cpp/c++ stl standard template library algorithms and iterators
+#+TITLE: CPP/C++ Standard Library Input and Output 
+#+DESCRIPTION: cpp/c++ standard library io input output streams cout cerr files 
 #+STARTUP: content 
 
  - [[wiki:index][Index]]
 
 * C++ IO Input and Output System 
+** Process Inputs, Outputs and States 
+
+Any process may have the following inputs, outputs and states: 
+
+
+ *Some Processes States:*
+
+  + _Native executable_ used for creating the process. Every
+    process has a native executable. A python process is the Python
+    interpreter (python.exe on Windows) running python scripts. A Java
+    process is the Java virtual machine (java.exe) running java
+    *.class bytecodes or *.jar java packages.
+
+  + _CWD_ => Current Working Directory
+    + There is a single current working directory for every
+      process. On Unix, the functions [[https://pubs.opengroup.org/onlinepubs/9699919799/functions/getcwd.html][getcwd()]] and [[http://man7.org/linux/man-pages/man2/chdir.2.html][chdir()]] gets and
+      sets the current working directory.
+
+  + _IP_ => Instruction Pointer (process context) => CPU registry that
+    stores the current machine instruction to be run. 
+
+  + _SP_ => Stack Poitner (process context) => CPU registry used for
+    keeping track of the process call stack.
+
+  + Note: all thoses states can be viewed and manipulated with a
+    debugger, such as GDB, LLDB or Windows Debugger. A debugger can
+    monitor, explore and manipulate the virtual memory of any process.  
+
+ *Inputs:*
+
+  + _Stdin_ (Standard Input) => User input read from console in some
+    shell (cmd.exe on Windows) or bash, zsh on Unix-like OSes. 
+
+  + Command line argument passed to main function
+
+  + Environment variables set during the process instantiation with env
+    or export commands on Unix-like operating systems.
+
+  + Configuration files => read at a default fixed location such as
+    ~/.bashrc (bash configuration file at ~/home/user/.bashrc/~ on Linux
+    ); ~/.vimrc (vim configuration file)
+
+  + Windows Registry entry for configuration during process
+    initialization 
+
+  + Input files read after initialization.
+
+ *Outputs:*
+
+  + _Stdout_ (Standard Output) => Process output print by functions such
+    as printf; std::cout << ... visible in a terminal. (Unix heritage)
+
+  + _Stderr_ (Standard Error Ouput) => Process error or logging output
+    print by default in a terminal. stderr exists for allowing
+    separating the output (stdout) from the error or logging output (stderr).
+
+  + Statuds code => Value returned by function _int main(int argc, char** argv)_
+    + Value 0 indicates success and that the process terminated
+      successfuly.
+    + Value different than zero indicates that the process terminated
+      with errors.
+
+  + Output file(s)
+
+ *Both Input/Output:*
+
+   + Sockets
+
+   + IPC Inter Process Communication 
+
+   + GUI - Graphical User Interface
+
+
+#+BEGIN_SRC text 
+             Command line arguments            
+             int arc, char** argv (input)                  Configuration file: 
+               >>-------+                         +--<<--  Input file read at fixed location
+                         \                       /         Or Windows Registry entry 
+                          \                      |
+                          |                      |    
+                          \/                    \ /   
+                         +---------------------------------+
+                         |   Process:                      |      
+                         |                                 +--------->> Stdout (output)
+             ---------->>|     EXE = /bin/some/executable  |            
+           Stdin (input) |     PID = 9381 (Unique ID)      +--------->> Stderr (output)
+                         |     CWD = /home/user/some/data  |       
+                         |                                 |
+                         |     IP - Instruction Pointer    +--------->>> Process status code: (output)
+             ---------->>|     SP - Stack pointer          |    
+    Environment          +-----------------------+--------+    int main(int argc, char** argv)
+    Variables (input)                            |              {
+                                                 |                  .... ... ...
+    export PATH=$PATH:/opt/bin/program/bin       |                  int status_code = 0 
+    export APP_LOG_LEVEL=INFO                    |                  return status_code;
+                                                \ /              }
+                                          Output File 
+#+END_SRC
+
+ *Example: View Process Information on Linux* 
+
+All mentioned process internal states can be viewed with a debugger
+such as GDB (GNU Debugger). On Linux, they can also be accessed with
+the */proc* pseudo-file system created by the Linux kernel which exposes
+many processes informations. 
+
+Example: View information about the process which the PID is *19529* 
+
+ + Start a Kotlin REPL process and get a PID: 
+
+#+BEGIN_SRC java 
+   $ kotlinc-jvm
+   Welcome to Kotlin version 1.3.50 (JRE 1.8.0_162-b12)
+   Type :help for help, :quit for quit
+   >>> 
+   >>> java.lang.management.ManagementFactory.getRuntimeMXBean().getName()
+   res1: kotlin.String! = 23127@localhost.localdomain
+   >>> 
+#+END_SRC
+
+ + Proc-File system for PID _23127_ 
+
+#+BEGIN_SRC sh 
+  $ ls /proc/23127
+  attr/       cmdline          loginuid       personality   statm
+  fd/         comm             maps           projid_map    status
+  fdinfo/     coredump_filter  mem            root@         syscall
+  map_files/  cpuset           mountinfo      sched         timers
+  net/        cwd@             mounts         schedstat     timerslack_ns
+  ns/         environ          mountstats     sessionid     uid_map
+  task/       exe@             numa_maps      setgroups     wchan
+  autogroup   gid_map          oom_adj        smaps
+  auxv        io               oom_score      smaps_rollup
+  cgroup      latency          oom_score_adj  stack
+  clear_refs  limits           pagemap        stat
+#+END_SRC
+
+ + Get process executable: 
+   + File: _/proc/<PID>/exe_ is a symbolic link to the process' native executable. 
+
+#+BEGIN_SRC sh 
+  $ readlink /proc/23127/exe 
+  /home/archbox/opt/java/bin/java
+#+END_SRC
+
+ + Get process current directory:
+   + File: _/proc/<PID>/cwd_ is a symbolic link to process' current directory.
+
+#+BEGIN_SRC sh 
+   $ readlink /proc/23127/cwd
+   /home/archbox/projects/appdroid/build
+#+END_SRC
+
+ + Get command line arguments used to start the process.
+   + File: _/proc/<PID>/cmdline_ contains the command line arguments
+     used to start the process, passed to main(int argc, char** argv). 
+
+#+BEGIN_SRC sh 
+   $ cat /proc/23127/cmdline | strings -1
+
+   /home/archbox/opt/java/bin/java
+   -Xmx256M
+   -Xms32M
+   -noverify
+   -cp
+   /home/archbox/.sdkman/candidates/kotlin/1.3.50/lib/kotlin-preloader.jar
+   org.jetbrains.kotlin.preloading.Preloader
+   -cp
+   /home/archbox/.sdkman/candidates/kotlin/1.3.50/lib/kotlin-compiler.jar
+   org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
+#+END_SRC
+
+ + Get process environment variables.
+   + File: _/proc/<PID>/environ_ contains process' environment
+     variables. 
+
+#+BEGIN_SRC sh 
+  $ cat /proc/23127/environ | strings -1
+
+  QTINC=/usr/lib64/qt-3.3/include
+  LC_ALL=en_US.UTF-8
+  ...    ...    ...    ...    ... 
+  ...    ...    ...    ...    ... 
+  USERNAME=archbox
+  JAVA_HOME=/home/archbox/opt/java
+  KDEDIRS=/usr
+  KOTLIN_HOME=/home/archbox/.sdkman/candidates/kotlin/1.3.50
+  XDG_VTNR=2
+  SSH_AUTH_SOCK=/tmp/ssh-7z2L0gyqQeeP/agent.3961
+  ROOTSYS=/home/archbox/opt/root
+  XDG_SESSION_ID=2
+  MODULES_CMD=/usr/share/Modules/libexec/modulecmd.tcl
+  ENV=/usr/share/Modules/init/profile.sh
+  DESKTOP_SESSION=lxqt
+  IMSETTINGS_MODULE=none
+  PWD=/home/archbox/projects/appdroid/build
+#+END_SRC
+
+ + List all process' file descriptors. 
+
+#+BEGIN_SRC sh 
+   $ ls /proc/23127/fd
+   0@  10@  12@  14@  16@  18@  2@   21@  24@  28@  3@   31@  4@  6@  8@
+   1@  11@  13@  15@  17@  19@  20@  22@  27@  29@  30@  33@  5@  7@  9@
+
+   $ ls -l /proc/23127/fd
+   total 0
+   lrwx------ 1 archbox archbox 64 Nov  4 12:11 0 -> /dev/pts/4
+   lrwx------ 1 archbox archbox 64 Nov  4 12:11 1 -> /dev/pts/4
+   lr-x------ 1 archbox archbox 64 Nov  4 12:11 10 -> /home/archbox/.sdkman/candidates/kotlin/1.3.50/lib/kotlin-script-runtime.jar
+   lr-x------ 1 archbox archbox 64 Nov  4 12:11 11 -> /home/archbox/.sdkman/candidates/kotlin/1.3.50/lib/trove4j.jar
+   lr-x------ 1 archbox archbox 64 Nov  4 12:11 12 -> /home/archbox/opt/java/jre/lib/jsse.jar
+   lr-x------ 1 archbox archbox 64 Nov  4 12:11 13 -> /dev/random
+   lr-x------ 1 archbox archbox 64 Nov  4 12:11 14 -> /dev/urandom
+   ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... 
+   ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... ... 
+   lr-x------ 1 archbox archbox 64 Nov  4 12:11 8 -> /home/archbox/.sdkman/candidates/kotlin/1.3.50/lib/kotlin-stdlib.jar
+   lr-x------ 1 archbox archbox 64 Nov  4 12:11 9 -> /home/archbox/.sdkman/candidates/kotlin/1.3.50/lib/kotlin-reflect.jar
+#+END_SRC
+
+  + List shared libraries loaded by process: [[https://stackoverflow.com/questions/5103443/how-to-check-what-shared-libraries-are-loaded-at-run-time-for-a-given-process][(Reference 5103443)]]
+
+#+BEGIN_SRC sh 
+   $ cat /proc/23127/maps | awk '{print $6}' | grep '\.so' | sort | uniq
+
+   /home/archbox/opt/java/jre/lib/amd64/libjava.so
+   /home/archbox/opt/java/jre/lib/amd64/libmanagement.so
+   ...    ...    ...    ...    ...    ... 
+   ...    ...    ...    ...    ...    ... 
+   /usr/lib64/libc-2.27.so
+   /usr/lib64/libdl-2.27.so
+   /usr/lib64/libm-2.27.so
+   /usr/lib64/libnss_files-2.27.so
+   /usr/lib64/libpthread-2.27.so
+   /usr/lib64/librt-2.27.so
+   /usr/lib64/libutil-2.27.so
+#+END_SRC
+
+See also: 
+
+   + [[http://man7.org/linux/man-pages/man5/proc.5.html][proc(5) - Linux manual page]] 
+
+   + [[https://www.tecmint.com/exploring-proc-file-system-in-linux/][Exploring /proc File System in Linux]]
+
+   + [[https://www.geeksforgeeks.org/proc-file-system-linux/][proc file system in Linux - GeeksforGeeks]]
+
+   + [[https://medium.com/@holdengrissett/linux-101-how-to-hack-your-process-memory-2514a3d0778d][Linux 101: How to hack your process’ memory - Holden Grissett - Medium]]
+
+** Environment Variables for Program Configuration
+
+Environment variables are available in most operating systems such as
+Linux, MacOSx, BSD and Windows. They can be used for setting program
+configuration at initialization.
+
+See: 
+  + [[https://en.wikipedia.org/wiki/Environment_variable][Environment variable - Wikipedia]]
+  + [[https://docs.microsoft.com/en-us/windows/win32/procthread/environment-variables][Environment Variables - Windows applications | Microsoft Docs]]
+  + [[https://www.digitalocean.com/community/tutorials/how-to-read-and-set-environmental-and-shell-variables-on-a-linux-vps][How To Read and Set Environmental and Shell Variables on a Linux VPS | DigitalOcean]]
+  + [[https://opensource.com/article/19/8/what-are-environment-variables][What are environment variables in Bash? | Opensource.com]]
+  + [[https://wiki.archlinux.org/index.php/Environment_variables][Environment variables - ArchWiki]]
+
+File: envvar.cpp 
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+  #include <string>
+
+  template<typename T>
+  T
+  get_env_value(std::string const& name, T default_value);
+
+  // Template specialization for std::string
+  template<>
+  std::string
+  get_env_value(std::string const& name, std::string default_value)
+  {
+      const char* p = std::getenv(name.c_str());
+      if(p == nullptr) { return default_value; }
+      return p;
+  }
+
+  // Template specialization for size_t
+  template<>
+  size_t
+  get_env_value(std::string const& name, size_t default_value)
+  {
+      const char* p = std::getenv(name.c_str());
+      if(p == nullptr) { return default_value; }
+      return std::stoul(p);
+  }
+
+  // Template specialization for double
+  template<>
+  double
+  get_env_value(std::string const& name, double default_value)
+  {
+      const char* p = std::getenv(name.c_str());
+      if(p == nullptr) { return default_value; }
+      return std::stod(p);
+  }
+
+
+  int main(int argc, char* argv[])
+  {
+      // Check whether environment variable "PROGRAM_USER_KEY" is set
+      if(const char* env = std::getenv("PROGRAM_USER_KEY"))
+      {
+          std::cout << " [1] Environment vartiable set => PROGRAM_USER_KEY = "
+                    << env << std::endl;
+      } else {
+          std::cout <<" [1] Environment variable PROGRAM_USER_KEY not set." << std::endl;
+      }
+
+
+      auto storage_path = get_env_value<std::string>("PROGRAM_STORAGE_PATH"
+                                                     , "/home/dummy/.data");
+      auto number_of_threads = get_env_value<size_t>("PROGRAM_NTHREADS", 10);
+      auto timeout = get_env_value<double>("PROGRAM_TIMEOUT", 1.0);
+
+      std::cout << " ==== Program Runtime Configuration =======" << std::endl;
+
+      std::cout << " ENV[PROGRAM_STORAGE_PATH] = " << storage_path << std::endl;
+      std::cout << " ENV[PROGRAM_NTHREADS]     = " << number_of_threads << std::endl;
+      std::cout << " ENV[PROGRAM_TIMEOUT]      = " << timeout << std::endl;
+
+      return EXIT_SUCCESS;
+  }
+#+END_SRC
+
+Building: 
+
+#+BEGIN_SRC sh 
+  $ g++ envvar.cpp -o envvars.bin --std=c++1z -g -O0 -Wall -Wextra
+#+END_SRC
+
+Running 1: 
+
+#+BEGIN_SRC sh 
+  $ ./envvars.bin 
+   [1] Environment variable PROGRAM_USER_KEY not set.
+   ==== Program Runtime Configuration =======
+   ENV[PROGRAM_STORAGE_PATH] = /home/dummy/.data
+   ENV[PROGRAM_NTHREADS]     = 10
+   ENV[PROGRAM_TIMEOUT]      = 1
+#+END_SRC
+
+Running 2: 
+ + Set PROGRAM_USER_KEY environment variable for the current terminal
+   session. 
+
+#+BEGIN_SRC sh 
+  $ export PROGRAM_USER_KEY=87axk689fghyk
+
+  $ ./envvars.bin 
+   [1] Environment vartiable set => PROGRAM_USER_KEY = 87axk689fghyk
+   ==== Program Runtime Configuration =======
+   ENV[PROGRAM_STORAGE_PATH] = /home/dummy/.data
+   ENV[PROGRAM_NTHREADS]     = 10
+   ENV[PROGRAM_TIMEOUT]      = 1
+  
+
+  $ export PROGRAM_USER_KEY=void_password
+
+  $ ./envvars.bin 
+   [1] Environment vartiable set => PROGRAM_USER_KEY = void_password
+   ==== Program Runtime Configuration =======
+   ENV[PROGRAM_STORAGE_PATH] = /home/dummy/.data
+   ENV[PROGRAM_NTHREADS]     = 10
+   ENV[PROGRAM_TIMEOUT]      = 1
+#+END_SRC
+
+
+Running 3: 
+ + Use the env ~/usr/bin/env~ for setting program environment variable. 
+
+#+BEGIN_SRC sh 
+  $ env PROGRAM_NTHREADS=15 ./envvars.bin 
+   [1] Environment vartiable set => PROGRAM_USER_KEY = void_password
+   ==== Program Runtime Configuration =======
+   ENV[PROGRAM_STORAGE_PATH] = /home/dummy/.data
+   ENV[PROGRAM_NTHREADS]     = 15
+   ENV[PROGRAM_TIMEOUT]      = 1
+
+  $ ./envvars.bin 
+   [1] Environment vartiable set => PROGRAM_USER_KEY = void_password
+   ==== Program Runtime Configuration =======
+   ENV[PROGRAM_STORAGE_PATH] = /home/dummy/.data
+   ENV[PROGRAM_NTHREADS]     = 10
+   ENV[PROGRAM_TIMEOUT]      = 1
+
+#+END_SRC
+
+Running 4: 
+ + Set multiple environment varaibles with "env" Unix program.
+
+#+BEGIN_SRC sh 
+  $ env PROGRAM_TIMEOUT=2.551 PROGRAM_STORAGE_PATH=/var/www ./envvars.bin 
+   [1] Environment vartiable set => PROGRAM_USER_KEY = void_password
+   ==== Program Runtime Configuration =======
+   ENV[PROGRAM_STORAGE_PATH] = /var/www
+   ENV[PROGRAM_NTHREADS]     = 10
+   ENV[PROGRAM_TIMEOUT]      = 2.551
+#+END_SRC
+
 ** C-legacy IO functions - format specifiers and examples
 *** Puts 
 
@@ -110,23 +514,38 @@ Escacape sequences:
 Specifiers: 
 
 |-------------+-------------------------------------------------------------------+--------------|
-| Specifier   | Description                                                       |      Example |
+| Specifier   | Description - Format Specifier for type:                          |      Example |
 |-------------+-------------------------------------------------------------------+--------------|
 | *Misc*        |                                                                   |              |
 |-------------+-------------------------------------------------------------------+--------------|
-| %c          | Print a single character                                          |              |
-| %s          | Print a string                                                    |              |
-| %p          | Print the address stored in a pointer in hexadecimal base.        |              |
+| %c          | char - single character                                           |              |
+| %s          | char* or const char*                                              |              |
+| %p          | void* - Print address stored in a pointer in hexadecimal format.  |              |
 |             |                                                                   |              |
 | *Integers*    |                                                                   |              |
 |-------------+-------------------------------------------------------------------+--------------|
-| %u          | Print unsigned integer                                            |              |
-| %d  or %i   | Print signed integer in standard notation                         |              |
-| %o          | Print signed integer in octal base                                |              |
-| %x          | Print signed integer in hexadecimal base (lower case letters)     |              |
-| %X          | Print signed integer in hexadecimal base (upper case letters)     |              |
+| %u          | unsigned integer                                                  |              |
+| %d  or %i   | int - signed integer in decimal base                              |              |
+| %o          | int - signed integer in octal base                                |              |
+| %x          | int - signed integer in hexadecimal base (lower case)             |              |
+| %X          | int - signed integer in hexadecimal base (upper case)             |              |
 |             |                                                                   |              |
-| *Float Point* |                                                                   |              |
+|-------------+-------------------------------------------------------------------+--------------|
+| *Long Types*  |                                                                   |              |
+|-------------+-------------------------------------------------------------------+--------------|
+| %ld         | 'long' or 'long int' in decimal format                            |              |
+| %lx         | 'long' or 'long int' in hex format (lower case)                   |              |
+| %lX         | 'long' or 'long int' in hex format (upper case)                   |              |
+|             |                                                                   |              |
+| %lu         | 'unsigned long' or 'size_t' in decimal format                     |              |
+| %zx         | 'unsigned long' or 'size_t' in hex format (lower case)            |              |
+| %zX         | 'unsigned long' or 'size_t' in hex format (upper case)            |              |
+|             |                                                                   |              |
+| %lld        | 'long long' or 'long long int' in decimal format                  |              |
+| %llu        | 'unsigned long long'                                              |              |
+|             |                                                                   |              |
+|-------------+-------------------------------------------------------------------+--------------|
+| *Float Point* | For float, double, and long double                                |              |
 |-------------+-------------------------------------------------------------------+--------------|
 | %f          | Print using standard notation                                     | 12391.647808 |
 | %a          | Print using hexadecimal notation                                  |              |
@@ -141,7 +560,7 @@ Specifiers:
 | %.3f        | Print using std. notation with 3 digits precision                 |    12391.649 |
 | %.3E        | Print using scientific notation with 3 digits precision           |    1.240E+04 |
 |             |                                                                   |              |
-
+|-------------+-------------------------------------------------------------------+--------------|
 
 WARNING: Despite the simplicity, printf is not type-safe and has some
 potential vulnerabilities:
@@ -340,7 +759,7 @@ Output:
 #+END_SRC
 ** IO Class Hierarchy
 
- *C++ IO Features:*
+ *C++ Standard Library IO Features:*
 
  + Object oriented and polymorphic
  + Stateful
@@ -351,7 +770,7 @@ Output:
    + The C++ IO does not have exceptions, it indicates error through
      error flags that must be checked by the calling code.
 
- *IO Classes:*
+ *IO Standard Library IO Classes:*
 
  * ios - base class for streams
  * istream - input stream base class

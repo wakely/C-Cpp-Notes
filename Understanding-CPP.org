@@ -5,52 +5,6 @@
 
 * Understanding C++ 
 ** Features 
-*** Domains where C++ is used
-
-  *General:*
-
-  + 3D game engines and AAA (triple-A) games.
-  + System Programming - It means, operating systems, device drivers,
-    hardware interfacing, USB drivers ...
-  + Embedded Systems - DSP (Digital Signal Processors),
-    Microcontrollers, Embedded Processors and so on. 
-  + Imaging processing and artifical vision.
-  + Neural Networks
-  + High perfomance numerical simulation (Number crunching)
-  + High Performance Computing (HPC)
-  + High Perfomance reusable libraries and software components
-  + Physics
-  + High Energy Physics - See CERN
-
-  *Applicability:*
-
-  + Peformance critical code 
-  + Hard real time and soft real time systems.
-    * Hard real time: audio, signal processing, radar, some control
-      systems, UAVs - Unmanned Aerial Vehicles, Robots ... 
-    * Soft real time: Games, audio and video streaming.
-  + System Programming
-  + Resource contrained systems => Embedded Systems
-  + Any situation where low level access to operating system is
-    needed.
-  + Self-contained applications with less runtime dependency as possible:
-    - For instance, a Java application, needs the Java runtime to run,
-      a Python app needs the Python interpreter. It is a reasonable
-      requirement that an Unix-like OS login shell or an installer
-      should require no runtime dependency or interpreter to  run.
-
-  *Non applicability:*
-
- C++ may not be the best or the most productive choice for the
- following cases: 
- 
-  + Web applications where fast iteration is needed.
-  + CRUD-like (Create-Read-Update and Delete) Business applications
-    with lots of forms and database access.  
-  + Short scripts and programs where languages like Ruby or Python
-    would be better choice. 
-  + Non peformance critical code.
-
 *** C++ Benefits and Costs 
 
  Some C++ compelling features which sets it apart from most
@@ -157,200 +111,6 @@
   + Low level access to system and operating system services or API in
     a similar way to C.
 
-*** Big Picture - Technology Landscape 
-
-  *Operating System*
-
-   + *Desktop andqor Servers:*
-
-     + [[https://en.wikipedia.org/wiki/Windows_NT][Windows]] (Windows-NT family) - Most used Desktop operating
-       system for games, enterprise and specialized tools because it was
-       the first OS able to run in early IBM-PC computers that became
-       the dominant computer architechture. 
-
-
-     + [[https://en.wikipedia.org/wiki/Linux][Linux]] (Unix-like) - Most used on servers, data centers and
-       super computers. Powers the internet as most web servers are
-       Linux powered.
-
-
-     + [[https://en.wikipedia.org/wiki/Berkeley_Software_Distribution][BSD Family]] (Unix-like) - [[https://en.wikipedia.org/wiki/FreeBSD][FreeBSD]], [[https://en.wikipedia.org/wiki/OpenBSD][OpenBSD]], [[https://en.wikipedia.org/wiki/NetBSD][NetBSD]] - BSD-family
-       operating systems have been highly regarded by the quality of
-       their network TCP/IP stack and its high throughput. Due to
-       those capabilities, they have been used by ISPs Internet
-       Service Providing companies and network streaming companies
-       like Whatsapp and Netflix. Some highly regard features are:
-       permissive BSD license; good documentation and consistency;
-       high-throughput and low-latency network TCP/IP stack; firewall
-       pfSense, aka PF and ZFS file system. 
-
-     + Mac OSX (U-nix like)
-
-
-   + *Consumer Mobile Devices:*
-     + [[https://en.wikipedia.org/wiki/Android_(operating_system)][Android]] (Linux Kernel + Bionic => BSD-derived C-library
-       replacing GNU C-Library GLIBC + Dalvik virtual machine replacing
-       JVM)
-     + [[https://en.wikipedia.org/wiki/IOS][iOS]] - Apple Inc. AAPL's mobile OS (U-nix lilke)
-     + [[https://en.wikipedia.org/wiki/Symbian][Symbian]] - discontinued operating system for feature phones. ([[https://github.com/SymbianSource/oss.FCL.sf.os.kernelhwsrv][old source code]])
-
-   + *Embedded Systems' Operating Systems*
-
-     + Embedded Linux based distributions
-
-     + Embedded Linux OS for routers
-       + [[https://en.wikipedia.org/wiki/OpenWrt][OpenWrt]]
-       + [[https://en.wikipedia.org/wiki/DD-WRT][DD-WRT]] 
-
-     + Android (Linux-based) - Most used in consumer mobile devices
-       and devices touching user interface.
-
-     + [[https://simple.wikipedia.org/wiki/Windows_CE][Windows CE]] (Windows CE familiy, Not Windows-NT Kernel) -
-       Operating system developed for embedded applications that can
-       be used in automotive systems, kiosks, mobile phones, set top
-       boxes, industrial robots, industrial and medical machines and
-       so on. Supported architecture (x86m ARM, MIPs and SH4) -- [[https://blogs.msdn.microsoft.com/mikehall/2007/01/17/windows-mobile-and-windows-embedded-ce-whats-the-difference/][more]]
-
-     + [[https://en.wikipedia.org/wiki/FreeRTOS][FreeRTOS]] 
-
-   + [[https://en.wikipedia.org/wiki/Real-time_operating_system][(RTOS)]] *Real Time Operating Systems for Embedded systems*
-     + [[https://www.embedded.com/design/connectivity/4023328/Real-Time-Linux][RTLinux]]
-     + [[https://www.rtai.org/?Homepage][Linux + RTAI Extension]] 
-     + [[https://en.wikipedia.org/wiki/VxWorks][VxWorks]] 
-     + [[https://en.wikipedia.org/wiki/QNX][QNX]]
-
-
- *Hardware*
-
-   + Vanilla processors _Intel-x86_ (IA32) 32 bits or Intel (IA64) or
-     AMD _x86-x64_ 64 bits processors. 
-     + Most well-known processor architecture, used in the IBM-PC
-       computer architecture (servers, desktops and laptops) that
-       became popular due to the widespread cloning and reverse
-       engineering of the IBM-PC architecture by many manufacturers
-       and also due to the licensing of Microsft MSDOS and later
-       Windows-NT to those manufacturers.
-
-   + Embedded Processors
-     + Processors designed for embedded applications, low power or
-       battery-powered embedded systems. Most common: ARM-base
-       processors, MIPS-based processors and PowerPC.
-
-   + Microncontrollers
-     + SOC - System-on-Chip - Almost a whole-computer on a chip, a
-       micronctroller has a CPU, general purpose digital IO, ADC -
-       analog to digital converters, ROM (Read-Only Memory) EPROM and
-       limited RAM memory. MCUs are used in embedded systems and on
-       every day appliances such as keyboards, mouses, cars, toys,
-       ... Most well-known: Atmel AVR Atmega (Arduino).
-
-   + GPU - Graphical Processing Units 
-
-   + DSP => Digital Signal Processor 
-
-
- *Processor Architectures*
-
-  + Most used for personal computers (based on x86)
-    + Intel x86 or IA32 (32 bits).
-    + AMD/Intel x86-64 or IA64 (64 bits).
-
-  + Widely cores on Embedded Systems:
-
-    + [[https://en.wikipedia.org/wiki/ARM_architecture][ARM Core]] (32 bits) - Widely used in Smartphones, PDAs, Tablets,
-      Printers and so on. Note: ARM is not an specific processor, it
-      is a CPU architechture designed by the [[https://en.wikipedia.org/wiki/Arm_Holdings][Arm company]] and licensed
-      to IC (Integrated Circuit Manufacturers) which embbeds the CPU
-      in their devices. So, the ARM-based CPUs, embedded processors
-      and microncontrollers are produced by many manufacturers which
-      makes them highly available and cost effective.
-      + Some ARM-based device manufacturers: Samsung, Apple, Nvidia,
-        Qualcomm, Phillips, Atmel, Texas Instruments,
-        STMicroelectronics and many others. 
-
-    + *MIPS* (32 and 64 bits) - CPU designed by [[https://en.wikipedia.org/wiki/MIPS_Technologies][MIPS Techonologies]]  that
-      is licensed IC manufacturers in a similar manner to ARM core.
-      + Some manufacturers: Sony, Toshiba, Boradcom, NXP and Semiconductors.
-      + [[https://en.wikipedia.org/wiki/List_of_MIPS_architecture_processors][List of MIPS processors]]
-
-    + *Power PC* (Former Motorola)
-
- *Computer Architectures*
-
-   + IBM-PC Architecture
-
-   + Mainframes 
-
-   + Game Consoles (Proprietary computer architectures)
-
-   + PLC (Programmable Logic Controllers) - Proprietary Computer
-     Architecture with a human-friendly interface used for industrial
-     automation.
-
-
-  *Graphical Stack* - Outline of the most common graphical interface systems.
-
-  + X Windows System - X11 - XServer/Xlib Unix (Linux, BSD, FreeBSD)
-  + Windows API / Microsoft Windows OS
-  + MacOSX  - Cocoa 
-
-  *Main C/C++ GUI - Graphical User Interfaces Libraries and APIs*
-
-   + *QT toolkit* / C++ - Cross Platform. QT is the most supported cross
-     platform toolkit, but it is hard to be called from languages
-     other than C++ as it is written in C++ and this language doesn't
-     have a standard ABI (Application Binary Interface).
-   + *GTK* / C with C++ inteface - Cross platform, most common in Linux OS.
-   + *Windows API*. / Only available on Windows.
-   + *Cocoa* / MacOSX - Not cross platform. It is only available on MacOSX.
-   + [[https://en.wikipedia.org/wiki/X_Window_System][X-Windows Systems]] (XServer/X11 + XLib) - Most low level graphical user
-     interface library on Linux, BSD and others. Note: In Linux and
-     BSD, the graphical user interface is not part of the Kernel.
-
-  *Native Executable Binary Formats*
-
-  + Windows / .exe, *.dll files         ([[https://en.wikipedia.org/wiki/Portable_Executable][PE]] - Portable Executable)
-  + Linux   / No extension, *.so files  ([[https://en.wikipedia.org/wiki/Executable_and_Linkable_Format][ELF]] - Executable and Linkable Format)
-  + MacOSX  / *.dylib                   ([[https://en.wikipedia.org/wiki/Mach-O][Mach-O]] - Match Object )
-
-  *Some Firmwares (EEPROMs, Microcontrollers) Binary Formats*
-
-  + [[https://en.wikipedia.org/wiki/SREC_(file_format)][SREC]] 
-  + [[https://en.wikipedia.org/wiki/Intel_HEX][Intel HEX]]
-  + SquashFS 
-
-  *Tooling*
-
-  + _Compilers_
-
-    + [[https://en.wikipedia.org/wiki/GNU_Compiler_Collection][GCC]] - Gnu C/C++ Compiler (g++) (Stard Compiler of many Linux distributions)
-
-    + [[https://en.wikipedia.org/wiki/MinGW][Mingw]] - GCC compiler (g++) ported to Windows operating system.
-
-    + [[https://en.wikipedia.org/wiki/Microsoft_Visual_C++][Microsoft Visual C++]] - C/C++ compiler - MSVC, aka VC++ (cl.exe)
-
-    + [[https://en.wikipedia.org/wiki/Clang][LLVM/Clang]] (Clang++)
-
-    + [[https://en.wikipedia.org/wiki/Intel_C++_Compiler][Intel C++ Compiler]]
-
-    + PGI Compiler (Portland Group)
-
-    + Proprietary compilers for embedded Devices:
-      + Many embedded devices such as microcontrollers, embedded
-        processors and DSPs have proprietary compilers provided by
-        device manufactures. Example: [[https://en.wikipedia.org/wiki/MPLAB][MPLAB]]
-
-      + *IAR Embedded Workbench* (Compilers + IDE) (IAR Systems) =>
-        Targets: ARM Cortex, 8051 MCU, Texas Instruments MSP430
-
-  + Building Tools
-    + Cmake
-    + MSBuild
-    + Ninja
-    + Make 
-      + NMake => Windows implementation
-      + GNU Make (GMake) => GNU/Linux implementation of Make
-      + BSD Make => BSD Implementation of Make
 *** C++ New Features and Standards
 
   + *C++98* - *ISO/IEC 14882:1998*
@@ -1211,8 +971,6 @@ Examples:
 #+END_SRC
 
 
-
-
 ** Control Structures
 *** ternary operator - question mark (?)
 
@@ -1381,6 +1139,109 @@ zero is true.
    => False
 #+END_SRC
 
+**** If-else statement with assignment 
+
+ *IF-else statement with assignment* 
+
+This type of assignment within the if predicate is still widely used
+in C.
+
+#+BEGIN_SRC cpp 
+  // Note: nullptr should not be used instead of NULL.
+  FILE* fp = NULL; 
+
+  if( (fp  = fopen("/tmp/file2.dat", "w")) != NULL ) {
+      fprintf(fp, "File content 2");
+      fclose(fp);
+  }
+#+END_SRC
+
+The previous code is equivalent to: 
+
+#+BEGIN_SRC cpp 
+  FILE* fp = fopen("/tmp/file1.dat", "w");
+
+  if(fp != NULL) {
+      fprintf(fp, "File content 1");
+      fclose(fp);
+  }
+#+END_SRC
+
+See also: 
+
+ + [[https://stackoverflow.com/questions/47823882/auto-assignment-in-if-clause][c++ - auto assignment in if clause - Stack Overflow]]
+
+ + [[https://stackoverflow.com/questions/17681535/variable-assignment-in-if-condition][c++ - Variable assignment in "if" condition - Stack Overflow]]
+
+**** IF-else statement with initializers (C++17)
+
+C++17 Allows defining variables in  IF-else statements which is useful
+for writing more concise code.
+
+Example 1: 
+
+#+BEGIN_SRC cpp 
+  if(FILE* fp = fopen("/tmp/file4.dat", "w"); fp != nullptr) {
+      fprintf(fp, "File content 2");
+      fclose(fp);
+   }
+#+END_SRC
+
+Example 2: 
+
+#+BEGIN_SRC cpp 
+  if(auto fp = fopen("/tmp/file4.dat", "w"); fp != nullptr) {
+      fprintf(fp, "File content 2");
+      fclose(fp);
+  }
+
+   // Could alos be written as 
+  if(auto fp = fopen("/tmp/file4.dat", "w")
+      ; fp != nullptr) 
+   {
+      fprintf(fp, "File content 2");
+      fclose(fp);
+   }
+#+END_SRC
+
+Example 3:
+
+#+BEGIN_SRC cpp 
+  std::vector<int> xs {1, 20, 50, 77, 100,  25};
+
+  if(auto it = std::find_if( xs.begin(), xs.end(), [](int x){ return x % 11 == 0; })
+          ; it != xs.end() )
+  {   // This branch is executed if the expression "it != xs.end()" evaluates to true. 
+      std::cout << " Found element it = " << *it << std::endl;
+  }
+
+  /* Output: 
+     Found element it = 77
+     [INFO] Finished OK.
+  */
+#+END_SRC
+
+Example 4:
+
+#+BEGIN_SRC cpp    
+  if( std::vector<int> xs {1, 20, 50, 77, 100,  25}
+     ; auto it = std::find_if( xs.begin(), xs.end(), [](int x){ return x % 11 == 0; })
+     ; it != xs.end() )
+  {
+      std::cout << " Found element it = " << *it << std::endl;
+  }
+
+  /* Output: 
+     Found element it = 77
+     [INFO] Finished OK.
+  */
+#+END_SRC
+
+See: 
+
+ + [[https://en.cppreference.com/w/cpp/language/if][if statement - cppreference.com]] 
+
+ + [[http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0305r0.html][If statement with initializer]] - C++ Standard Proposal 
 **** Returning value from if-else statements (C++11)
 
 The C++ if-else statement cannot return a value or be evaluated to a
@@ -5051,7 +4912,7 @@ Complete program output of [[file:src/cpp-functor.cpp][file:src/cpp-functor.cpp]
        5.000    19.000    69.000   148.413    15.000
 #+END_SRC
 
-** Lambda Functions
+** Lambda Expressions 
    :PROPERTIES:
    :ID:       02be1a97-c100-44ce-ad76-63835818d406
    :END:
@@ -5434,7 +5295,6 @@ Complete program output ([[file:src/lambdaFun.cpp][file:src/lambdaFun.cpp]]) :
 
  - *Creating Recursive Lambdas ... and returning them too!* -
    <http://cpptruths.blogspot.com.br/2013/10/creating-recursive-lambdas-and.html> 
-
 *** Lambdas in Deep 
 
 Define two test functions: 
@@ -5541,7 +5401,7 @@ The lambda object _add_10_ is equivalent to:
   class _anonymous_lambda_class1
   {
   public:
-       int operator()(int n){ return n + 10; }
+       int operator()(int n) const { return n + 10; }
   };
 
   _anonymous_lambda_class1 add_10; 
@@ -5553,7 +5413,7 @@ The lambda object _mul_3_ is equivalent to:
   class _anonymous_lambda_class2
   {
   public:
-       int operator()(int n){ return n * 3; }
+       int operator()(int n) const { return n * 3; }
   };
 
   _anonymous_lambda_class2 mul_3; 
@@ -5585,7 +5445,7 @@ The following capturing lambda is equivalent to:
     { 
     }   
 
-    void operator()(int n, const char* word)
+    void operator()(int n, const char* word) const 
     {
        printf(" n = %d ; word = %s, x = %f ; name = %s", n, word, x, name.c_str());
     }
@@ -5700,6 +5560,141 @@ As a result:
 
  * std::function<int (int)> is not the type of any of those lambda
    functions.
+*** Stateful lambdas 
+
+The function-call operator member function operator()(args) of a
+lambda object is annotated with _const_, therefore it cannot modify
+captured parameters by value. 
+
+#+BEGIN_SRC cpp 
+  // Compile-time error!! 
+  auto incrementer = [n = 1]() { return ++n; };
+#+END_SRC
+
+The previous line is equivalent to: 
+
+#+BEGIN_SRC cpp 
+  // The previous line is the same as: 
+  class __Anonymous_lambda_classA {
+      int n = 1;
+  public: 
+      __Anonymous_lambda_class() = default;
+ 
+      // Function-call operator annotated as const 
+      int operator()() const 
+      {  
+         // Value n cannot be modified!! 
+         // Compiel-time error!!
+         return ++n; 
+      }
+  };
+
+  __Anonymous_lambda_classA incrementer;
+#+END_SRC
+
+The _mutable_ keyword allows variables captured by value to be modified
+in the lambda expression.
+
+#+BEGIN_SRC cpp 
+  // Now it works
+  auto incrementer = [n = 1]() mutable { return ++n; };
+
+  // Could also be written as: 
+  auto incrementer = [n = 1]() mutable -> int 
+                    {  
+                       return ++n; 
+                    };
+
+  // Could also be written as: 
+  auto incrementer = [n = 1](void) mutable -> int 
+                     { 
+                       return ++n; 
+                     };
+#+END_SRC
+
+The previous lambda expression 'incrementer' is equivalent to: 
+
+#+BEGIN_SRC cpp 
+  // The previous line is the same as: 
+  class __Anonymous_lambda_classB {
+      int n = 1;
+  public: 
+      __Anonymous_lambda_class() = default;
+ 
+      // Function-call operator non cost 
+      int operator()()  
+      {  
+         return ++n; 
+      }
+  };
+
+  __Anonymous_lambda_classB incrementer;
+#+END_SRC
+
+Test in Cling REPL: 
+
+#+BEGIN_SRC cpp 
+   $ ~/opt/cling_2018-09-16_fedora27/bin/cling -std=c++1z
+   // Now it works
+   auto incrementer = [n = 1]() mutable { return ++n; };
+   auto incrementerB = incrementer;
+
+   [cling]$ incrementer()
+   (int) 2
+   [cling]$ incrementer()
+   (int) 3
+   [cling]$ incrementer()
+   (int) 4
+   [cling]$ incrementer()
+   (int) 5
+
+   [cling]$ incrementerB()
+   (int) 2
+   [cling]$ incrementerB()
+   (int) 3
+   [cling]$ incrementerB()
+   (int) 4
+
+   [cling]$ inc()
+   (int) 6
+   [cling]$ inc()
+   (int) 7
+   [cling]$ inc()
+   (int) 8
+   [cling]$ incrementer()
+   (int) 6
+   [cling]$ 
+#+END_SRC
+
+ *Example: stateful lambda X captured variable* 
+
+Sample code: main-stateful-lambda.cpp 
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+
+  int main()
+  {
+      int n = 10;
+      auto func = [n]() mutable { n = n + 1; return n; };
+
+      std::cout << " func() = " << func() << std::endl;
+      std::cout << " func() = " << func() << std::endl;
+      std::cout << " func() = " << func() << std::endl;
+      std::cout << " n = " << n << std::endl;
+      return 0;
+  }
+#+END_SRC
+
+Output: 
+
+#+BEGIN_SRC sh 
+ func() = 11
+ func() = 12
+ func() = 13
+ n = 10
+#+END_SRC
+
 *** Self-executable lambda for complex initialization 
 
 Self-executable lambdas functions can also be used for performing
@@ -7820,6 +7815,862 @@ File: [[file:src/stack-allocation-test.cpp][file:src/stack-allocation-test.cpp]]
     what():  std::bad_alloc
   Aborted (core dumped)
 #+END_SRC
+*** New and delete overloading functions 
+**** Overloadings for new and delete operators  
+
+ *Global new and delete operators free functions* 
+
+  + size_t => Size of object being allocated in bytes. This parameter
+    is implicitly passed by the compiler. 
+
+  + Returns => A void* pointer to the beginning of the allocated
+    memory block.
+
+  + Note: The operator 'new' allocates objects in the heap memory
+    segment.
+
+ *Overloading for _new_ operator*
+
+  + Operator new for single object (throws std::bad_alloc on failure)
+
+  + For all overloadings se:
+    + https://en.cppreference.com/w/cpp/memory/new/operator_new
+
+#+BEGIN_SRC cpp 
+   // Signature 
+   void* operator new (std::size_t size);
+
+   // Example: allocate single object
+   //--------------------------------------------------//
+   BaseClass* ptr = nullptr;
+   try {
+       ptr = new DerivedClassA(param0, param1, param2, ...);
+       ptr->CallVirtualMethod1(); 
+       delete ptr;    // Always delete when the object is no longer needed 
+       ptr = nullptr; // Always set to nullptr 
+   catch(std::bad_alloc const& ex) {
+       printf(" [INFO] Allocation failed.")
+   }
+#+END_SRC
+
+  + Operator new for single object, without exception
+    + => Returns null pointer nullptr on failure. The second parameter
+      is type tag, used only for making the type signature different.
+
+#+BEGIN_SRC cpp 
+    // Signature 
+   void* operator new (std::size_t size, const std::nothrow_t& tag);
+
+   // Example: allocate single object
+   //--------------------------------------------------//
+   BaseClass* ptr = new (std::nowthrow) DerivedClassA(param0, param1, param2, ...);
+   ptr->CallVirtualMethod1(); 
+   if(!ptr){ 
+       std::printf(" [FAILURE] Abort operation. \n");
+       return;
+   }
+   delete ptr;    
+#+END_SRC
+
+ + Operator new for array allocation, throws _std::bad_alloc_ exception. 
+
+#+BEGIN_SRC cpp 
+    // Signature 
+    void* operator new[] (std::size_t size);
+
+    // Example: => Allocates 10 integers 
+    //----------------------------------------------------
+    int* pArray = nullptr;
+    try{ 
+      pArray = new int[10]
+    } catch (std::bad_alloc const& ex) {
+      // Abort operation 
+      return; 
+    }
+    pArray[0] = 100; pArray[2] = 25; 
+    delete [] pArray; // Always call delete 
+    pArray = nullptr; // Always set the pointer to nullptr after calling delete
+#+END_SRC
+
+**** Example: Raw memory allocation with new operator 
+
+The 'new' operator can be used for raw memory allocation without
+calling constructor, in the same way as the C-function malloc. 
+
+ *Experiment 1*
+
+Allocating an array in heap for 4 integers. (CERN's Root REPL)
+
+#+BEGIN_SRC cpp 
+   >> void* pi = ::operator new (4 * sizeof(int))
+   (void *) 0x3184af0
+
+   >> assert(pi != nullptr);
+
+   >> int* pint = static_cast<int*>(pi)
+   (int *) 0x3184af0
+
+   >> pint[0] = 20, pint[1] = 100, pint[2] = 3, pint[3] = 25;
+
+   >> pint[0]
+   (int) 20
+
+   >> pint[1]
+   (int) 100
+
+   >> pint[2]
+   (int) 3
+
+   >> pint[3]
+   (int) 25
+   >> 
+
+   >> std::for_each(pint, pint + 4, [](int x){ std::printf(" x = %d \n", x); });
+    x = 20 
+    x = 100 
+    x = 3 
+    x = 25 
+
+   // Call operator delete 
+   >> delete pint
+
+   // Set to null when no longer used. 
+   >> pi = nullptr; 
+   >> pint = nullptr;
+#+END_SRC
+
+ *Experiment 2* 
+
+Allocating raw memory for an instance of a class with new operator: 
+
+#+BEGIN_SRC cpp 
+  struct Circle{
+     int x; 
+     int y;  
+     int radius;
+
+     Circle(): x(10), y(20), radius(2) 
+     { 
+        std::printf(" [INFO] Cirlce constructed OK.\n");
+     }
+
+     ~Circle()
+     { 
+        std::printf(" [INFO] Cirlce destroyed OK.\n");
+     }
+
+     void set_radius(int r) 
+     {
+        radius = r;
+     }
+
+     void plot() const 
+     { 
+        std::printf(" [INFO] Draw circle at Point(%d, %d) with radius = %d\n"
+           , this->x, this->y, this->radius);
+     }
+  };
+#+END_SRC
+
+REPL Session part 1:
+ + The following call to operator 'new' only allocates memory for the
+   object without calling its constructor. 
+
+#+BEGIN_SRC cpp 
+   // Constructor is not called!!! 
+   // =>> Throws std::bad_alloc on failure. 
+   >> void* p = ::operator new(sizeof(Circle))
+   (void *) 0x1f30150
+
+   assert(p != nullptr); 
+
+   // Constructor is not called!!!
+   >> Circle* cp1 = (Circle*) p
+   (Circle *) 0x1f30150
+
+   // =========>>> Manually Initialize Object <<=============//
+   //--------------------------------------------------------- 
+
+
+   // Solution: Initialize object manually. 
+   >> cp1->x = 10;
+   >> cp1->y = 20;
+   >> cp1->radius = 25;
+
+   >> cp1->plot()
+    [INFO] Draw circle at Point(10, 20) with radius = 25
+   >> 
+
+   // =========>>> Destroy object and release memory <<=============//
+   //----------------------------------------------------------------- 
+
+   // Call destructor when the object is no longer needed
+   >> delete cp1
+    [INFO] Cirlce destroyed OK.
+
+   // Set pointer to null 
+   >> cp1 = nullptr
+#+END_SRC
+
+REPL Session Part 2:
+ + The constructor could be called if the placement-new operator was
+   used. 
+
+#+BEGIN_SRC cpp 
+  >> void* pp = ::operator new(sizeof(Circle))
+  (void *) 0x32acf00
+
+  // Abort computation if pp is null. 
+  assert( pp != nullptr ); 
+
+  // Now constructor is called. 
+
+  >> Circle* cpp = new (pp) Circle
+   [INFO] Cirlce constructed OK.
+  (Circle *) 0x32acf00
+
+  >> cpp->x
+  (int) 10
+
+  >> cpp->y
+  (int) 20
+
+  >> cpp->plot()
+   [INFO] Draw circle at Point(10, 20) with radius = 2
+
+  >> delete cpp
+   [INFO] Cirlce destroyed OK.
+#+END_SRC
+**** Example: User-defined new and delete operators 
+ 
+It is possible to override the global _new_ and _delete_ operators free
+functions. 
+
+  + Note: replacing the default _new_ and _delete_ operators is not recommended.
+
+  + Instead of replacing the default _new_ and _delete_ operators, a
+    better alternative is defining class-specific operators as static
+    member functions. 
+
+ *File: new-delete-experiment1.cpp*
+
+ + File: [[file:src/new-delete-experiment1.cpp][file:src/new-delete-experiment1.cpp]]
+
+Class _SomeClass_: 
+
+#+BEGIN_SRC cpp 
+  class SomeClass{
+  public:
+      int x;
+      int y;
+      char buffer[200];
+
+      SomeClass(): x(125), y(2561), buffer("Hello world")
+      {
+          std::puts(" [TRACE] SomeClass object created OK");
+      }
+
+      void show() const
+      {
+          std::printf(" =>> SomeClass { x = %d, y = %d, buffer = %s } \n", x, y, buffer);
+      }
+
+      ~SomeClass()
+      {
+          std::puts(" [TRACE] SomeClass object destroyed OK");
+      }
+  };
+#+END_SRC
+
+Class _SomeClassB_:
+
+#+BEGIN_SRC cpp 
+  class SomeClassB{
+      char m_name[200] = "Unnamed";
+      int  m_id = -1;
+
+      SomeClassB()
+      {
+          std::printf(" [TRACE] <CTOR1> Object of SomeClassB created => addr = %p "
+                      " id = %d - name = '%s'"
+                      , static_cast<void*>(this), m_id, m_name);
+      }
+
+      ~SomeClassB()
+      {
+          std::printf(" [TRACE] <DTOR> Object of SomeClassC deleted => addr = %p \n"
+                      , static_cast<void*>(this));
+      }
+
+  };
+#+END_SRC
+
+Class _SomeClassC_:
+
+  + This class has class-specific _new_ and _delete_ operators defined as
+    static member functions. In this case, The keyword _static_ case can
+    be omitted, but it was used for making the code more explicit.
+
+#+BEGIN_SRC cpp 
+  class SomeClassC {
+  public:
+      char m_name[200] = "Unnamed";
+      int  m_id = -1;
+
+      SomeClassC()
+      {
+          std::printf(" [TRACE] <CTOR1> Object of SomeClassC created => addr = %p "
+                      " id = %d - name = '%s'"
+                      , static_cast<void*>(this), m_id, m_name);
+      }
+
+      SomeClassC(const char* name, int id)
+      {
+          std::strcpy(m_name, name);
+          m_id = id;
+          std::printf(" [TRACE] <CTOR2> Object of SomeClassC created => addr = %p "
+                      " id = %d - name = '%s' \n"
+                      , static_cast<void*>(this), m_id, m_name);
+      }
+
+      ~SomeClassC()
+      {
+          std::printf(" [TRACE] <DTOR> Object of SomeClassC deleted => addr = %p \n"
+                      , static_cast<void*>(this));
+      }
+
+      // Member fuction overloading of new operator
+      // -------------------------------------------------------
+      // Note: the keyword static is redundant, this operator is a static member function
+      // even without the keyword 'static'. It was added to make the declaration more explicit.
+      static void* operator new(size_t sz)
+      {
+          void* ptr = std::malloc(sz);
+          if(!ptr) std::puts(" [ERROR] Not enough memory");
+          std::printf(" [TRACE] SomeClassB => Custom new operator called. Allocated %lu Bytes => "
+                      " ptr = %p \n"
+                      , sz, ptr);
+          return ptr;
+      }
+
+      // Member fuction overloading of delete operator
+      // Static keyword redundant
+      static void operator delete(void* addr)
+      {
+          std::printf(" [TRACE] Custom delete operator called for SomeClassB => p = %p \n"
+                      , addr);
+          free(addr);
+      }
+  };
+#+END_SRC
+
+Global operator _new_ free-function:
+
+  + Note: This overloading throws exceptin std::bad_alloc when there
+    is no enough memory. 
+
+#+BEGIN_SRC cpp 
+  // Global free-function overloading of new operator Note: Cannot be
+  // declared inside a namespace Note: DO NOT DO IT!
+  void* operator new(size_t size)
+  {
+      std::printf(" [TRACE] NEW - Called operator new, Allocated %lu Bytes\n", size);
+      void* ptr = std::malloc(size);
+      if(!ptr) {
+          std::puts(" [ERROR] Not enough memory");
+          throw std::bad_alloc();
+      }
+      return ptr;
+  }
+#+END_SRC
+
+Global operator _new_ free-function (std::nothrow):
+
+ + Note: This overloading does not throw exception. It just returns a
+   null pointer when there is no enough memory.
+
+#+BEGIN_SRC cpp 
+  // Global free-function overloading of new operator (std::notrhow)
+  // Note: Cannot be declared inside a namespace
+  // Note: Does not throw exception, just returns a null pointer when there is no
+  //       memory available
+  void* operator new(size_t size, std::nothrow_t const& tag)
+  {
+      std::printf(" [TRACE] NEW (std::nothrow) - Called operator new, Allocated %lu Bytes\n", size);
+      void* ptr = std::malloc(size);
+      if(!ptr) {
+          std::puts(" [ERROR] Not enough memory");
+          return nullptr;
+      }
+      return ptr;
+  }
+#+END_SRC
+
+Global operator _delete_ free function: 
+
+#+BEGIN_SRC cpp 
+  // Global free-function overloading of delete operator
+  // Note: Cannot be delcared inside a namespace
+  void operator delete(void* ptr) noexcept
+  {
+      std::puts(" [TRACE] DELETE - Called operator delete");
+      free(ptr);
+  }
+#+END_SRC
+
+ *Main Function / Experiment 1*
+
+  + Allocate primitive type with custom _new_ operator. 
+
+#+BEGIN_SRC cpp 
+  std::puts("\n ==>> Experiment 1 == Global overloading -test with primitive type \n");
+  {
+      int* ptr = new int(25);
+      ,*ptr = 10 + *ptr;
+      std::printf(" Value of ptr[%p] = %d \n", static_cast<void*>(ptr), *ptr);
+      delete  ptr;
+  }
+#+END_SRC
+
+Output: 
+
+#+BEGIN_SRC sh 
+   ==>> Experiment 1 == Global overloading -test with primitive type 
+
+   [TRACE] NEW - Called operator new, Allocated 4 Bytes
+   Value of ptr[0x2478e80] = 35 
+   [TRACE] DELETE - Called operator delete
+#+END_SRC
+
+ *Main Function / Experiment 2* 
+
+  + Allocate and instantiate an object of class SomeClass in the
+    process heap using the user-defined global _new_ (std::bad_alloc)
+    operator. Note: The default constructor is called. 
+
+#+BEGIN_SRC cpp 
+  std::puts("\n ==>> Experiment 2 == Global Overloading - test with class ====\n");
+  {
+      SomeClass* pcls = new SomeClass;
+      pcls->x = 25;
+      pcls->y = 1005;
+      pcls->show();
+      delete pcls;
+  }
+#+END_SRC
+
+Output: 
+
+#+BEGIN_SRC sh 
+  ==>> Experiment 2 == Global Overloading - test with class ====
+
+  [TRACE] NEW - Called operator new, Allocated 208 Bytes
+  [TRACE] SomeClass object created OK
+  =>> SomeClass { x = 25, y = 1005, buffer = Hello world } 
+  [TRACE] SomeClass object destroyed OK
+  [TRACE] DELETE - Called operator delete
+#+END_SRC
+
+
+ *Main Function / Experiment 3*
+
+  + Allocate and instantiate an object of class SomeClass in the
+    process heap using the user-defined global _new_ (std::nothrow)
+    operator. Note: The default constructor is called. 
+
+#+BEGIN_SRC cpp 
+  std::puts("\n ==>> Experiment 3 == (std::notrhow) Global Overloading - test with class ====\n");
+  {
+      SomeClass* pcls = new (std::nothrow) SomeClass;
+      pcls->x = 25;
+      pcls->y = 1005;
+      pcls->show();
+      delete pcls;
+  }
+#+END_SRC
+
+Output: 
+
+#+BEGIN_SRC sh 
+  ==>> Experiment 3 == (std::notrhow) Global Overloading - test with class ====
+
+   [TRACE] NEW (std::nothrow) - Called operator new, Allocated 208 Bytes
+   [TRACE] SomeClass object created OK
+   =>> SomeClass { x = 25, y = 1005, buffer = Hello world } 
+   [TRACE] SomeClass object destroyed OK
+   [TRACE] DELETE - Called operator delete
+#+END_SRC
+
+ *Main Function / Experiment 4*
+
+  + The global operator _new_ is used only for raw allocation, in the
+    same way as _malloc_. The object is not instantiated and no
+    constructor is called.
+
+#+BEGIN_SRC cpp 
+  std::puts("\n ==>> Experiment 4 - Explicit raw allocation  == Global Overloading - test with class ====\n");
+  {
+      // Raw memory allocation => Without calling the constructor
+      void* raw_pcls = ::operator new(sizeof(SomeClass));
+      // Note: The constructor is not called
+      SomeClass* pcls = static_cast<SomeClass*>(raw_pcls);
+      pcls->x = 251;
+      pcls->y = -1005;
+      std::strcpy(pcls->buffer, "raw-memory-allocated");
+      pcls->show();
+      delete pcls;
+  }
+#+END_SRC
+
+Output: 
+
+#+BEGIN_SRC sh 
+   ==>> Experiment 4 - Explicit raw allocation  == Global Overloading - test with class ====
+
+   [TRACE] NEW - Called operator new, Allocated 208 Bytes
+   =>> SomeClass { x = 251, y = -1005, buffer = raw-memory-allocated } 
+   [TRACE] SomeClass object destroyed OK
+   [TRACE] DELETE - Called operator delete
+#+END_SRC
+
+ *Main Function / Experiment 5*
+
+  + Calls new and delete operators specific for SomeClassC defined as
+    static meber functions. 
+
+#+BEGIN_SRC cpp 
+  std::puts("\n ==>> Experiment 5 === Member Function Overloading ==========\n");
+  {
+      SomeClassC* pclassB = new SomeClassC("Hello", 2005);
+      std::printf(" =>>  Print object => pclassB->m_name = %s; pclassB->m_id = %d \n"
+                  , pclassB->m_name, pclassB->m_id);
+
+      delete pclassB;
+  }
+#+END_SRC
+
+Output: 
+
+#+BEGIN_SRC sh 
+   ==>> Experiment 5 === Member Function Overloading ==========
+
+   [TRACE] SomeClassB => Custom new operator called. Allocated 204 Bytes =>  ptr = 0x2478ea0 
+   [TRACE] <CTOR2> Object of SomeClassC created => addr = 0x2478ea0  id = 2005 - name = 'Hello' 
+   =>>  Print object => pclassB->m_name = Hello; pclassB->m_id = 2005 
+   [TRACE] <DTOR> Object of SomeClassC deleted => addr = 0x2478ea0 
+   [TRACE] Custom delete operator called for SomeClassB => p = 0x2478ea0 
+#+END_SRC
+
+*** Placement new and delete operators 
+**** Overview 
+
+The _placement new_ operator has an additional parameter void* which
+allows instantiating a type or class in a specific memory
+location. 
+
+Notes: 
+
+  + This operator does not allocate any storage. It instantiantes
+    object at a pre-allocated storage or at specific memory
+    address.
+
+  + The global new and delete placement operators cannot be replaced
+    by user-defined ones.
+
+Some *use-cases* for this operator are: 
+
+  + Instantiate object in shared memory between two processes. 
+
+  + Instantiate object in memory mapped file. 
+
+  + Instantiate object in some pre-allocated buffer, it allows
+    instantiating polymorphic objects at runtime in a 
+    static-allocated buffer (global variable) or in a stack-allocated
+    buffer. This technique is useful in *embedded systems* for enabling
+    polymorphism without heap allocation.
+    + Note: A buffer in this cases is a byte array: _char buffer [BUFFER_SIZE]_
+
+  + Instantiate object in some specific hardware address - Memory
+    Mapped IO, MMIO (*embedded systems*)
+
+  + Custom allocators 
+
+ *Placemente new and delete operators for single object* 
+
+  + The parameter _size_ is the size of the data type to be
+    allocated. 
+
+  + The pointer _place_ holds the address where the object will be
+    instantiated.
+
+  + The return value is the pointer to the allocated object.
+
+  + Note: This gloabl new placement operator cannot be replaced by
+    an user-defined one. However, it is possible to define
+    class-specific one as static member function.
+
+#+BEGIN_SRC cpp 
+  // Placement new operator:
+  void* operator new(std::size_t size, void* location); 
+
+  // Placement delete operator: 
+  void delete(void* p_object, void* location);
+#+END_SRC
+
+Usage example: 
+
+#+BEGIN_SRC cpp 
+  // Allocate object in pre-allocated buffer 
+  constexpr size_t BUFFER_SIZE = 2048; // 2048 bytes or 2kb
+  char buffer[BUFFER_SIZE];
+
+  // Construct object at buffer 
+  BaseClass* obj = new (buffer) DerivedClass(arg0, arg1, arg2, ... argN-1)
+
+  obj->callVirtualMethod(); 
+  
+  // Invoke destructor when object is no longer needed
+  obj->~BaseClass();  
+
+  // Call placement delete operator 
+  ::operator delete(obj, buffer);
+#+END_SRC
+
+ *Placemente new and delete operators for arrays* 
+
+#+BEGIN_SRC cpp 
+  // Placement new operator for arrays
+  void* operator new[](std::size_t size, void* location); 
+
+  // Placement new operator for arrays 
+  void* operator delete[](void* p_object, void* location); 
+#+END_SRC
+
+**** Example - placement-new experiment in REPL
+
+Note: This example was run in the CERN's Root REPL.
+
+Class Dummmy: 
+
+#+BEGIN_SRC cpp 
+  class Dummy{   
+  public:
+      int x = 200;
+      int y = 25;
+      char name[200] = "Unnamed";
+   
+      Dummy()
+      {
+          std::printf(" [INFO] Default ctor called. => this = %p \n"
+                    , static_cast<void*>(this));
+      }
+
+      Dummy(int x, int y, const char* name)
+      {
+          std::strcpy(this->name, name);
+          this->x = x;
+          this->y = y;
+      }
+
+      ~Dummy()
+      {
+          std::printf(" [INFO] Dtor called. => this = %p \n"
+                      , static_cast<void*>(this));
+      }
+
+      void show() const
+      {
+          std::printf(" [INFO] Dummy { name = '%s' ; x = %d; y = %d } \n"
+                      , this->name, this->x, this->y);
+      }
+  };
+#+END_SRC
+
+ *REPL Session:* 
+
+Get size of type 'Dummy' in bytes 
+
+#+BEGIN_SRC cpp 
+  >> sizeof(Dummy)
+  (unsigned long) 208
+#+END_SRC
+
+Pre-allocated static (global) or stack buffer large enough for storing
+an instance of class dummy. 
+
+#+BEGIN_SRC cpp 
+  // Create a buffer with 416 bytes 
+  std::uint8_t buffer[416];
+#+END_SRC
+
+Buffer before instantiation: 
+
+#+BEGIN_SRC cpp 
+  >> buffer
+  (std::uint8_t [416]) { '0x00', '0x00', '0x00', '0x00', '0x00', '0x00', '0x00', .... '0x00', '0x00' }
+
+  >> (int) buffer[0]
+  (int) 0
+
+  >> (int) buffer[1]
+  (int) 0
+
+  >> (int) buffer[2]
+  (int) 0
+  >> 
+#+END_SRC
+
+Use the placment-new operator for creating an object of class Dummy in
+the buffer.
+
+#+BEGIN_SRC cpp 
+  >> Dummy* p = new (buffer) Dummy
+   [INFO] Default ctor called. => this = 0x7fda9fe7a010 
+  (Dummy *) 0x7fda9fe7a010
+
+  >> p->show()
+   [INFO] Dummy { name = 'Unnamed' ; x = 200; y = 25 } 
+  >> 
+
+  >> p->x
+  (int) 200
+
+  >> p->y
+  (int) 25
+
+  >> p->name
+  (char [200]) "Unnamed\0\0\0\0\0\0\0\0 ... ... \0\0\0"
+#+END_SRC
+
+Buffer after instantiation: 
+
+#+BEGIN_SRC cpp 
+  >> buffer
+  (std::uint8_t [416]) { 
+    '0xc8', '0x00', '0x00', '0x00', '0x19', '0x00', '0x00', '0x00', 'U', 'n', 'n', 'a', 'm', 'e', 'd',
+    '0x00', '0x00', '0x00', '0x00', '0x00', '0x00', '0x00', '0x00', '0x00', '0x00', '0x00' .... ... '0x00'}
+
+  >> (int) buffer[0]
+  (int) 200
+
+  >> (int) buffer[4]
+  (int) 25
+#+END_SRC
+
+Manipulating  object variable:
+
+#+BEGIN_SRC cpp 
+  >> int xx1 = 0x4ABC7852
+  (int) 1253865554
+
+  >> int yy1 = 0x3DFCA3E2
+  (int) 1039967202
+
+  >> p->x = xx1;
+  >> p->y = yy1;
+  >> std::strcpy(p->name, "I_am_dummy_object_in_C++1z");
+
+  >> p->show()
+   [INFO] Dummy { name = 'I_am_dummy_object_in_C++1z' ; x = 1253865554; y = 1039967202 } 
+#+END_SRC
+
+Check buffer: 
+
+#+BEGIN_SRC cpp 
+  >> buffer
+  (std::uint8_t [416]) { 'R', 'x', '0xbc', 'J', '0xe2', '0xa3', '0xfc'
+  , '=', 'I', '_', 'a', 'm', '_', 'd', 'u', 'm', 'm', 'y', '_', 'o', 'b', 'j', 'e'
+  , 'c', 't', '_', 'i', 'n', '_', 'C', '+', '+', '1', 'z', '0x00', '0x00', '0x00', '0x00' .. ... }
+#+END_SRC
+
+Create function display_buffer for showing buffer content in decimal,
+hexadecimal and char format: 
+
+#+BEGIN_SRC cpp 
+   void display_bytes(std::uint8_t* buffer, size_t min, size_t max){
+       if(min > max) throw std::runtime_error("Error: supposed min <= max");
+       for(size_t i = min; i < max; i++)
+       {
+           char ch = std::isprint(buffer[i]) ? buffer[i] : ' ';
+           std::printf(" => byte[%lu] = 0x%X %d %c\n", i
+                       , static_cast<int>(buffer[i])
+                       , static_cast<int>(buffer[i])
+                       , ch);
+       }
+   }
+#+END_SRC
+
+Analyze buffer bytes 0 to 3: 
+
+#+BEGIN_SRC cpp 
+  >> printf(" => xx1 = %X \n", xx1);
+   => xx1 = 4ABC7852 
+
+  // Value of p->x == 0x4ABC7852 
+  // 0x 4A BC 78 52 
+  >> display_bytes(buffer, 0, 4)
+   => byte[0] = 0x52 82 R
+   => byte[1] = 0x78 120 x
+   => byte[2] = 0xBC 188  
+   => byte[3] = 0x4A 74 J
+
+  >>  int x1_value = (buffer[3] << 24) + (buffer[2] << 16) + (buffer[1] << 8) + buffer[0]
+  (int) 1253865554
+
+  >> p->x
+  (int) 1253865554
+
+  x1_value == p->x
+  (bool) true
+
+  >> std::printf(" p->x = %X ; x1_value = %X \n", p->x, x1_value);
+   p->x = 4ABC7852 ; x1_value = 4ABC7852 
+#+END_SRC
+ 
+Analyze buffer bytes 4 to 7: 
+
+#+BEGIN_SRC cpp 
+  >> printf(" => yy1 = %X \n", yy1);
+   => yy1 = 3DFCA3E2 
+
+  // p->y = 0x3DFCA3E2 
+  // Bytes: 0x 3D FC A3 E2 
+  // In the buffer, the bytes are stored in "Little Endian Format" 
+  // as E2 A3 FC 3D
+  >> display_bytes(buffer, 4, 8)
+   => byte[4] = 0xE2 226  
+   => byte[5] = 0xA3 163  
+   => byte[6] = 0xFC 252  
+   => byte[7] = 0x3D 61 =
+
+  >> int y1_value = (buffer[7] << 24) + (buffer[6] << 16) + (buffer[5] << 8) +  buffer[4]
+  (int) 1039967202
+
+  >> printf(" p->y = %X ; y1_value = %X \n", p->y, y1_value);
+   p->y = 3DFCA3E2 ; y1_value = 3DFCA3E2 
+#+END_SRC
+
+Copy character portion to a std::string object.
+
+#+BEGIN_SRC cpp 
+  >> std::string str(buffer + 8, buffer + 40);
+
+  >> str
+  (std::string &) "I_am_dummy_object_in_C++1z\0\0\0\0\0\0"
+  >> 
+#+END_SRC
+
+Release memory: 
+
+#+BEGIN_SRC cpp
+  // Call destructor 
+  >> p->~Dummy() 
+   [INFO] Dtor called. => this = 0x7ff08c52c010 
+
+  // Call placement-delete operator 
+  >> ::operator delete(p, buffer)
+#+END_SRC
+
 *** References and further reading 
 
 General: 
@@ -7851,6 +8702,19 @@ General:
 
  + *Favorite Tools: C++11 std::array*
    + https://www.embeddedrelated.com/showarticle/1031.php
+
+Placement New and Delete Opeators:
+
+  + Wikipedia - *Placement syntax* 
+    * <https://en.wikipedia.org/wiki/Placement_syntax>
+
+  + *Thinking in C++, 2nd ed. Volume 1* - Dynamic Object Creation  - Bruce Eckel
+    + <http://www.cs.ust.hk/~dekai/library/ECKEL_Bruce/TICPP-2nd-ed-Vol-one/TICPP-2nd-ed-Vol-one-html/Chapter13.html>
+ 
+  + *Calling Constructors with Placement New*
+    + <https://www.drdobbs.com/cpp/calling-constructors-with-placement-new/232901023?pgno=2>
+
+  + [[https://stackoverflow.com/questions/222557/what-uses-are-there-for-placement-new][c++ - What uses are there for "placement new"? - Stack Overflow]]
 
 C++ Idioms related to Heap-Allocation: 
 
