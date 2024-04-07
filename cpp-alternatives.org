@@ -3,7 +3,7 @@
 #+DESCRIPTION: cpp c++ programming languages alternatives
 #+STARTUP: content 
 
-* Alternatives to C++
+* Alternatives to C++/Cpp 
 ** Overview 
 
 This notes provides alternatives to C++ programming language that can
@@ -66,70 +66,134 @@ fulfill the following requirements:
 
  *Features of System Programming Languages* 
 
-Some Reasonable Features that a *System Programming Language* should have: 
+Some reasonable features that a *System Programming Language* should
+have are: 
 
- + Native compilation
+  * Compilation to native code
 
- + _Stack allocation_ - Note: Most programming languages does not
-   alllocate on the stack virtual memory segment of a process, only a
-   few system programming languages are able to do it. 
+  * _Stack allocation_ - Note: Most programming languages does not
+    alllocate on the stack virtual memory segment of a process, only a
+    few system programming languages are able to do it. 
 
- + _Bare metal_ compilation - compilation for running a kernel, program,
-   firmware without an operating system (bare metal mode).
+  * _Bare metal_ compilation - compilation without operating system, for
+    building kernel or firmware (embedded systems' program).
 
- + Be able to run _without garbarge collector_ or to _disable garbarge_
-   _collector_ in resource constrained systems.
+  * Be able to run _without garbarge collector_ or to _disable garbarge_
+    _collector_ in resource constrained systems.
 
- + Interoperability with C
+  * _Interoperability with C_ - Support C calling convention and linking
+    against C APIs and functions. 
+    + Languages with this feature: C++; [[https://dlang.org/spec/interfaceToC.html][DLang]] (D programming
+      language); [[https://medium.com/dwelo-r-d/using-c-libraries-in-rust-13961948c72a][Rust]]; [[http://www.inspirel.com/articles/Ada_On_Cortex_Mixing_Ada_With_C.html][ADA]];
+    + Operating systems often expose functionalities and encapsulated
+      system-calls for user-space applications via C libraries or
+      runtime libraries exposing functions and symbols with C-calling
+      convention and C-ABI (Application Binary Interface). Aside that,
+      many foundational libraries are implemented in C or exposing C
+      compatible-symbols, such as OpenGL API; OpenSSL; GTK GUI
+      libraries and so on.
 
- + Support C calling convention and calling C APIs and functions
+  * _extern-"C"_ like statements - Support for creating C-compatible
+    functions with C-calling convention. 
+    + Languages with this feature: [[https://docs.oracle.com/cd/E19059-01/wrkshp50/805-4956/bajdcjch/index.html][C++]]; [[https://stackoverflow.com/questions/255741/can-you-call-ada-functions-from-c][ADA]]; [[https://dev.to/dandyvica/how-to-call-rust-functions-from-c-on-linux-h37][Rust]]; [[https://dlang.org/articles/dll-linux.html#dso9][DLang]] (D
+      programming language); [[https://macpgmr.github.io/MacXPlatform/PascalDynLibs.html][Pascal]]; [[https://stackoverflow.com/questions/8207997/calling-a-fortran-subroutine-from-c][Fortran]] (Note: no a system
+      prog. language).
+    + Many operating systems, including Windows-NT and Linux and other
+      Unix-like ones, define a C standard calling convention and ABI,
+      which is the common denominator for binary interoperability. As
+      a result, system programming languages, such as C++, DLang and
+      Rust, provide _extern-C_ like annotations for defining functions
+      with C calling convention and C-ABI that allows calling those
+      functions from any other language supporting C ABI or via FFI
+      (Foreign-Function Interface).
+    + This type of annotation allows creating: C-compatible libraries
+      in C++ or Rust; Python native code modules (shared libraries) in
+      C++ or Rust; create shared libraries that can be loaded via FFI
+      foreign function interface from interpred languages such as
+      Python, Ruby, JavaScript (NodeJS) and so on.
 
- + Inline assembly 
+  * _Inline assembly_  - Some sitatutions where inline assembly is needed are:
+    + SIMD (Single-Instruction and Multiple Data) which is provide data
+      parallelism, which is essential for high perfomance computing.
+    + Access port-mapped IO instructions on x86 or x86-64
+      architecture.
+    + Define functions with another calling convention. 
+    + Define ISR - interrupt-service routines, which may use other
+      calling conventions.
+    + Invoke operating systems' system calls.
+    + Create CRT (C runtime libraries), such as GLIBC or MUSL that
+      encapsulate system calls. 
 
- + Support for Pointers
-
- + Memory reinterpretation - ability to cast pointers in order to
-   access memory-mapped IO in kernel mode or in embedded devices. 
+  * _Support for Pointers_
+    + Memory reinterpretation - ability to cast pointers in order to
+      access memory-mapped IO in kernel mode or in embedded devices. 
 
 
  *What should be taken into consideration*
 
- * Tooling support:
-   + IDE - Integrated Development Support
-   + Refatoring tools 
-   + Debuggers 
-   + Profilers for measuring peformance
+  * Standardization 
 
- * _IDE Support_ - some IDE services are invaluable such as:
+  * Availability of documentation and examples.
 
-   + code completion
-     * improves API discoverability and saves user time.
+  * Availability of documentation about how to interface
+    C-subroutines; call C libraries and link against C-libraries. 
 
-   + code navigation
-     + makes easier to view and jump between functions, classes,
-       definitions and files. 
+  * Reasonable standard library.
+    * The standard library of most programming languages provide
+      platform-agnostic: threads, sockets, file system access,
+      coroutines, multiplexed-IO (non-blocking IO). 
 
-   + code refactoring
-     * allows safe and fast changes such as renaming,
-       changing method signature and so on.
+  * Availability of general and domain-specific libraries 
 
-   + Debugging interface
-     * Debuggers help fixing bugs by introspecting the program
-       execution state and control flow at any given time and also
-       allows user manipulation of program state and variables. 
+  * Network Effect => Enough critical mass that enables community
+    support and enough libraries.
 
- * Compile-time speed 
+  * Hardware Support: 
+    + Availability of compilers for different hardwares such as CPU
+      core architectures; microcontrollers, DSP - Dgitial Signal
+      Processors and so on. 
+    + Support from IC (Integrated Circuits) or Hardware Vendors 
 
- * Availability of documentation and examples 
+  * Compile-time speed:
+    + Compile-time has a large impact on productivity as the workflow
+      on many compiled-programming languages is edit, compile, fix
+      compile-time errors and run. Longer the compile-time: more is
+      spent on hourly rate; longer the development time and the
+      time-to-market. The zero compile-time and fast iteration is one
+      of the reasons dynamically-typed language, such as Python, Ruby,
+      PHP are often chosen for web development.
 
- * Network Effect => Enough critical mass that enables community
-   support and enough libraries.
+  * Tooling support:
+    + IDE - Integrated Development Support
+    + Refatoring tools 
+    + Debuggers 
+    + Profilers for measuring peformance
+    + Building systems
+    + Package managers 
 
- * Availability of general and domain-specific libraries 
+  * _IDE Support_ - some IDE services are invaluable such as:
 
- * Hardware Support 
-   + Availability of compilers for different hardwares
-   + Support from IC (Integrated Circuits) or Hardware Vendors 
+    + code completion
+      * Improves code discoverability and saves time that would be
+        spent browsing the documentation or searching the source
+        code. 
+
+    + code navigation
+      + makes easier to view and jump between functions, classes,
+        definitions and files. This service is essential for dealing
+        with large code bases with hundreds or thousands of files. 
+
+    + Code refactoring => refactoring menu. 
+      * allows safe and fast changes such as renaming,
+        changing method signature and so on.
+
+    + Debugging interface to GDB, WindDBG (Windows Debugger), LLVM and so on.
+      * Debuggers help fixing bugs by introspecting the program
+        execution state and control flow at any given time and also
+        allows user manipulation of program state and variables.
+
+    + Integration with revision control systems or version control
+      system such as GIT, SVN and etc.
 
  *Major Problems of C++*
 
@@ -190,6 +254,7 @@ Some Reasonable Features that a *System Programming Language* should have:
 
 References: 
 
+ + [[https://alexgaynor.net/2019/apr/21/modern-c++-wont-save-us/][Modern C++ Won't Save Us. - Alex Gaynor]]
  + [[https://blog.greaterthanzero.com/post/58482859780/c-and-the-culture-of-complexity][C++ and the culture of Complexity]]
  + [[https://blog.codinghorror.com/the-problem-with-c/][The Problem With C++]] - Jeff Atwood. 
  + [[https://dorinlazar.ro/why-c-sucks-2016-02-edition/][Why C++ sucks (2016.02 edition) – dorinlazăr.ro]]
@@ -198,10 +263,382 @@ References:
  + [[https://en.wikipedia.org/wiki/Criticism_of_C%2B%2B][Criticism of C++ - Wikipedia]]
  + [[https://en.wikipedia.org/wiki/Most_vexing_parse][Most vexing parse - Wikipedia]]
 
-** General Purpose
-*** D Language 
+** Alternatives Map 
 
- [[https://en.wikipedia.org/wiki/D_(programming_language)][D (DLang or D-Language)]] (2001)
+Listing of suitable C++ alternatives by field for better informed
+decisions about technology stack choice. 
+
+#+BEGIN_SRC text  
+                                                       Alternatives 
+                                                      [---------------------------]
+                 + Packaged Software                  C# (CSharp) with WPF (Windows Presentation Foundation)
+      +------->> + Desktop Graphical GUIs  ------->   C# with Windows Form
+      |          + Desktop utilities                  Free Pascal with Lazarus IDE 
+      |                                               Java Swing 
+      |                                               Python + Qt with Pyinstaller for packaging
+      | 
+      |  
+      |                                               Alternatives 
+      |                                               [----------------------------]
+      |        (HPC) High Performance                 Fortran (commmercial compilers)
+      +----->> Numerical Computing  ------------->>   Julia language (drawbacks: more resource usage)
+      |        Or Scientific Computing                C language 
+      | 
+      |                                              Alternatives 
+      |                                              [---------------------------]
+      |       System software                        C language
+      |       ----------------                       Rust 
+      +---->>  ( operating systems -------------->>  DLang (garbage collection can be disabled)
+      |        , device drivers,                     Zig language 
+      |        , background services                 Golang (if garbage collection is allowed)
+      |        , low level stuffs
+      |        , shared libraries
+      |        , implementation of interpreters 
+      |        )
+      |                                                        Alternatives 
+      |                                                       [-----------------------------]
+      |       Network Servers (TCP/IP, UDP/IP) ------------->> Golang 
+      +--->>  High performance and resource-efficient          Rust 
+      |                                                        DLang 
+      |                                                        OCaml 
+      |
+      |
+      |        Embedded Systems                               Alternatives 
+      |      --------------------------------------------->> [--------------------------]
+      +--->> + MCU - Microcontrollers                        C programming (there are architectures where only C is avaiable)
+      |      + MPU - Application Processors                  ADA 
+      |      + DSPs - Digital Signal Processors              Rust 
+      |      + Single Board Computers                        Zig language (not ready yet)
+      |      + Industrial Computers                          Forth 
+      |      + Car ECU (Engine Control Unit)                
+#+END_SRC
+
+** General Purpose
+*** Rust 
+
+  + [[https://en.wikipedia.org/wiki/Rust_(programming_language)][Rust]] - (2010) Created by Mozzila Foundation
+  + Official Web Site: https://www.rust-lang.org/
+
+
+Features:
+
+  * Compilation to native code and web assembly.
+
+  * Easy cross compilation to other operating systems and ISA
+    (Instruction Set Architectures).
+
+  * _No gabarge collector_, instead it uses its unique feature, the
+    borrow-checker mechanism, for ensuring memory-safety and
+    thread-safety. 
+
+  * _Type inference_ feature which allows type-safe programming with
+    minimum type annotations without the verbosity of Java.
+
+  * Based on ML functional programming languages such as Haskell,
+    OCaml and so on.
+
+  * Modules (No header-files code duplication nightmare)
+
+  * Standard building system and package manager: [[https://doc.rust-lang.org/cargo/index.html][cargo]] - which makes
+    it easier to reuse libraries and code.  
+
+  * Supported paradigms: imperative, functional programming,
+    quasi-object oriented programming via traits. 
+
+  * Generic traits that are similar to C++ generic programming
+    (template programming) with C++20 concepts. Note: Rust generics
+    support type constraints.
+
+  * Hygienic macros that unlike C or C++ macros, are flexible like
+    lisp macros and also type-safe that can generate and modify Rust
+    code at compile-time.  
+
+  * Endorsed by many companies such as: Microsoft, Mozilla, Apple,
+    Amazon and so on. Rust is gaining traction as an safer 
+    system-programming language to C and C++.
+
+Drawbacks:
+
+   * Slow compile-time
+
+   * Cannot call C-libraries directly as C++ can by using #include<> headers. - [[https://blog.jfo.click/calling-a-c-function-from-rust/][ref1]] 
+
+   * Less available libraries than C++.
+
+   * Less talent pool than C++. 
+
+   * Lack of compilers for embedded targets can be a problem for
+     embedded systems development.
+
+   * Not all programming tasks requires high level of security such
+     as: games, GUI (Graphical User Interfaces) and numerical
+     computing. Applications that are most likely to require high
+     level of security are the ones that runs with high privilege
+     (kernel, device drivers, bootloader); deals with embedded systems
+     and machine control, such as firmware or embedded operating
+     systems; or deals with external untrusted input, such as _parsers_,
+     _interpreters_, _opcode virtual_ _machines_, _network TCP/UDP/IP_
+     servers.
+
+   * _Lack of OpenMP support_, which is a high performance computing
+     (HPC) C and C++ language extension that allows harnessing
+     multi-processor and multicore systems for parallelizing numerical
+     code using simple preprocessor code annotations.
+
+   * _Vendoring C libraries_ (static linking C libraries) => C++
+     building systems, such as CMake, allow compiling and static
+     linking against C libraries source dependencies placed in the
+     same C++ source tree. Whereas, Rust's cargo building system is
+     still not able to compile C source code in the same Rust source
+     tree and link against the object code generated from the C
+     library  source code. Some libraries widely used C libraries in
+     C++ code-bases are: GLFW, SDL, Lua language interpreter, GSL - Gnu
+     Scientific Library and etc.
+     
+
+Online Books: 
+
+   * [[https://tourofrust.com/TOC_en.html][Tour of Rust - TOC (Table of Contents)]]
+     * Note: Not an book, but it is a quick introduction to Rust with
+       several runnable examples. 
+
+   * [[https://doc.rust-lang.org/book/title-page.html][Book: The Rust Programming Language]] [OFFICIAL]
+
+   * [[https://doc.rust-lang.org/cargo/index.html][Book: The Cargo Book]] [OFFICIAL]
+     * Book focused on Cargo package manager.
+
+   * [[http://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/book/first-edition/getting-started.html][Book - MIT - The  Rust Programming Language]]
+
+   * [[https://rustwasm.github.io/docs/book/][Book - Rust and WebAssembly]]
+
+   * [[https://locka99.gitbooks.io/a-guide-to-porting-c-to-rust/content/][Book - A Guide to Porting C/C++ to Rust]]
+
+   * [[https://aminb.gitbooks.io/rust-for-c/content/index.html][Book - Rust for C++ programmers]]
+
+   * [[https://rust-lang.github.io/async-book/01_getting_started/01_chapter.html][Book: Asynchronous Programming in Rust]]
+
+   * [[https://docs.rust-embedded.org/book/intro/index.html][Book: The Embedded Rust Book]] (Embedded Systems)
+
+   * [[https://rust-lang.github.io/unsafe-code-guidelines/introduction.html][Book: Rust's Unsafe Code Guideline Reference]]
+
+   * [[https://doc.rust-lang.org/nomicon/index.html][Book: The Rustonomicon - The Dark Arts of Unsafe Rust]]
+     + "The Rustonomicon digs into all the awful details that you need
+       to understand when writing Unsafe Rust programs."
+
+   * [[https://docs.microsoft.com/en-us/learn/paths/rust-first-steps/][Microsoft MSFT - Take your first steps with Rust]]
+
+   * Rosetta Code => Contains code example grouped by task.
+     * https://rosettacode.org/wiki/Category:Rust
+
+Big Tech Endorsement of Rust: 
+
+   * [[https://docs.microsoft.com/en-us/windows/dev-environment/rust/rust-for-windows][Microsoft MSFT - Rust for Windows, and the windows crate]]
+
+   * [[https://docs.microsoft.com/en-us/learn/paths/rust-first-steps/][Microsoft MSFT - Take your first steps with Rust]] 
+
+   * [[https://blogs.windows.com/windowsdeveloper/2021/05/06/announcing-rust-for-windows-v0-9/][Microsft - MSFT / Announcing Rust for Windows v0.9]]
+
+   * [[https://www.tectalk.co/rust-programming-language-we-want-to-take-it-into-the-mainstream-says-facebook/][Rust programming language: We want to take it into mainstream, says Facebook]]
+
+Articles: 
+
+   * https://blog.rust-lang.org/ (Rust official Blog)
+
+   * [[https://deprogrammaticaipsum.com/the-great-rewriting-in-rust/][The Great Rewriting in Rust]] - Adrian Kosmaczewiski
+
+   * [[http://venge.net/graydon/talks/intro-talk-2.pdf][Technology from the past come to save the future from itself]] [PDF]
+     (Project Servo - Mozilla Annual Summit - 2010)
+
+   * [[https://www.infoworld.com/article/3218074/application-development/what-is-rust-safe-fast-and-easy-software-development.html][What is the Rust language? Safe, fast, and easy software development | InfoWorld]]
+
+   * [[https://www.bobbin.io/blog/post/rust_2018_low_level/][Rust 2018: Improving Safety and Ergonomics for Low-LevelProgramming | Bobbin Blog]]
+
+   * [[https://manishearth.github.io/blog/2021/02/22/integrating-rust-and-c-plus-plus-in-firefox/][Integrating Rust and C++ in Firefox]]
+
+   * [[https://people.gnome.org/~federico/blog/librsvg-rust-and-non-mainstream-architectures.html][Librsvg, Rust, and non-mainstream architectures]]
+
+   * [[https://kornel.ski/rust-c-speed][Speed of Rust Vs C]]
+
+   * [[https://fasterthanli.me/articles/rust-vs-java-generics][Rust Generics vs Java Generics]]
+
+   * [[https://linuxreviews.org/The_Rust_Programming_Language_Is_Now_One_Step_Closer_To_Entering_The_Mainline_Linux_Kernel][The Rust Programming Language Is Now One Step Closer To Entering The Mainline Linux Kernel]]
+
+   * [[https://security.googleblog.com/2021/04/rust-in-android-platform.html][Goole Security Blog - Rust in the Android Platform]]
+
+   * [[https://lwn.net/Articles/849849/][LWN - Rust support hits linux-next]]
+
+   * [[https://www.zdnet.com/article/linus-torvalds-on-where-rust-will-fit-into-linux/][Linus Torvalds on where Rust will fit into Linux]]
+
+   * [[https://kerkour.com/blog/rust-in-production-2021/][32 Companies usign Rust in production]]
+
+   * https://github.com/rust-lang/rustlings/
+     * "crab Small exercises to get you used to reading and writing
+       Rust code!"
+
+ *Interoperability*
+
+   * https://github.com/rust-lang/rust-bindgen
+     * Brief: "bindgen automatically generates Rust FFI bindings to C (and some C++) libraries."
+
+   * https://doc.rust-lang.org/std/alloc/trait.Allocator.html
+     * Custom allocator.
+
+
+ *Videos* 
+
+  + [[https://www.youtube.com/watch?v=k7nAtrwPhR8][Rust for C++ developers - What you need to know to get rolling with crates]]  - Pavel Yosifovich
+    + Brief: "The session is about using the Rust language to write
+      safe, concurrent and elegant code, contrasting with C++"
+
+  + [[https://www.youtube.com/watch?v=IPmRDS0OSxM][A Firehose of Rust, for busy people who know some C++]] - Jack O'Connor
+
+  + [[https://www.youtube.com/watch?app=desktop&v=rTo2u13lVcQ][Building on an unsafe foundation]]  - Jason Orendorff
+    + Brief: "Beneath every safe programming language, library, or
+      virtual machine is a whole lot of unsafe code. Rust is no
+      exception. This talk will explain why “unsafe” code is allowed
+      at all in a safe language, show the unsafe code at work inside
+      safe features like Vec, and teach how to write a safe library
+      that uses unsafe code."
+
+  + [[https://www.youtube.com/watch?app=desktop&v=PQWCk3NXn0g][How Do Programmers Use Unsafe Rust?]]
+    + Brief: "Hello, I am Vytautas, a PhD student at ETH Zurich,
+      supervised by Peter Müller. In our paper, we explored how and
+      why programmers use unsafe Rust: a powerful and dangerous
+      feature that allows disabling certain type-system
+      checks. https://doi.org/10.1145/3428204​"
+
+  + [[https://www.youtube.com/watch?v=RyY01fRyGhM][Writing Linux Kernel Modules in Safe Rust - Geoffrey Thomas & Alex Gaynor]]
+    + Brief: "Writing Linux Kernel Modules in Safe Rust - Geoffrey Thomas,
+      Two Sigma Investments & Alex Gaynor, Alloy With 65% of recent
+      Linux kernel vulnerabilities being the result of memory unsafety
+      (buffer overflows, pointers used after being freed, etc.) and
+      not logic errors, both kernel developers and downstream users
+      have wondered whether it's possible to use a safer language than
+      C for kernel development. This talk will explore the presenters'
+      work building a framework for writing kernel modules in Rust and
+      accessing kernel APIs in safe Rust. In particular, the talk will
+      discuss some of the challenges of building binary-compatible
+      kernel modules in Rust, techniques for working with existing C
+      code, and how to design safe bindings over raw kernel APIs. It
+      will also discuss advantages and difficulties for integrating
+      Rust in upstream kernel development and possible directions the
+      upstream kernel community could go."
+
+  + [[https://www.youtube.com/watch?app=desktop&v=M2dkr4seKto][EuroBSDCon - Rust: Systems Programmers Can Have Nice Things]]
+    + Brief: "Rust is a new programming language, originally from
+      Mozilla, that combines the safety and productivity of a
+      high-level language with the performance and low-level control
+      of a traditional systems language. Rust achieves this
+      combination through clever and pragmatic programming language
+      design — along with awesome tooling and libraries. In this
+      talk, I will dive into the features that make Rust the right
+      choice for 21st-century systems programming. I will give a
+      general introduction to the language and an overview of the Rust
+      ecosystem. I will also walk through the process of developing
+      Rust on BSD."
+
+  + [[https://www.youtube.com/watch?app=desktop&v=kwSlvOpGwVg][Rust programming for the object-oriented developer]]
+    + Brief: "If you've been curious about learning Rust, but have
+      been scared off because you prefer object-oriented languages
+      like Java, JavaScript, Python, Ruby and C++, then you should
+      watch this talk! In this practical introduction, Tim covers a
+      lot of material that has something for beginners and experienced
+      programmers alike. How does Rust handle errors if there are no
+      exceptions? How does Rust implement shared behavior if there is
+      no inheritance?"
+
+  + [[https://www.youtube.com/watch?app=desktop&v=ZtER1Wllbeo][RustConf 2018 - Writing Crates for Complete Beginners]]
+    + Brief: "Turtle is a Rust graphics crate for creating animated
+      drawings. It is designed to be used to teach programming to
+      complete beginners using Rust. In this talk, you'll learn the
+      inner workings of turtle. We'll show you how we managed to
+      create a library that is both full of features and very easy to
+      learn. We'll go deep into how turtle works and tell you the key
+      aspects of creating a crate that is accessible for anyone of any
+      skill level. You'll leave with new ideas for your own crates and
+      a good understanding of what went into making turtle so beginner
+      friendly."
+
+  + [[https://www.youtube.com/watch?app=desktop&v=9wOzjbgRoNU][The Rust language: memory, ownership and lifetimes {linux.conf.au 2014}]]
+    + Brief: "In 2010, Mozilla announced it was working on a new
+      systems language, aiming to match the performance and
+      C-interoperability profile of C++ in a provably safe language
+      with concurrency, immutability, isolation and expressiveness
+      properties closer to languages like Erlang, Haskell or
+      Scala. While Rust presents a good variety of familiar,
+      expressive tools from other mainstream languages, it also
+      borrows from research languages two lesser-known key
+      technologies: "owning pointers" and "borrowed pointers". This
+      talk will briefly describe the Rust language in general terms,
+      then focus in on these two key technologies, how they shape
+      Rust's memory model, performance and safety guarantees, and why
+      you might consider using Rust in your next project."
+
+  + [[https://www.youtube.com/watch?app=desktop&v=43X9ia-qpds][Demo Zoo: Zero Cost Abstractions in C++20, Rust, & Zig]]
+    + Brief: "Well, they aren't quite zero, but modern compilers for
+      efficient languages do pretty well in this demo of abstract
+      vector norm calculations in C++, Rust, & Zig."
+
+  + [[https://www.youtube.com/watch?app=desktop&v=Dbytx0ivH7Q][Rust Concurrency Explained]]
+    + Brief: "The Rust programming language purports the bold claim
+      that it guarantees thread safety while retaining the ability to
+      write zero-cost abstractions. In this talk we'll explore
+      precisely how Rust can make such a claim. We'll also explore the
+      ecosystem that makes up the concurrency toolkit in Rust to see
+      how these language principles are extended to common
+      abstractions such as channels, thread pools, work stealing
+      algorithms, concurrent data structures, and asynchronous I/O." 
+
+
+ *Applications built with Rust* 
+
+
+   + [[https://firecracker-microvm.github.io/][Firecracker]] (Developed by AWS - Amazon inc.)
+     + Brief: "Firecracker is an open source virtualization technology
+       that is purpose-built for creating and managing secure,
+       multi-tenant container and function-based services. Firecracker
+       enables you to deploy workloads in lightweight virtual
+       machines, called microVMs, which provide enhanced security and
+       workload isolation over traditional VMs, while enabling the
+       speed and resource efficiency of containers. Firecracker was
+       developed at Amazon Web Services to improve the customer
+       experience of services like AWS Lambda and AWS Fargate
+       . Firecracker is a virtual machine monitor (VMM) that uses the
+       Linux Kernel-based Virtual Machine (KVM) to create and manage
+       microVMs. Firecracker has a minimalist design. It excludes
+       unnecessary devices and guest functionality to reduce the
+       memory footprint and attack surface area of each microVM. This
+       improves security, decreases the startup time, and increases
+       hardware utilization. Firecracker is generally available on
+       64-bit Intel, AMD and Arm CPUs with support for hardware
+       virtualization."
+       
+   + [[https://zellij.dev/news/beta/][Zellij]]  - Terminal Multiplexer, similar to GNU Screen or Temux.
+     + Brief: "Zellij is a terminal workspace and multiplexer written
+       in Rust, aiming to become a general purpose application
+       development platform in the future."
+
+   + [[https://github.com/helix-editor/helix][Helix Terminal Modal Text Editor]]
+     + Modal text editor for terminal, similar to vim and Kakoune
+       editor. Unlike vim, this editor has a selection-action paradigm
+       inspired by Kakoune editor. When the editor is in normal mode,
+       a key is typed for selecting a text block (subject) and the
+       next key applies an action (verb) on the selected text. This
+       approach provides more self-explanatory and intuitive keybind
+       than vim with better feedback since the user always is able to
+       see the text block that the command will be applied to.
+
+   + [[https://github.com/rustls/rustls][RusTLS]]
+     + TLS (Transport Layer Security) library, similar to OpenSSL,
+       implemented in Rust programming language
+
+   + [[https://github.com/bytecodealliance/wasmtime][wastime]]
+     + Standlone runtime for WebAssembly & WASI written in Rust.
+
+   
+*** D Language (DLang)
+
+ [[https://en.wikipedia.org/wiki/D_(programming_language)][D (DLang or D-Language)]] (Since 2001)
 
 Overview: 
 
@@ -265,8 +702,29 @@ Interoperability:
 
     + [[https://dlang.org/spec/objc_interface.html][Interoperability with Objective-C]]
 
+    + [[https://wiki.dlang.org/COM_Programming][Windows Win32 API - COM Programming]]
+
+    + [[https://dlang.org/spec/abi.html][ABI - Application Binary Interface]]
+
     + Interoperability with Assembly
       + Supports inline assembly
+
+Miscellaneous:
+
+  * [[http://ddili.org/ders/d.en/ufcs.html][Universal Function Call Syntax (UFCS)]]
+    + Brief: Allows calling ordinary functions as they were member
+      functions by using dot. This feature allows extending classes
+      without creating utility methods and also improves the code base
+      discoverability by harnessing code completion. 
+
+  * [[https://thume.ca/2019/07/14/a-tour-of-metaprogramming-models-for-generics/][Models of Generics and Metaprogramming: Go, Rust, Swift, D and More.]]
+
+  * [[https://wiki.dlang.org/Memory_Management][Memory Management]]
+
+  * [[http://dpldocs.info/this-week-in-d/Blog.Posted_2020_08_10.html][D Tetris running on Webassembly]]
+
+  * [[https://dlang.org/spec/unittest.html][DLang - Unit Tests]]
+ 
 
 Fixes lots of C++ problems due to earlier design decisions:
 
@@ -294,13 +752,89 @@ Fixes lots of C++ problems due to earlier design decisions:
 
    + Modules, instead of C preprocessor which dramatically reduces the compile-time.
 
-Problems:
+Drawbacks:
+
     + Plugins for enabling D language support in existing IDEs
       don't work out of the box.
     + Less tooling than C++
     + Lower popularity than Golang, Rust and so on.
     + Smaller community 
     + Less IDE support and refactoring tools.
+    + Unlike C, C++ or Rust still lacks industry recognition.
+    + Less known than C++ or Rust.
+
+ *Articles* 
+
+   + Flagship Webframework: https://vibed.org/ (VIBE.D)
+
+   + [[https://dlang.org/blog/2019/09/30/saving-money-by-switching-from-php-to-d/][Saving Money by Switching from PHP to D]]
+     + Summary: A italian company switched the backend implementation
+       from PHP do D language, which allowed the company to cut the
+       instances of the Amazon AWS virtual machines in half and
+       consequentely save cloud hosting costs. The cost was reduced
+       due the less RAM memory and computational resources
+       usage. Besides the cost, other benefit were the performance
+       gain and  the reduced latency.
+
+   + [[https://dlang.org/blog/2016/07/07/project-highlight-auburn-sounds/][Project Highlight: Auburn Sounds]]
+     + Summary: Company that creates audio plugins in D (DLang).
+
+   + [[https://beza1e1.tuxen.de/articles/functional_D.html][Functional Programming  with D]]
+
+   + [[https://dlang.org/spec/contracts.html][DLang contract programming]]
+
+   + [[https://mstojcevich.github.io/post/d-gb-emu-fibers/][DLang - Using Fibers to implement Gameboy's Timing]]
+
+   + [[https://tour.dlang.org/tour/en/multithreading/fibers][Dlang - Fibers]] (aka Greenthreads, coroutines)
+
+   + [[https://www.informit.com/articles/article.aspx?p=1609144][Concurrency inthe D Programming Language]]
+
+   + [[https://dlang.org/spec/betterc.html][DLang - Better C]]
+
+   + [[https://wiki.dlang.org/Component_programming_with_ranges][Component Oriented Programming  with D]]
+
+
+ *Applications built with DLang* 
+
+
+   + [[https://github.com/gnunn1/tilix][Tilix]] (Gtk3 Terminal Emulator)
+     * Brief: "A tiling terminal emulator for Linux using GTK+ 3. The
+       Tilix web site for users is available at https://gnunn1.github.io/tilix-web."
+       
+   + [[https://github.com/Netflix/vectorflow][GitHub - Netflix/vectorflow]]
+     + Neural network library for machine learning that can deal with sparse data.
+     + See: 
+       + [[https://netflixtechblog.medium.com/introducing-vectorflow-fe10d7f126b8][Introducing Vectorflow - a lightweight neural network library for sparse data]]
+       
+   + [[https://dlang.org/blog/2022/02/02/a-gas-dynamics-toolkit-in-d/][A Gas Dynamics Toolkit in D | The D Blog]]
+     + "The Eilmer flow simulation code is the main simulation program
+       in our collection of gas dynamics simulation tools. An example
+       of its application is shown here with the simulation of the
+       hypersonic flow over the BoLT-II research vehicle that is to be
+       flown in 2022."
+
+   + [[https://github.com/CyberShadow/DFeed][DFeed]]
+     + Brief: "D news aggregator, newsgroup client, web newsreader and IRC bot"
+
+   + [[https://github.com/symmetryinvestments/excel-d][Dlang / Excel API bindings and wrapper API for D; Dlang; spreadsheet; finance; quant]]
+
+     + Library that allows creating Microsoft Excel Addins in DLang.
+
+     + Brief: "Excel API bindings and wrapper API for D This dub
+       package contains D declarations for the Excel SDK as well as a
+       D wrapper API. This allows programmers to write Excel worksheet
+       functions in D. Motivation and background for the project can
+       be found here. See also the DConf 2017 lightning talk about
+       excel-d. Run makedocs.sh to generate the documentation
+       Generated documentation - a work in progress - is available at
+       dpldocs. A working XLL example can be found in the example
+       directory. Running dub build there will create an XLL
+       (myxll32.xll) that can be loaded in Excel making all of the
+       functions in test/xlld/test_d_funcs.d available to be used in
+       Excel cells. The types are automatically converted between D
+       native types and Excel ones. To build the example: dub build -c
+       example [--arch=x86_mscoff|--arch=x86_64]."
+
 
  *Some Videos* 
 
@@ -322,37 +856,467 @@ Problems:
 
  + [[https://www.youtube.com/watch?v=97bxjeP3LzY][Using Floating Point Without Losing Your Sanity - Don Clugston | DConf2016]]
 
-*** Rust 
+*** GO - Golang 
 
-  + [[https://en.wikipedia.org/wiki/Rust_(programming_language)][Rust]] - (2010) Created by Mozzila Foundation
-  + Official Web Site: https://www.rust-lang.org/
+ [[https://en.wikipedia.org/wiki/Go_(programming_language)][Go - Golang]] (Since 2009)
+
+  * Programming language created at Google by Robert Griesmer, Rob Pike and Ken Thompson.
+
+  * Official Web Site:
+    + https://golang.org/
+
+  * Repository:
+    + https://github.com/golang/go
+
+  * Package registry:
+    + https://pkg.go.dev/
+
+ 
+ *Features:*
+
+   + Most used for Network Servers, Web Servers, Web Applications,
+     distributed systems and message systems due its concurrency
+     features such as go-routines based on [[https://en.wikipedia.org/wiki/Communicating_sequential_processes][Hoare's CSP]] -
+     Communicating Sequential Processes.
+
+   + Easier to learn for developers coming from languages such as
+     Java, Python, and so on.
+
+   + Lightweight threads (user-space threads), called Goroutines which
+     are more lightweight than kernel threads making it possible to
+     handle far more concurrent connections with less resources. For
+     instance, on Linux each Kernel thread costs 2 megabytes (2048
+     kb). 
+
+   + Multicore support, Golang can take advantage of all CPU cores and
+     run hundreds of thousands of goroutines on each core.
+
+   + Wraps multiplexed IO, such as Slect (Unix), Poll (Unix), Epoll
+     (Linux), KQueue (BSD) and  IOCP (Windows), which allows handling
+     multiple IO file descriptors and TCP/IP connections in a single
+     thread.
+     + See: [[https://github.com/golang/go/search?q=epoll][Epoll in Golang runtime]]
+     + See: [[https://github.com/golang/go/search?q=kqueue][Kqueue in Golang runtime]]
+
+   + Gabarge collector which automates memory managment. 
+
+   + Fast compile-time to native code. Fast compile-time also means
+     fast iteration, faster development and less time-to-market. 
+
+   + Statically-linked native executables that can be deployed without
+     any dependencies on any Linux distribution, in other words, _just_
+     _works_, just copy an executable binary to remote host and run
+     it. Golang can also bypass the _GlibC dependency-hell problem_ on
+     Linux-based operating systems by performing system calls
+     directly.
+
+   + _Easy to create Pre-built binaries_ for all platforms!! Linux, Windows, and all possible platforms!! :)) :)
+     + =>> As most golang applications are fully statically linked,
+       developers can provide pre-built binaries for Linux and avoid
+       the Linux package manager work-duplication problem. 
+
+     + =>> Easy Cross-compilation makes easier to build binaries for
+       other platforms.
+     + =>> Eliminate dependency on Linux package managers.
+       
+   + _Easy cross-compilation_ to Linux, Windows, MacOSX and even
+     embedded Linux targets for ARM, PowerPC and other architectures
+     just be setting an environment variable. It even possible to
+     build native executable for MacOSX with Golang compiler from a
+     Linux or Windows hosts and without any Apple tooling which are
+     not allowed to be installed on non MacOSX machines.
+
+   + Own implementation of TLS (Transport Layer Security), aka SSL
+     (Socket Secure Layer) which allows Golang applications to be
+     fully self contained and not even depend on OpenSSL installed on
+     the host machine.
+
+   + Multiple return values
+
+   + _Reflection_ It is the ability of a programming language to
+     introspect and examine its own objects, classes and data
+     structures at runtime or compile-time. Reflection is useful for
+     creating DLS (Domain Specific Languages), implementing ORM
+     (Object Relational Mapper), implemeting automatic serialization
+     and deserialization, and code generation. 
+     + See:
+       + https://go.dev/blog/laws-of-reflection (Rob Pike)
+       + https://golangdocs.com/reflection-in-golang
+       + https://github.com/goccy/go-reflect
+
+   + Safety features: 
+     + Avoids unsafe pointer arithmetics.
+     + Array-bound checking
+
+   + Easy to embed and to bake static files and folders in the
+     compiled executable binary.
+     + See:
+       + [[https://clavinjune.dev/en/blogs/serving-embedded-static-file-inside-subdirectory-using-go/][Serving Embedded Static File Inside Subdirectory Using Go]]
+       + [[https://dev.to/koddr/the-easiest-way-to-embed-static-files-into-a-binary-file-in-your-golang-app-no-external-dependencies-43pc][The easiest way to embed static files into a binary file in your Golang app]]
+       + [[https://www.akmittal.dev/posts/go-embed-files/][Golang embed files in binary (with React build example)]]
+       + [[https://bhupesh.me/embedding-static-files-in-golang/][Embedding static files in Go]]
+
+   + _Facilities for serving static files_ => Many web frameworks such
+     as Django, Ruby-on-Rails or ASP.NET often use web servers such as
+     Apache, Nginx or IIS for serving static files due to complexity
+     and performance reasons. For instance serving static files
+     requires dealing with cache, etags, range request, partial
+     reponses and zero-copy network system calls, such as
+     [[https://man7.org/linux/man-pages/man2/sendfile.2.html][sendfile]]. Golang provides facilities for serving static files in
+     its standard libraries that eliminates the need for servers such
+     as Nginx or Apache, as a result in addition to be self-contained,
+     Golang applications can even be almost self reliant.
+     + See:
+       + [[https://dev.to/hauxe/golang-http-serve-static-files-correctly-2oj2][Golang: HTTP Serve static files correctly]]
+       + https://hackthedeveloper.com/golang-server-static-files/
 
 
-Features:
+ *Drawbacks:*
+ 
+  + "Ungoogable name" "go" which is hard to search about without
+    getting many unrelated results since "go" is one of the most common
+    words of the English Language, better search for "golang" or "go
+    programming".
 
-  + Compilation to native code
-  + No gabarge collector
-  + Based on ML functional programming languages such as Haskell,
-    OCaml and so on.
-  + Type inference
-  + Modules
-  + No header-files code duplication nightmare.
-  + Package manager: [[https://doc.rust-lang.org/cargo/index.html][cargo]]
+  + Not easy link against C libraries or C subroutines as in C++,
+    DLang (D) or Rust.
+
+  + +Lack of generics and template metaprogramming+. The new Golang 1.18
+    release has brought generics feature.
+
+  + _Lack of function overloading_ =>> It is not possible to define
+    multiple function sharing the same name, but with different type
+    signatures.
+
+  + _Lack of exceptions_, GO returns errors as values, just like C.
+    However unlike C, in GO the type system explicitly indicates that a
+    function returns error by returning multiple values and an extra
+    parameter denoting error. The advantage of this approach is that it
+    avoids hidden control flow that exceptions would introduce; it lets
+    the calling code know that the function may fail in advance
+    without any exception crashing the application at runtime; and there
+    is no way to the developer implemeting the calling code forget to
+    handle the error that the function would issue. 
+
+  + Lack of ternary operators 
+
+  + Gabarge collector can be a curse for the applications that C++
+      shines, namely, system programming, embedded systems, real-time
+      systems (including games) and high performance computing.
+
+  + Too much opinionated: A golang code may not even compile if a
+    import is not used or curly braces are not formatted in a proper
+    way.
+
+  + Forces the code to be written in a single way and in a single
+    style.
+
+  + Due to the garbage collection Golang may not be suitable for
+    games. Although Golang might be a suitable replacement for C++ (+)
+    Boost.ASIO. 
+
+  + Not suitable for numerical, scientific computing and machine
+    learning since Golang lacks operator overloading support,
+    higher level abstractions and simd support.
+
+  + Lack of GUI libraries for building desktop applications.
+
+  + Lack of opinionated and full-featured production-ready web
+    frameworks such as Django, Ruby-on-Rails or ASP.NET.
 
 
-Problems:
+ *Best use-cases:*
 
-   + Slow compile-time
-   + Cannot call C-libraries directly as C++ - [[https://blog.jfo.click/calling-a-c-function-from-rust/][ref1]]
-   + Less available libraries as C++
-   + Lack of compilers for embedded targets can be a problem for
-     embedded systems development.
-   + Does not support custom allocators as C++.
-   + Not supported in many hardware types as C++ or C.
+  + Command line tools
+    + => GO is suitable for building portable command line
+      applications, due to the compilation to native executable and
+      static linking of dependencies which allows seamless
+      deployment and portability across many Linux distributions. 
 
-See:
-   + [[https://www.infoworld.com/article/3218074/application-development/what-is-rust-safe-fast-and-easy-software-development.html][What is the Rust language? Safe, fast, and easy software development | InfoWorld]]
-   + [[https://www.bobbin.io/blog/post/rust_2018_low_level/][Rust 2018: Improving Safety and Ergonomics for Low-Level Programming | Bobbin Blog]]
+  + Network Services; aka servers; web servers; TCP or UDP servers.
+
+  + Network infrastructure tools
+
+  + Http servers and web applications. 
+
+  + Distributed systems
+
+  + Micro services
+
+
+ *Some projects built with Golang* 
+
+
+  1. [[https://github.com/docker/engine][Docker]]
+     + => Most used container runtime on Linux.
+     + See: https://github.com/docker/cli (Docker CLient)
+
+  2. [[https://github.com/kubernetes/kubernetes][Kubernetes]] (k8)
+     + => The rockstar of the cloud, the most widespread and most used
+       container orchestration tool that is becoming a universal cloud
+       API providing a multi-cloud Heroku-like experience.
+
+  3. Ubuntu Snap package manager (developed by Canonical)
+     + https://github.com/snapcore/snapd
+     + https://github.com/snapcore/snapcraft
+
+  4. [[https://github.com/caddyserver/caddy][Caddy Web Server]] (Nginx-like web server written in GOLang)
+     + Official Web site: https://caddyserver.com/
+     + Download: https://caddyserver.com/download
+     + Download: https://github.com/caddyserver/caddy/releases
+     + Note: Caddy is available for download as a _single self-contained_
+       executable that can be run on any Linux distribution.
+     + Brief: "Caddy simplifies your infrastructure. It takes care of
+       TLS certificate renewals, OCSP stapling, static file serving,
+       reverse proxying, Kubernetes ingress, and more. Its modular
+       architecture means you can do more with a single, static binary
+       that compiles for any platform. Caddy runs great in containers
+       because it has no dependencies—not even libc. Run Caddy
+       practically anywhere."
+     + See:
+       * Forum: https://caddy.community/
+       * [[https://arstechnica.com/gadgets/2020/05/caddy-offers-tls-https-and-more-in-one-dependency-free-go-web-server/][Caddy offers TLS, HTTPS, and more in one dependency-free Go Web server]]
+       * [[https://www.digitalocean.com/community/tutorials/how-to-host-a-website-with-caddy-on-ubuntu-18-04][How To Host a Website with Caddy on Ubuntu 18.04]]
+       * [[https://en.wikipedia.org/wiki/Caddy_(web_server)][Caddy (Web Server) - Wikipedia]]
+
+  5. [[https://github.com/go-gitea/gitea][Gitea]]
+     + https://gitea.com/
+     + https://docs.gitea.io/en-us/comparison/
+     + Download: https://github.com/go-gitea/gitea/releases
+     + Self hosting git service, similar to Gitlab (ruby app) with a
+       web interface, but uses less resources and less memory. Even
+       Sqlite database is supported.
+     + Brief: "The goal of this project is to make the easiest,
+       fastest, and most painless way of setting up a self-hosted Git
+       service. Using Go, this can be done with an independent binary
+       distribution across all platforms which Go supports, including
+       Linux, macOS, and Windows on x86, amd64, ARM and PowerPC
+       architectures. Want to try it before doing anything else? Do it
+       with the online demo! This project has been forked from Gogs
+       since 2016.11 but changed a lot."
+
+  6. [[https://github.com/hashicorp/terraform][Terraform]]
+
+     + Infrastructure-As-A-Code tool for multi-cloud automation, allows
+       automating AWS, Google Cloud, Azure cloud with code.
+
+     + Brief: "Terraform enables you to safely and predictably create,
+       change, and improve infrastructure. It is an open source tool
+       that codifies APIs into declarative configuration files that can
+       be shared amongst team members, treated as code, edited,
+       reviewed, and versioned."
+
+  7. [[https://github.com/gohugoio/hugo][Hugo - Static web site generator]]
+     + Brief: "Hugo is a static HTML and CSS website generator written
+       in Go. It is optimized for speed, ease of use, and
+       configurability. Hugo takes a directory with content and
+       templates and renders them into a full HTML website. Hugo relies
+       on Markdown files with front matter for metadata, and you can
+       run Hugo from any directory. This works well for shared hosts
+       and other systems where you don’t have a privileged
+       account. Hugo renders a typical website of moderate size in a
+       fraction of a second. A good rule of thumb is that each piece of
+       content renders in around 1 millisecond. Hugo is designed to
+       work well for any kind of website including blogs, tumbles, and
+       docs."
+
+  8. [[https://github.com/cockroachdb/cockroach][CockroachDB]]
+     + Brief: "CockroachDB is a cloud-native SQL database for building global,
+       scalable cloud services that survive disasters."
+
+  9. [[https://github.com/gravitational/teleport][Teleport]]
+     + Brief: "Teleport is an identity-aware, multi-protocol access
+       proxy which understands SSH, HTTPS, Kubernetes API, MySQL and
+       PostgreSQL wire protocols. On the server side, Teleport is a
+       single binary which enables convenient secure access to
+       behind-NAT resources such as: SSH nodes - SSH works in browsers
+       too! Kubernetes clusters PostgreSQL and MySQL databases Internal
+       Web apps Teleport is trivial to set up as a Linux daemon or in a
+       Kubernetes pod. It's rapidly replacing legacy sshd-based setups
+       at organizations who need: Developer convenience of having
+       instant secure access to everything they need across many
+       environments and cloud providers. Audit log with session
+       recording/replay for multiple protocols; Easily manage trust
+       between teams, organizations and data centers. Role-based access
+       control (RBAC) and flexible access workflows (one-time access
+       requests)"
+
+  10. [[https://github.com/mailhog/MailHog][MailHog]]
+      + Download: https://github.com/mailhog/MailHog/releases
+      + See: [[https://akrabat.com/using-mailhog-via-docker-for-testing-email/][Using MailHog via Docker for testing email – Rob Allen's DevNotes]]
+      + Golang web application that provides web user interface for a
+        SMTP testing server. This application makes it easier to test
+        and simulate trasactional email systems of web applications,
+        such as Django or Ruby-on-Rails applications.
+
+  11. [[https://github.com/yggdrasil-network/yggdrasil-go][Yggdrasil Mesh Network]]
+      + https://yggdrasil-network.github.io/
+      + Download: https://github.com/yggdrasil-network/yggdrasil-go/releases
+    
+      + Decentralized peer-to-peer mesh network without any central
+        authority. It allows easy self hosting of any web or network
+        application without opening any router port or without any
+        complex network configuration.
+
+      + "Yggdrasil is an early-stage implementation of a fully
+        end-to-end encrypted IPv6 network. It is lightweight,
+        self-arranging, supported on multiple platforms and allows
+        pretty much any IPv6-capable application to communicate securely
+        with other Yggdrasil nodes. Yggdrasil does not require you to
+        have IPv6 Internet connectivity - it also works over IPv4."
+
+  12. [[https://github.com/sorenisanerd/gotty][Gotty]] - Tool that allows accessing the terminal and command line
+      applications remotely from any web browser.
+      + Download: https://github.com/sorenisanerd/gotty/releases
+
+
+ *Articles about Golang* 
+
+  + [[https://en.wikipedia.org/wiki/Go_(programming_language)][Go (programming language) - Wikipedia]] 
+
+  + https://gobyexample.com/
+    
+  + https://golang.org/doc/faq => Frequent Asked Questions
+
+  + https://go-proverbs.github.io/
+
+  + Book: [[https://quii.gitbook.io/learn-go-with-tests/][Learn Go with Tests - Learn Go with tests]]
+
+  + Book: [[https://compilerbook.com][Writing A Compiler In Go | Thorsten Ball]]
+
+  + [[https://github.com/luciotato/golang-notes/blob/master/OOP.md][golang-notes/OOP.md at master · luciotato/golang-notes · GitHub]]
+
+  + https://github.com/golang/go/wiki/GoUsers =>> Companies using Golang.
+
+  + [[http://talks.golang.org/2012/splash.article#TOC_1][Go at Google: Language Design in the Service of Software Engineering]]
+    + Brief: "(This is a modified version of the keynote talk given by
+      Rob Pike at the SPLASH 2012 conference in Tucson, Arizona, on
+      October 25, 2012.) The Go programming language was conceived in
+      late 2007 as an answer to some of the problems we were seeing
+      developing software infrastructure at Google. The computing
+      landscape today is almost unrelated to the environment in which
+      the languages being used, mostly C++, Java, and Python, had been
+      created. The problems introduced by multicore processors,
+      networked systems, massive computation clusters, and the web
+      programming model were being worked around rather than addressed
+      head-on. Moreover, the scale has changed: today's server
+      programs comprise tens of millions of lines of code, are worked
+      on by hundreds or even thousands of programmers, and are updated
+      literally every day. To make matters worse, build times, even on
+      large compilation clusters, have stretched to many minutes, even
+      hours. Go was designed and developed to make working in this
+      environment more productive. Besides its better-known aspects
+      such as built-in concurrency and garbage collection, Go's design
+      considerations include rigorous dependency management, the
+      adaptability of software architecture as systems grow, and
+      robustness across the boundaries between components. This
+      article explains how these issues were addressed while building
+      an efficient, compiled programming language that feels
+      lightweight and pleasant. Examples and explanations will be
+      taken from the real-world problems faced at Google."
+
+  + https://go-proverbs.github.io/
+
+  + VIDEO: [[https://www.youtube.com/watch?v=PAAkCSZUG1c][Gopherfest 2015 | Go Proverbs with Rob Pike]]
+    - Don't communicate by sharing memory, share memory by communicating.
+    - Concurrency is not parallelism.
+    - Channels orchestrate; mutexes serialize.
+    - The bigger the interface, the weaker the abstraction.
+    - Make the zero value useful.
+    - interface{} says nothing.
+    - Gofmt's style is no one's favorite, yet gofmt is everyone's favorite.
+    - _A little copying is better than a little dependency._ (NodeJS + NPM)
+    - Syscall must always be guarded with build tags.
+    - Cgo must always be guarded with build tags.
+    - Cgo is not Go.
+    - With the unsafe package there are no guarantees.
+    - Clear is better than clever.
+    - Reflection is never clear.
+    - Errors are values.
+    - Don't just check errors, handle them gracefully.
+    - Design the architecture, name the components, document the details.
+    - Documentation is for users.
+ 
+    
+  + [[https://golang.design/history/][Golang Official - GO: A Documentary]]
+    + Brief: "This document collects many interesting (publicly
+      observable) issues, discussions, proposals, CLs, and talks from
+      the Go development process, which intents to offer a
+      comprehensive reference of the Go history."
+
+  + [[https://go.dev/blog/supply-chain][GO-Blog - How Go Mitigates Supply Chain Attacks]]
+    + Brief: "Modern software engineering is collaborative, and based
+      on reusing Open Source software. That exposes targets to supply
+      chain attacks, where software projects are attacked by
+      compromising their dependencies. Despite any process or
+      technical measure, every dependency is unavoidably a trust
+      relationship. However, the Go tooling and design help mitigate
+      risk at various stages."
+
+  + [[https://willnewton.name/2015/09/22/go-toolchain-primer/][Go Toolchain Primer – Will's Blog]]
+    + Brief: "A toolchain is a package composed of the compiler and
+      ancillary tools, libraries and runtime for a language which
+      together allow you to build and run code written in that
+      language. The GNU toolchain is the most commonly used toolchain
+      on Linux and allows building programs written C, C++, Fortran
+      and a host of other…"
+
+  + [[https://speakerdeck.com/eranyanay/going-infinite-handling-1m-websockets-connections-in-go][Going Infinite, handling 1M websockets connections in Go - Speaker Deck]]
+    + "Go HTTP server provides great scalability, allocating a
+      goroutine per connection, and reusing the efficient multiplexing
+      and scheduling of the Go runtime. While this technique is almost
+      ideal for most scenarios, it comes with limited scale for
+      websockets applications due to high memory consumption In this
+      talk, we will show how we’ve implemented our own event loop
+      mechanism to overcome those limitations and efficiently manage
+      millions of concurrent connections while minimizing resource
+      utilization. We will compare the memory footprint of a naive
+      implementation, relying on the standard way to handle those
+      connections with go-routines, and explore the difficulties of
+      using epoll and select in pure go to efficiently schedule and
+      maintain all those concurrent connections All the examples in
+      the slides are also available here:
+      https://github.com/eranyanay/1m-go-websockets/"
+
+  + [[https://www.freecodecamp.org/news/million-websockets-and-go-cc58418460bb/][A Million WebSockets and Go]]
+    + Brief: "This article is about how we developed the high-load
+      WebSocket server with Go. If you are familiar with WebSockets,
+      but know little about Go, I hope you will still"
+
+  + [[https://go.dev/blog/when-generics][Go-Blog - When To Use Generics - The Go Programming Language]]
+    + Brief: "The Go 1.18 release adds a major new language feature:
+      support for generic programming. In this article I’m not going
+      to describe what generics are nor how to use them. This article
+      is about when to use generics in Go code, and when not to use
+      them. To be clear, I’ll provide general guidelines, not hard and
+      fast rules. Use your own judgement. But if you aren’t sure, I
+      recommend using the guidelines discussed here."
+
+  + [[https://github.com/luk4z7/go-concurrency-guide][GitHub - luk4z7/go-concurrency-guide]]
+    + Brief: "Practical concurrency guide in Go, communication by channels, patterns"
+
+  + [[https://gabrieltanner.org/blog/broadcasting-ion-sfu][Building a WebRTC video and audio Broadcaster in Golang using ION-SFU, and media devices]]
+    + "Several tips to write scalable WebSocket servers with Go language and beyond."
+       
+*** NIM 
+
+  + [[https://en.wikipedia.org/wiki/Nim_(programming_language)][Nim Language]] (2008)
+    + Official Web Site: https://nim-lang.org/
+    + Features:
+      + Native code compilation by generating C-code (Nim is a transpiler)
+      + Simple syntax
+      + Gabarge Collection 
+    + Problems:
+      + Did not reach version 1.0 yet. Still under development.
+      + Less tooling support.
+      + Gabarge Collection can also be a problem in
+        performance-critical applications.
+
+*** Crystal 
+
+  + [[https://en.wikipedia.org/wiki/Crystal_(programming_language)][Crystal Programming language]] (2014)
+    + Official Web Site: https://crystal-lang.org/
+    + Github: https://github.com/crystal-lang/crystal
 
 *** ATS - Applied Type System 
 
@@ -391,108 +1355,119 @@ Problem:
       + Github: https://github.com/fpiot/arduino-ats
     + [[https://www.youtube.com/watch?v=KcXQ5GJVGpo][04 Arduiono programming of ML style in ATS]]
 
-*** Golang 
-
- [[https://en.wikipedia.org/wiki/Go_(programming_language)][Go - Golang]] (2009)
-
-  + Official Web Site: https://golang.org/
-
-  + Programming language created at Google by Robert Griesmer, Rob
-      Pike and Ken Thompson.
-
- Features:
-
-   + Most used for Network Servers, Web Servers, Web Applications,
-     distributed systems and message systems due its concurrency
-     features such as go-routines based on [[https://en.wikipedia.org/wiki/Communicating_sequential_processes][Hoare's CSP]] -
-     Communicating Sequential Processes.
-
-   + Easier to learn for developers coming from languages such as
-     Java, Python, and so on. 
-
-   + Lightweight threads (user-space threads)
-
-   + Gabarge collector.
-
-   + Fast compile-time to native code 
-
-   + Statically-linked native executables that can be deployed
-     without any dependencies.
-
-   + Multiple return values
-
-   + Reflexion 
-
-   + Avoids unsafe pointer arithmetics.
-
-   + Array-bound checking.
-
-Drawbacks:
- 
-  + "Ungoogable name" "go" which is hard to search about without
-    getting many unrelated results as "go" is one of the most common
-    words of the English Language, better search for "golang" or "go
-    programming". 
-
-   + Lack of generics and template metaprogramming.
-
-   + Gabarge collector can be a curse for the applications that C++
-     shines, namely, system programming, embedded systems, real-time
-     systems (including games) and high performance computing.
-
-*** NIM 
-
-  + [[https://en.wikipedia.org/wiki/Nim_(programming_language)][Nim Language]] (2008)
-    + Official Web Site: https://nim-lang.org/
-    + Features:
-      + Native code compilation by generating C-code (Nim is a transpiler)
-      + Simple syntax
-      + Gabarge Collection 
-    + Problems:
-      + Did not reach version 1.0 yet. Still under development.
-      + Less tooling support.
-      + Gabarge Collection can also be a problem in
-        performance-critical applications.
-
-*** Crystal 
-
-  + [[https://en.wikipedia.org/wiki/Crystal_(programming_language)][Crystal Programming language]] (2014)
-    + Official Web Site: https://crystal-lang.org/
-    + Github: https://github.com/crystal-lang/crystal
-
 ** Scientific and numerical computing
 
-+ [[https://en.wikipedia.org/wiki/Fortran][Fortran]] (1954)
-  + Fortran (Formula Translation), designed by John Backus at IBM in
-    1954, was the first high level programming language which the
-    purpose was to assist physics and engineering calculations. The
-    reason why Fortran was math-centric is that computers were
-    initially developed for number crunching and earlier devices
-    called computers such as slide rules, abacus and analog computers
-    were built for numerical computations, solving differential
-    equations or peform control system tasks.
-  + Features:
-    + Array-based notation
-    + Matrix and array indexes starting with 1 instead of 0.
-    + Compilation to native code
-    + Fortran libraries can be called and used from C or C++.
-    + Lots of legacy domain-specific code for science, physics and
-      engineering are available in Fortran.
-  + Problem:
-    + Pretty old programming language.
-    + No longer widely used.
-    + Open source Fotran compilers such as GFortran (GNU Fortran)
-      cannot match the performance of expensive proprietary
-      compilers. 
-    + Domain-specific.
-** Embedded, Real Time Systems and Safety-Critical System 
+   * [[https://en.wikipedia.org/wiki/Fortran][Fortran]] (1954)
+     + Fortran (Formula Translation), designed by John Backus at IBM in
+       1954, was the first high level programming language which the
+       purpose was to assist physics and engineering calculations. The
+       reason why Fortran was math-centric is that computers were
+       initially developed for number crunching and earlier devices
+       called computers such as slide rules, abacus and analog computers
+       were built for numerical computations, solving differential
+       equations or peform control system tasks.
+     + Features:
+       + Array-based notation, support for arrays, matrices and
+         multi-dimensional arrays (also called tensors).
+       + Matrix and array indexes starting with 1 instead of 0.
+       + Compilation to native code
+       + Fortran libraries can be called and used from C or C++.
+       + Lots of legacy domain-specific code for science, physics and
+         engineering are available in Fortran.
+       + Forbids pointer aliasing, which allows the compiler to
+         generate more performant code. In C or C++, forbiding pointer
+         aliasing requires using the 'restrict' keyword in C or
+         compiler-proprietary annotation in C++.
+     + Drawbacks: 
+       + Pretty old programming language.
+       + No longer widely used outside certain scientific niche fields.
+       + Open source Fotran compilers such as GFortran (GNU Fortran)
+         cannot match the performance of expensive proprietary
+         compilers. 
+       + Domain-specific
+     + See:
+       * [[http://acmg.seas.harvard.edu/geos/wiki_docs/compilers/main_for_lin_v11.pdf][Intel Fortran Compiler Manual]] [PDF]
+       * [[https://www.pgroup.com/doc/pgi13ref.pdf][PGI Fortran Compiler]] [PDF]
+       * [[https://web.archive.org/web/20160729202308/https://d3f8ykwhia686p.cloudfront.net/1live/intel/An_Introduction_to_Vectorization_with_Intel_Fortran_Compiler_021712.pdf][An Introduction to Vectorization with the Intel Fortran Compiler]] [PDF]
+       * [[https://modelingguru.nasa.gov/docs/DOC-2642][Nasa Modelling Guru - C++ code for C++ class and C interfaces]]
+       * [[https://partee.io/2021/02/21/climate-model-response/][Why are Climate models written in programming languages from 1950?]]
+       * [[https://news.ycombinator.com/item?id=26451966][Why are most climate models in Fortran?]]
+       * [[https://gcc.gnu.org/fortran/][G-Fortran - GNU Fortran]]
+       * [[https://masuday.github.io/fortran_tutorial/install_gfortran_windows.html][Installation of GFortran in Windows 10]]
+       * [[https://web.archive.org/web/20161229100052/https://www.nersc.gov/assets/Uploads/ISC15-IXPUG-WS-LanguageImpactOnVectorization-Fortran.pdf][Language Impact on Vectorization: Vector Programming in Fortran]] [PDF]
+       * [[https://hal.inria.fr/hal-01688488/document][Basics of Vectorization for Fortran Applications]] [PDF] - Inria /  HAL archives ouvertes.
+       * [[https://www.mcs.anl.gov/~itf/dbpp/text/node84.html][Fortran 90 - Array Assignment Statement]]
+       * [[http://www.mathcs.emory.edu/~cheung/Courses/561/Syllabus/6-Fortran/array4.html][Sub-Array Manipulations in Fortran]]
+       * [[https://milancurcic.com/2019/05/22/map-filter-reduce-in-fortran-2018.html][Map, Filter, Reduce in Fortran (2018)]]
+       * [[https://en.m.wikipedia.org/wiki/LAPACK][LAPACK - Linear Algebra Routines]]
+       * [[https://en.m.wikipedia.org/wiki/LINPACK][LINPACK - Linear Algebra Routines]]
 
-  [[https://en.wikipedia.org/wiki/Ada_(programming_language)][Ada - programming language]] (1980)
+   * [[https://en.wikipedia.org/wiki/Julia_%2528programming_language%2529][Julia Language]] (2012)
+     + Value proposition: Syntax and convenience of Matlab and Fortran; almost the
+       speed of C and C++; flexibility and convenience of Python. 
+
+     + Features:
+
+       + Dynamically typed with optional type anntations.
+
+       + JIT - Just In Time compiler. The script code is compiled to
+         machine code during runtime which increases the performance.
+
+       + Built-in types convenient for numerical computing: arrays;
+         matrices; multi-dimensional arrays.
+
+       + Interoperability: 
+         + Can use Python packages via CPython native interface C API. 
+         + Can call C++, C or Fotran. 
+
+       + No need to vectorized for-loops which decreases the
+         performance in Matlab; Python + Numpy; Octave; Scilab and so
+         on.
+
+       + Support for functions and variables with unicode symbols such
+         as greek letters: δ, ∇, ι ...
+
+       + Multiple Dispatching
+
+       + Lisp-like macros and metaprogramming features.
+
+     + Disadvantages:
+       + Slow startup time
+       + Not suitable for low latency applications, such as games,
+         since Julia is a garbage collected language.
+       + Less efficient. Despite the possible performance gains, Julia
+         still uses more CPU time and memory resources than C++, which
+         is still one of the best ways to get the maximum ROI (Return
+         on Investment) on the hardware and take full advantage of
+         every penny spent on it.
+
+     + Best use cases:
+       + Scientific and numerical computing
+       + Machine learning
+       + Engineering design 
+       + Prototyping numerical algorithms and numerical methods before
+         a more efficient implementation in C++ or any other more
+         efficient language. 
+
+** Embedded Systems or Real Time Systems
+
+  [[https://en.wikipedia.org/wiki/Ada_(programming_language)][Ada - programming language]] (Since 1980)
 
   + Native code compilation, stronger static typing than C++; more
     memory-safe than C or C++; no gabarge-collector; pascal-based;
     built-in design-by-contract; concurrency in the language
-    specification.
+    specification and several runtime checks, that has some
+    performance costs.
+    
+  + Most used technology stack:
+    + PowerPC + Real Time Operating System (VxWorks or Green Hills) + ADA Spark
+
+  + Value propositions:
+    + Unlike C++, which the motto is speed over  safety, the motto of ADA language is safety first.
+    + Most paranoid and unforgiven type system ever. Even integer numerical ranges can be type checked.
+      
+
+ *Articles About ADA* 
 
   + [[https://pdfs.semanticscholar.org/d3f9/170a1151e6589ad7e6796b13a89858ac6696.pdf][Ada for Embedded Systems: Issues and Questions]]
 
@@ -504,7 +1479,20 @@ Drawbacks:
 
   + [[https://www.electronicdesign.com/embedded-revolution/assessing-ada-language-audio-applications][Assessing ADA language for audio Applications - Electronic Design]]
 
+  + [[http://archive.adaic.com/projects/atwork/control.html][Ada Control Jet Flights]]
+
   + [[http://archive.adaic.com/projects/atwork/boeing.html][Boeing Flies on 99% Ada]]
+
+  + [[https://www.aerospacetestinginternational.com/news/software/airbus-chooses-adacore-for-autonomous-aircraft-software-testing.html][Airbus chooses AdaCore for autonomous aircraft software testing]]
+
+  + [[https://web.archive.org/web/20220427000940/https://www.militaryaerospace.com/commercial-aerospace/article/14226094/embraer-chooses-adacore-gnat-pro-ada-software-tool-for-flightcritical-avionics-upgrades-to-amx-jet-fighterbomber][Embraer chooses AdaCore GNAT Pro Ada software]]
+
+  + [[https://blogs.nvidia.com/blog/2019/02/05/adacore-secure-autonomous-driving/][ADALang / Maximum Security Vision]] (Nvidia + AdaCore)
+    + "NVIDIA works with AdaCore to leverage Ada and SPARK programming
+      languages for software security."
+
+  + [[https://web.archive.org/web/20220427002514/https://xtuml.org/wp-content/uploads/2015/10/Saab-Ada-Model-Compiler.pdf][SAAB - Evolving / Formalising / Automating an Embedded Real-Time Software Architecture]] [PDF]
+
 
  *Some Videos:* 
 

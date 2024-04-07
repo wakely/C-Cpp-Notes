@@ -177,6 +177,14 @@ language semantics.
      result in very complex compiler diagnostics." 
 
  + [[https://en.cppreference.com/w/cpp/language/constraints][Constraints and concepts]]
+   + "Class templates, function templates, and non-template functions
+     (typically members of class templates) may be associated with a
+     constraint, which specifies the requirements on template
+     arguments, which can be used to select the most appropriate
+     function overloads and template specializations. Named sets of
+     such requirements are called concepts. Each concept is a
+     predicate, evaluated at compile time, and becomes a part of the
+     interface of a template where it is used as a constraint." 
 
  *Constructors*
 
@@ -190,14 +198,114 @@ language semantics.
 
  + [[https://en.cppreference.com/w/cpp/types/aligned_storage][std::aligned_storage]]
  + [[https://en.cppreference.com/w/cpp/types/alignment_of][std::alignment_of]]
-** Operators for type's machine representation 
+** Strict Aliasing Rule and Type Punning 
 
- + [[https://en.cppreference.com/w/cpp/language/sizeof][sizeof]] - Size of type in bytes 
+  *Aliasing* 
 
- + [[https://en.cppreference.com/w/cpp/language/alignof][alignof]] - Get alignment for type 
+  + Red Hat -  [[https://developers.redhat.com/blog/2020/06/02/the-joys-and-perils-of-c-and-c-aliasing-part-1/][The joys and perils of C and C++ aliasing, Part 1]]
+
+  + Red Hat - [[https://developers.redhat.com/blog/2020/06/03/the-joys-and-perils-of-aliasing-in-c-and-c-part-2/][The joys and perils of aliasing in C and C++, Part 2]]
+
+  + [[https://gist.github.com/shafik/848ae25ee209f698763cffee272a58f8][What is the Strict Aliasing Rule and Why do we care?]] (OR Type
+    Punning, Undefined Behavior and Alignment, Oh My!)
+
+  + John Regehr -  [[https://blog.regehr.org/archives/1307][The Strict Aliasing Situation is Pretty Bad]]
+
+  + John Regehr - [[https://blog.regehr.org/archives/959][Type Punning, Strict Aliasing, and Optimization]]
+
+  + [[http://terathon.com/blog/some-thoughts-about-aliasing-in-c/][Some Thoughts about Aliasing in C++]]
+
+  + CellPerformance - [[https://cellperformance.beyond3d.com/articles/2006/06/understanding-strict-aliasing.html][Understanding Strict Aliasing]]
+
+  + NetBSD MailList - [[https://mail-index.netbsd.org/tech-kern/2003/08/11/0001.html][Subject: Aliasing, pointer casts and gcc 3.3.]]
+
+  + [[http://sgifiles.irixnet.org/sgi/audio/audio.apps/dev/aliasing.html][Performance Implications of Pointer Aliasing]]
+
+  + [[https://wiki.sei.cmu.edu/confluence/display/c/EXP43-C.+Avoid+undefined+behavior+when+using+restrict-qualified+pointers][EXP43-C. Avoid undefined behavior when using restrict-qualified pointers]] (Security)
+
+  *Restrict Keyword* 
+
+  + https://en.cppreference.com/w/c/language/restrict
+
+  + [[https://www.approxion.com/pointers-in-c-part-v-the-restrict-qualifier/][Pointers in C, Part V: The ‘restrict’ Qualifier]]
+
+  + [[https://docs.microsoft.com/en-us/cpp/cpp/extension-restrict?view=msvc-160][MSVC C++ compiler - __restrict keyword]]
+
+  + [[https://www.xilinx.com/html_docs/xilinx2020_2/vitis_doc/using_restrictive_keyword.html][Using the Restrict Keyword in AI Engine Kernels - xilinx]]
+
+  + [[https://developer.nvidia.com/blog/cuda-pro-tip-optimize-pointer-aliasing/][CUDA Pro Tip: Optimize for Pointer Aliasing]]
+
+  + Paper: [[http://open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3635.pdf][WG21 - N3635 - Towards restrict-like semantics for C++]] [PDF]
+
+  + [[https://cvw.cac.cornell.edu/vector/coding_aliasing][Vectoriazation - Pointer Aliasing]] (Cornnel University)
+
+  + [[https://llvm.org/devmtg/2017-02-04/Restrict-Qualified-Pointers-in-LLVM.pdf][Restrict-qualified pointers in LLVM]] [PDF] (Argonne National Laboratory)
+
+  + https://stackoverflow.com/questions/776283/what-does-the-restrict-keyword-mean-in-c
+
+** Operators getting type's data representation 
+
+Size in Bytes: 
+
+ + [[https://en.cppreference.com/w/cpp/language/sizeof][sizeof]] (OPERATOR) - Size of type in bytes. 
+
+Data Alignment / Data binary layout: 
+
+ + [[https://en.cppreference.com/w/cpp/language/alignof][alignof]] (OPERATOR) / cppreference - Get alignment for type.
+
+ + [[https://docs.microsoft.com/en-us/cpp/cpp/alignof-operator?view=msvc-160][alignof]] (OPERATOR) / Microsft Docs.
+   + "The alignof operator returns the alignment in bytes of the
+     specified type as a value of type size_t."
+
+ + [[https://docs.microsoft.com/en-us/cpp/standard-library/alignment-of-class?view=msvc-160][alignment_of Class | Microsoft Docs]]
+   + "Gets alignment of the specified type. This struct is implemented
+     in terms of alignof. Use alignof directly when you simply need to
+     query an alignment value. Use alignment_of when you need an
+     integral constant, for example when doing tag dispatch."
+
+ + [[https://docs.microsoft.com/en-us/cpp/standard-library/aligned-storage-class?view=msvc-160][aligned_storage Class | Microsoft Docs]]
+   + "Makes suitably aligned type."
+
+ + [[https://docs.microsoft.com/en-us/cpp/cpp/align-cpp?view=msvc-160][align (C++) | Microsoft Docs]]
+   + "In Visual Studio 2015 and later, use the C++11 standard alignas
+     specifier to control alignment." 
+
+ + [[https://en.wikipedia.org/wiki/Data_structure_alignment][Data structure alignment - Wikipedia]] 
+
+ + [[https://docs.microsoft.com/en-us/cpp/cpp/alignment-cpp-declarations?view=msvc-160][Alignment | Microsoft Docs]] [BEST]
+   + "One of the low-level features of C++ is the ability to specify
+     the precise alignment of objects in memory to take maximum
+     advantage of a specific hardware architecture." 
+
+ + [[https://docs.microsoft.com/en-us/cpp/c-language/padding-and-alignment-of-structure-members?view=msvc-160][Padding and Alignment of Structure Members | Microsoft Docs]]
+   + "ANSI 3.5.2.1 The padding and alignment of members of structures
+     and whether a bit field can straddle a storage-unit boundary
+     Structure members are stored sequentially in the order in which
+     they are declared: the first member has the lowest memory address
+     and the last member the highest."
+
+ + [[https://docs.microsoft.com/en-us/cpp/preprocessor/pack?view=msvc-160][pack pragma | Microsoft Docs]]
+   + "Specifies the packing alignment for structure, union, and class members."
+ 
+ + [[https://docs.microsoft.com/en-us/cpp/standard-library/aligned-union-class?view=msvc-160][aligned_union Class | Microsoft Docs]]
+   + "Provides a POD type large enough and suitably aligned to store a union type, and the size required."
+
+Struct Offset in bytes: 
+
+ + [[https://en.cppreference.com/w/cpp/types/offsetof][offsetof - cppreference.com]] (MACRO) - "The macro offsetof expands
+   to an integral constant expression of type std::size_t, the value
+   of which is the offset, in bytes, from the beginning of an object
+   of specified type to its specified subobject, including padding if
+   any."
+
+ + [[https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/offsetof-macro?view=msvc-160][offsetof Macro | Microsoft Docs]]
+
+ + [[https://en.wikipedia.org/wiki/Offsetof][offsetof - Wikipedia]]
+ 
+RTTI Runtime Type Information: 
 
  + [[https://en.cppreference.com/w/cpp/language/typeid][typeid]] - Used for checking types at runtime (RTTI)
- 
+
 ** Strings and text parsing 
 
 + Types:
@@ -307,7 +415,9 @@ Header: [[https://en.cppreference.com/w/cpp/header/memory][<memory>]]
      allocation and deallocation through function calls to the
      IUnknown member functions: QueryInterface, AddRef, and Release." 
 
-** Pointer arithmetic and array index
+** Memory access and Pointer arithmetic
+
+ *Pointer Arithmetic* 
 
 + [[https://en.cppreference.com/w/cpp/types/size_t][std::size_t]] - Integer which represents the size of a given type in
   bytes. Use cases: type size, number of items in a
@@ -326,6 +436,107 @@ Header: [[https://en.cppreference.com/w/cpp/header/memory][<memory>]]
   arithmetic, pointer offset and array index in a platform-indepedent
   way.
 
+ *Memory Access* 
+
+
+|-------------------------------+-------------------------------------------------------------------------------------+---|
+| Feature                       | Note                                                                                |   |
+|-------------------------------+-------------------------------------------------------------------------------------+---|
+| *Pointer*                       |                                                                                     |   |
+|-------------------------------+-------------------------------------------------------------------------------------+---|
+| void*                         | void pointers are used for untyped memory access (generic memory)                   |   |
+| T* (struct T;)                | opaque pointer or pointer to incomplete type (similar to void*, but more type-safe) |   |
+| std::byte      (C++17 - Only) | byte-addressable memory / byte view of the memory [better, more explicit]           |   |
+| std::uint8_t*  (unsigned)     | byte-addressable memory / byte view of the memory [better, more explicit]           |   |
+| std::int8_t*   (signed)       | byte-addressable memory                                                             |   |
+| char*          (signed)       | byte-addressable memory                                                             |   |
+| unsigned char* (unsigned)     | byte-addressable memory                                                             |   |
+|                               |                                                                                     |   |
+|-------------------------------+-------------------------------------------------------------------------------------+---|
+| *Object Size and Array index*   |                                                                                     |   |
+|-------------------------------+-------------------------------------------------------------------------------------+---|
+| std::size_t   (unsigned)      | size  of object in bytes; number of elements or array index.                        |   |
+| std::ssize_t  (signed)        | similar to size_t, but this type is signed.                                         |   |
+|                               |                                                                                     |   |
+|-------------------------------+-------------------------------------------------------------------------------------+---|
+| *Pointer Arithmetic*            |                                                                                     |   |
+|-------------------------------+-------------------------------------------------------------------------------------+---|
+| std::uintptr_t  (unsigned)    | unsigned type that can store the address held by a pointer.                         |   |
+| std::intptr_t   (signed)      | signed type that can store address held by a pointer.                               |   |
+| std::ptrdiff_t  (unsigned)    | pointer offset and pointer difference.                                              |   |
+|                               |                                                                                     |   |
+|-------------------------------+-------------------------------------------------------------------------------------+---|
+
+Reminder example for std::size_t 
+
+#+BEGIN_SRC cpp 
+   double dataset [5] = { 20.51, 100.51, -2.51, 90.25, 10.0};
+
+   for(size_t i = 0; i < 5; i ++){ do_something( dataset[i] ) };
+#+END_SRC
+
+Reminder example for std::uintptr_t and ptrdiff_t / Example 1 
+
+#+BEGIN_SRC cpp  
+   int x = 100; 
+   int ptr* = &x;
+
+   // [C-style cast] => The variable p stores address (numerical value)
+   // pointed by the pointer variable ptr. 
+   std::uintptr_t p = (std::uintptr_t) ptr; 
+  
+   // [C++-style cast]
+   std::uintptr_t p = reinterpret_cast<std::uintptr_t>(ptr); 
+   std::uintptr_t p = reinterpret_cast<std::uintptr_t>(&x); 
+#+END_SRC
+
+Reminder example for std::uintptr_t and ptrdiff_t / Example 2 
+  + Note: Unlike in C, in C++, it is possible to perform arithmetic on
+    void* pointers. The only safe way to perform this kind of
+    operation is to cast void* to _std::uintptr_t_, peform the
+    arithmetic operating and then cast to the 
+
+#+BEGIN_SRC cpp     
+   // ***********************************************************//
+   // ---------- Use-Case Memory Mapped File --------------------// 
+
+    // Calls mmap() on Unix-like systems
+    MemoryMappedFile fmap("/path/to/file");
+
+    // Get void* pointer which points to the file mapping. 
+    void* mmap_addr = fmap.get(): 
+   
+    // Number of bytes from the beginning of the file until the 
+    // PE-header 
+    constexpr ptrdiff_t PE_header_offset = 0xF8; 
+
+    // ERROR!! Possible in C, but not possible in C++. [DO NOT COMPILE!!]
+    PE_HEADER* hdr = mmap_addr + PE_header_offset;
+
+    // C-style cast (not advisable) [AVOID]
+    PE_HEADER* hdr = (PE_HEADER*) ((std::uintptr_t) mmap_addr + PE_header_offset);
+
+    // C++-style cast [better]
+    PE_HEADER* hdr = reinterpret_cast<PE_HEADER*>( reinterpret_cast<std::uintptr_t>(mmap_addr) + PE_header_offset);
+#+END_SRC
+
+Reminder example for std::uintptr_t and ptrdiff_t / Example 3 
+
+#+BEGIN_SRC cpp 
+   // *****************************************************************//
+   // --- Use-Case for Embedded Systems / MMIO - Memory Mapped IO -----// 
+
+   // MMIO - Memory-Mapped IO address of ADC - Analog-To-Digial Converter
+   constexpr uintptr_t ADDRESS_OF_ADC = 0xFF8ABCDE; 
+
+   // C-style cast [AVOID] 
+   auto mmio_adc = (volatile const std::uint32_t*) ADDRESS_OF_ADC;
+
+   // C++-style cast
+   auto mmio_adc = reinterpret_cast<volatile const std::uint32_t*>(ADDRESS_OF_ADC_;  
+#+END_SRC
+
+
 *Fixed Size Integers* 
 
 + Header: [[https://en.cppreference.com/w/cpp/header/cstdint][<cstdint>]] - Provides several unsigned and signed integer
@@ -339,7 +550,7 @@ Header: [[https://en.cppreference.com/w/cpp/header/memory][<memory>]]
   + Binary serialization
   + Raw binary data
 
-** Functiona Programming and Function-object utilities
+** Functional Programming and Function-object utilities
 
 *Header:*
 
@@ -437,12 +648,44 @@ or
    * [[https://en.cppreference.com/w/cpp/language/constexpr][constexpr specifier]]
      + Compile-time computations, look-up tables and ROM (Read-Only Memory) data storage.
 
+   * Bitwise Operators: 
+     + [[https://docs.microsoft.com/en-us/cpp/c-language/bitwise-shift-operators?view=msvc-160][Bitwise Shift Operators | Microsoft Docs]] 
+     + [[https://docs.microsoft.com/en-us/cpp/c-language/c-bitwise-operators?view=msvc-160][C Bitwise Operators | Microsoft Docs]]
+     + [[https://docs.microsoft.com/en-us/cpp/cpp/left-shift-and-right-shift-operators-input-and-output?view=msvc-160][Left Shift and Right Shift Operators (>> and <<) | Microsoft Docs]]
+     + [[https://docs.microsoft.com/en-us/cpp/cpp/bitwise-and-operator-amp?view=msvc-160][Bitwise AND operator: & | Microsoft Docs]]
+     + [[https://docs.microsoft.com/en-us/cpp/cpp/bitwise-exclusive-or-operator-hat?view=msvc-160][Bitwise exclusive OR operator: ^ | Microsoft Docs]]
+     + [[https://docs.microsoft.com/en-us/cpp/cpp/bitwise-inclusive-or-operator-pipe?view=msvc-160][Bitwise inclusive OR operator: | | Microsoft Docs]]
+     + [[https://docs.microsoft.com/bg-bg/cpp/cpp/bitwise-and-operator-amp?view=msvc-160&viewFallbackFrom=vs-2019][Bitwise AND operator: & | Microsoft Docs]]
+
    * [[https://en.cppreference.com/w/cpp/language/user_literal][user-defined literals (C++11)]]
+
+   * [[https://docs.microsoft.com/en-us/cpp/cpp/cpp-bit-fields?view=msvc-160][C++ Bit Fields | Microsoft Docs]] [AVOID] [TRAP]
+     * "Classes and structures can contain members that occupy less
+       storage than an integral type. These members are specified as
+       bit fields."
+     * Note: Bitfields should be avoided due to endianess issues that
+       may cause unexpected errors as the bit position in memory
+       depends on the machine endianess. A safer alternative to
+       bitfields is using integers represeting flags and bitshift
+       operators. For instance, setting or clearing bits can be
+       performed by using bitwise operators.
+       * lvalue = lvalue | (1 << 2)  => Set 2nd bit.
+       * lvalue = lvalue & ~(1 << 3) => Clear 3rd bit
+     * See:
+       * [[https://www.keil.com/support/man/docs/armcc/armcc_chr1360775115791.htm][Structures, unions, enumerations, and bitfields]] (ARM Keil C compiler)
+       * [[https://atadiat.com/en/e-embedded-c-struct-union-part-2/][Embedded C: Struct and Union (part 2)]] - Atadiat
+       * [[https://developer.arm.com/documentation/ka004521/latest][Bitfield - ARM Developer]]
+       * [[https://hackaday.com/2015/08/28/firmware-factory-bit-fields-vs-shift-and-mask/][Firmware Factory: Bit Fields Vs Shift And Mask | Hackaday]]
+       * [[https://blogs.sw.siemens.com/embedded-software/2019/12/02/why-not-use-bit-fields-for-device-registers/][Why not use bit fields for device registers? | Embedded Software]] (Siemens AG)
+       * [[https://www.embedded.com/a-generic-api-for-bit-manipulation-in-c/][A Generic API for Bit Manipulation in C]] (Embedded.com Magazine)
+       * [[https://lwn.net/Articles/478657/][Betrayed by a bitfield]] - Jonathan Corbet - (LWN publication)
+       * [[https://stackoverflow.com/questions/54490802/replacing-bitfields-with-bitshifting-in-an-embedded-register-struct][Replacing Bitfields with Bitshifting in an Embedded Register Struct]]
+       * [[https://stackoverflow.com/questions/6043483/why-bit-endianness-is-an-issue-in-bitfields][c - Why bit endianness is an issue in bitfields?]]
 
    * [[https://en.cppreference.com/w/cpp/language/reinterpret_cast][reinterpret_cast]] 
      * Used to make the casting of a MMIO - memory mapped IO device
        explicit indicating that the memory is being interpreted in
-       certain as the type parameter T* of reinterpret_cast<T*>(address_of_MMIO).      
+       certain as the type parameter T* of reinterpret_cast<T*>(address_of_MMIO).
 
    * [[https://en.cppreference.com/w/cpp/language/cv][volatile specifier - cppreference]] ; [[https://docs.microsoft.com/en-us/cpp/cpp/volatile-cpp?view=vs-2019][volatile specifier - Microsft]]
      * Type qualifier used for a accessing a memory-mapped IO memory
@@ -458,7 +701,7 @@ or
          IOs and so on. 
        * ISR - Interrupt Service Routines
      * See:
-       + [[http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka3750.html][Arm - Placing C variables at specific addresses to access memory-mapped peripherals]]
+       + [[https://web.archive.org/web/20150214081549/http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka3750.html][Arm - Placing C variables at specific addresses to access memory-mapped peripherals]]
        + [[https://en.wikipedia.org/wiki/Volatile_(computer_programming)][volatile (computer programming) - Wikipedia]]
        + [[https://blog.regehr.org/archives/28][Nine ways to break your systems code using volatile – Embedded in Academia]]
        + [[https://www.embedded.com/print/4442490][C keywords: Don't flame out over volatile]]
@@ -681,31 +924,82 @@ Header: [[https://en.cppreference.com/w/cpp/header/thread][<thread>]] - C++11 Co
   check file type and permissions.
 ** C++20 New Features (Under development)
 
-+ [[https://www.google.ca/search?source=hp&ei=zRR1XMfCFemj5OUPrbmZgAo&q=site%253Ahttps%253A%252F%252Fen.cppreference.com+%2522C%252B%252B20%2522&btnK=Google+Search&oq=site%253Ahttps%253A%252F%252Fen.cppreference.com+%2522C%252B%252B20%2522&gs_l=psy-ab.3...2128.7132..7393...1.0..0.207.2184.0j14j1......0....1j2..gws-wiz.....0..0.05NCulXZcCg][All C++20 Related Links]] from Cppreference.
+   * [[https://www.google.ca/search?source=hp&ei=zRR1XMfCFemj5OUPrbmZgAo&q=site%253Ahttps%253A%252F%252Fen.cppreference.com+%2522C%252B%252B20%2522&btnK=Google+Search&oq=site%253Ahttps%253A%252F%252Fen.cppreference.com+%2522C%252B%252B20%2522&gs_l=psy-ab.3...2128.7132..7393...1.0..0.207.2184.0j14j1......0....1j2..gws-wiz.....0..0.05NCulXZcCg][All C++20 Related Links]] from Cppreference.
 
-+ [[https://en.cppreference.com/w/cpp/concepts][Concepts library (C++20)]] - "The concepts library provides
-  definitions of fundamental library concepts that can be used to
-  perform compile-time validation of template arguments and perform
-  function dispatch based on properties of types. These concepts
-  provide a foundation for equational reasoning in programs."
+   * [[https://en.cppreference.com/w/cpp/compiler_support][C++20 compiler support]]
 
-+ [[https://en.cppreference.com/w/cpp/ranges][Ranges library]] - "The ranges library provides components for
-  dealing with ranges of elements, including a variety of view
-  adapters."
-  + Note: The range C++20 library is derived from [[https://github.com/ericniebler/range-v3][range-v3]]
-    (improvement of ranges from Boost libraries)
-  + Proposal: [[https://ericniebler.github.io/std/wg21/D4128.html][D4128]]
+   * [[https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=vs-2019][C++ language conformance table]] - for MSVC (Visual C++ Compilerfrom Microsoft)
 
-+ [[https://en.cppreference.com/w/cpp/language/attributes/contract][Design-by-Contract]] - C++ attribute: expects, ensures, assert for
-  pre-conditions, post-conditions and assertions.  
+  *Language Features* 
 
-+ [[https://en.cppreference.com/w/cpp/feature_test][feature test]]
+   * [[https://docs.microsoft.com/en-us/cpp/cpp/modules-cpp?view=vs-2019][Modules C++20 - (Visual C++ Compiler)]] [Microsoft] [BEST]
+     * Brief: "C++20 introduces modules, a modern solution for
+       componentization of C++ libraries and programs. A module is a
+       set of source code files that are compiled independently of the
+       translation units that import them. Modules eliminate or
+       greatly reduce many of the problems associated with the use of
+       header files, and also potentially reduce compilation times.
+       ..."
 
-+ [[https://en.cppreference.com/w/cpp/language/consteval][consteval]] specifier
+   * [[https://en.cppreference.com/w/cpp/language/modules][Modules (since C++20)]] (CppReference)
 
-+ [[https://en.cppreference.com/w/cpp/chrono][chrono]] (Calendar, date and time)
+   * [[https://en.cppreference.com/w/cpp/language/aggregate_initialization][Aggregate initialization]]
 
-+ [[https://en.cppreference.com/w/cpp/language/transactional_memory][Transactional Memory]] (Experimental)
+   * [[https://en.cppreference.com/w/cpp/concepts][Concepts library (C++20)]]
+     + "The concepts library provides definitions of fundamental
+       library concepts that can be used to perform compile-time
+       validation of template arguments and perform function dispatch
+       based on properties of types. These concepts provide a
+       foundation for equational reasoning in programs."
+
+   * [[https://en.cppreference.com/w/cpp/language/constinit][constinit specifier (since C++20)]]
+
+   * [[https://en.cppreference.com/w/cpp/language/consteval][consteval specifier (since C++20)]]
+
+   * [[https://en.cppreference.com/w/cpp/language/constraints][Constraints and concepts (since C++20)]]
+     + "Class templates, function templates, and non-template
+       functions (typically members of class templates) may be
+       associated with a constraint, which specifies the requirements
+       on template arguments, which can be used to select the most
+       appropriate function overloads and template
+       specializations. Named sets of such requirements are called
+       concepts. Each concept is a predicate, evaluated at compile
+       time, and becomes a part of the interface of a template where
+       it is used as a constraint."
+
+   * [[https://en.cppreference.com/w/cpp/language/coroutines][Coroutines (C++20)]]
+     * "A coroutine is a function that can suspend execution to be
+       resumed later. Coroutines are stackless: they suspend execution
+       by returning to the caller and the data that is required to
+       resume execution is stored separately from the stack. This
+       allows for sequential code that executes asynchronously
+       (e.g. to handle non-blocking I/O without explicit callbacks),
+       and also supports algorithms on lazy-computed infinite
+       sequences and other uses."
+
+ *Libraries* 
+
+   * [[https://en.cppreference.com/w/cpp/ranges][Ranges library]] - "The ranges library provides components for
+     dealing with ranges of elements, including a variety of view
+     adapters."
+     + Note: The range C++20 library is derived from [[https://github.com/ericniebler/range-v3][range-v3]]
+       (improvement of ranges from Boost libraries)
+     + https://en.cppreference.com/w/cpp/ranges
+     + https://en.cppreference.com/w/cpp/algorithm/ranges
+     + Proposal: [[https://ericniebler.github.io/std/wg21/D4128.html][D4128]]
+       + http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2325r3.html
+       + http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/n4885.pdf
+       + https://devblogs.microsoft.com/cppblog/c20-ranges-are-complete-in-visual-studio-2019-version-16-10/
+
+   * [[https://en.cppreference.com/w/cpp/utility/format][Formatting library (C++20)]]
+
+   * [[https://en.cppreference.com/w/cpp/feature_test][feature test]]
+
+   * [[https://en.cppreference.com/w/cpp/language/consteval][consteval]] specifier
+
+   * [[https://en.cppreference.com/w/cpp/chrono][chrono]] (Calendar, date and time)
+
+   * [[https://en.cppreference.com/w/cpp/language/transactional_memory][Transactional Memory]] (Experimental)
 ** Math and Numerical Computing
 
 All numeric libraries:
@@ -745,56 +1039,102 @@ Headers:
    std::partial_sum and std::iota.
 ** Generic Programming / Template Metaprogramming
 
-+ [[http://www.cplusplus.com/reference/type_traits/][<type_traits>]]  Type traits (aka metafunctions) - utilities for
-  querying, transforming and manipulating types at compile-time.
+ *Fundamentals*
 
-+ [[https://en.cppreference.com/w/cpp/iterator][iterator library]]
+ + [[https://en.cppreference.com/w/cpp/named_req][Named Requirements]]  [VERY IMPORTANT, MUST READ]
+   + "The named requirements listed on this page are the named
+     requirements used in the normative text of the C++ standard to
+     define the expectations of the standard library. Some of these
+     requirements are being formalized in C++20 using the concepts
+     language feature. Until then, the burden is on the programmer to
+     ensure that library templates are instantiated with template
+     arguments that satisfy these requirements. Failure to do so may
+     result in very complex compiler diagnostics." 
 
-+ [[https://en.cppreference.com/w/cpp/iterator/iterator_tags][iterator tags]] - std::input_iterator_tag, std::output_iterator_tag,
-  std::forward_iterator_tag  
+ + [[https://en.cppreference.com/w/cpp/language/constraints][Constraints and concepts]]
+   + "Class templates, function templates, and non-template functions
+     (typically members of class templates) may be associated with a
+     constraint, which specifies the requirements on template
+     arguments, which can be used to select the most appropriate
+     function overloads and template specializations. Named sets of
+     such requirements are called concepts. Each concept is a
+     predicate, evaluated at compile time, and becomes a part of the
+     interface of a template where it is used as a constraint." 
 
-+ [[https://en.cppreference.com/w/cpp/types/decay][std::decay]] - Remove cv-qualifiers, turns int& into int, int&& int
-  int, char* into char, int[2] into int*, and so on.
 
-+ [[https://en.cppreference.com/w/cpp/iterator/iterator][std::iterator]]
+   *Useful Type Traits*
 
-+ [[https://en.cppreference.com/w/cpp/iterator/end][std::end, std::cend]]
 
-+ [[https://en.cppreference.com/w/cpp/iterator/iterator_traits][std::iterator_traits]]
+   + [[https://en.cppreference.com/w/cpp/types/is_standard_layout][std::is_standard_layout]]
+     + "If T is a standard layout type (that is, a scalar type, a
+       standard-layout class, or an array of such type/class, possibly
+       cv-qualified), provides the member constant value equal to
+       true. For any other type, value is false. A standard-layout
+       class is a class that satisfies StandardLayoutType." 
 
-+ [[https://en.cppreference.com/w/cpp/language/constexpr][constexpr]] (C++11) - Compile-time computations. 
+   + [[https://en.cppreference.com/w/cpp/types/is_trivial][std::is_trivial]]
+     + "If T is TrivialType (that is, a scalar type, a trivially
+       copyable class with a trivial default constructor, or array of
+       such type/class, possibly cv-qualified), provides the member
+       constant value equal to true. For any other type, value is
+       false. The behavior is undefined if
+       std::remove_all_extents_t<T> is an incomplete type and not
+       (possibly cv-qualified) void. The behavior of a program that
+       adds specializations for is_trivial or is_trivial_v (since
+       C++17) is undefined." 
 
-+ [[https://en.cppreference.com/w/cpp/types/enable_if][std::enable_if]] - Allows to restrict a function overload,
-  alternative implementation of a function with different signature,
-  based on a type predicate. For instance, it can be used to define a
-  function overload which is selected only when the type predicate
-  [[https://en.cppreference.com/w/cpp/types/is_integral][std::is_integral]] is evaluates to true (the type is any of int,
-  long, short and so on.). Another overload, which only applies to
-  float point types, can be defined by using the type predicate
-  [[https://en.cppreference.com/w/cpp/types/is_floating_point][std::is_floating_point]].
-  + Summary: Allows to define function overloads which matches a
-    given type predicate metafunction (type trait).
 
-+ [[https://en.cppreference.com/w/cpp/types/conditional][std::conditional]] 
+   *General* 
 
-+ [[https://en.cppreference.com/w/cpp/types/void_t][std::void_t]] (Meta function - C++17)
+   + [[http://www.cplusplus.com/reference/type_traits/][<type_traits>]]  Type traits (aka metafunctions) - utilities for
+     querying, transforming and manipulating types at compile-time.
 
-+ [[https://en.cppreference.com/w/cpp/types/integral_constant][std::integral_constant]] 
+   + [[https://en.cppreference.com/w/cpp/iterator][iterator library]]
 
-+ [[https://en.cppreference.com/w/cpp/language/parameter_pack][parameter_pack]] -> Variadic template arguments.
+   + [[https://en.cppreference.com/w/cpp/iterator/iterator_tags][iterator tags]] - std::input_iterator_tag, std::output_iterator_tag,
+     std::forward_iterator_tag  
 
-+ [[https://en.cppreference.com/w/cpp/language/sizeof...][sizeof... operator]] -> Get size of parameter pack (arguments of
-  variadic template.)
+   + [[https://en.cppreference.com/w/cpp/types/decay][std::decay]] - Remove cv-qualifiers, turns int& into int, int&& int
+     int, char* into char, int[2] into int*, and so on.
 
-+ [[https://en.cppreference.com/w/cpp/language/fold][fold expression]] (C++17) - Allows unpacking template variadic
-  paremeters in a easier way without complicated recursion
-  boilerplate.
+   + [[https://en.cppreference.com/w/cpp/iterator/iterator][std::iterator]]
 
-+ [[https://en.cppreference.com/w/cpp/language/if][if constexpr]] (C++17)
-  + See:
-    * Paper which proposed [[http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0128r1.html][constexpr if]]
-    * [[https://www.codingame.com/playgrounds/2205/7-features-of-c17-that-will-simplify-your-code/constexpr-if][constexpr
-      if - 7 Features of C++17 that will simplify your code]]
+   + [[https://en.cppreference.com/w/cpp/iterator/end][std::end, std::cend]]
+
+   + [[https://en.cppreference.com/w/cpp/iterator/iterator_traits][std::iterator_traits]]
+
+   + [[https://en.cppreference.com/w/cpp/language/constexpr][constexpr]] (C++11) - Compile-time computations. 
+
+   + [[https://en.cppreference.com/w/cpp/types/enable_if][std::enable_if]] - Allows to restrict a function overload,
+     alternative implementation of a function with different signature,
+     based on a type predicate. For instance, it can be used to define a
+     function overload which is selected only when the type predicate
+     [[https://en.cppreference.com/w/cpp/types/is_integral][std::is_integral]] is evaluates to true (the type is any of int,
+     long, short and so on.). Another overload, which only applies to
+     float point types, can be defined by using the type predicate
+     [[https://en.cppreference.com/w/cpp/types/is_floating_point][std::is_floating_point]].
+     + Summary: Allows to define function overloads which matches a
+       given type predicate metafunction (type trait).
+
+   + [[https://en.cppreference.com/w/cpp/types/conditional][std::conditional]] 
+
+   + [[https://en.cppreference.com/w/cpp/types/void_t][std::void_t]] (Meta function - C++17)
+
+   + [[https://en.cppreference.com/w/cpp/types/integral_constant][std::integral_constant]] 
+
+   + [[https://en.cppreference.com/w/cpp/language/parameter_pack][parameter_pack]] -> Variadic template arguments.
+
+   + [[https://en.cppreference.com/w/cpp/language/sizeof...][sizeof... operator]] -> Get size of parameter pack (arguments of
+     variadic template.)
+
+   + [[https://en.cppreference.com/w/cpp/language/fold][fold expression]] (C++17) - Allows unpacking template variadic
+     paremeters in a easier way without complicated recursion
+     boilerplate.
+
+   + [[https://en.cppreference.com/w/cpp/language/if][if constexpr]] (C++17)
+     + See:
+       * Paper which proposed [[http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0128r1.html][constexpr if]]
+       * [[https://www.codingame.com/playgrounds/2205/7-features-of-c17-that-will-simplify-your-code/constexpr-if][constexprif - 7 Features of C++17 that will simplify your code]]
 ** Widely used C-functions and APIs 
 
  *Memory Allocation*
@@ -860,3 +1200,107 @@ Header: [[https://en.cppreference.com/w/cpp/header/cstring][<cstring>]] for C++ 
  + [[https://en.cppreference.com/w/cpp/utility/program/longjmp][longjmp]]
 
  + [[https://en.cppreference.com/w/cpp/utility/program/setjmp][setjmp]]
+** Selected ISOCPP (ISO C++) Papers and Reports 
+
+  + P2028R0 - *What is ABI, and What Should WG21* - Titus Winter 
+    + <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p2028r0.pdf>
+    + "A short refresher on what Application Binary Interface (ABI)
+      compatibility entails, a list of known proposals that have been
+      dropped due to ABI compatibility concerns, and a summary of the
+      critical issue: should we make C++23 an ABI break, or should we
+      commit to ABI stability going forward? (This paper is similar to
+      P1863 but provides much more introductory material and concrete
+      suggestions.)"
+
+  + N4028 - *Defining a Portable C++ ABI* - Herb Sutter 
+    * <https://isocpp.org/files/papers/n4028.pdf>
+    * Summary: Exlains the drawbacks of the lack of a C++ standard ABI
+      and proposes a common ABI.
+    * A C++ developer cannot compile C++ code and share the object
+      file with other C++ developers on the same platform and know
+      that the result will compile and link correctly. Our status quo
+      is that two source files a.cpp and b.cpp can only be linked
+      together if they are compiled with both: the same version of
+      the same compiler, or another compiler with a compatibility
+      mode; and compatible switch settings, since most C++ compilers
+      offer incompatible switch settings where even compiling two
+      files with the same version of the same compiler will not link
+      successfully."
+
+  + P1654R1 - *ABI breakage - summary of initial comments* - Roger Orr
+    + <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1654r1.html>
+    + "The Direction Group has been asked to look at ABI (Application
+      Binary Interface) breakage. Note that this is different from,
+      but related to, the API (Application Programming Interface). The
+      first step was to solicit input from EWG/LEWG to try and capture
+      the variety of issues covered by the single term "ABI
+      breakage". This document is an informal summary of comments,
+      including many of those made on the two evolution reflectors."
+
+  + P2137R0 - *Goals and priorities for C++*
+    + <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p2137r0.html>
+    + "This paper describes the goals and priorities which the authors
+      believe make C++ an especially effective programming language
+      for our use cases. That said, our experience, use cases, and
+      needs are clearly not those of every user. We aren’t pushing to
+      directly build consensus on these points. Rather, this is
+      presented as a vehicle to advertise our needs from C++ as a
+      high-performance systems language."
+
+  + P1105R1 - *Leaving no room for a lower-level language: A C++ Subset*
+    + <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1105r1.html>
+    + "Making exceptions, dynamic RTTI, TLS, heap, floating point,
+      program teardown, and blocking operations optional in
+      freestanding mode."
+
+  + N3996 - *Static Reflection*
+    + <https://isocpp.org/files/papers/n3996.pdf>
+    + "The first two sections are devoted to the introduction to
+      reflection and reflective programming, they contain some
+      motivational examples and some experiences with usage of a
+      library-based reflection utility. These can be skipped if you
+      are knowledgeable about reflection. Section 3 contains the
+      rationale for the design decisions. The most important part is
+      the technical specification in section 4, the impact on the
+      standard is discussed in section 5, the issues that need to be
+      resolved are listed in section 7, and section 6 mentions some
+      implementation hints." 
+
+  + N4766 - *Working Draft, C++ Extensions for Reflection* - David
+    Sankel [BLOOMBERG]
+    + <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4766.pdf>
+
+  + P2126R0 - *Unleashing the Power of Allocator-Aware Software
+    Infrastructure* - Pablo Halpern, John Lakos - [BLOOMBERG]
+    + <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p2126r0.pdf>
+    + "NOTE: This white paper (i.e., this is not a proposal) is
+      intended to motivate continued investment in developing and
+      maturing better memory allocators in the C++ Standard as well as
+      to counter misinformation about allocators, their costs and
+      benefits, and whether they should have a continuing role in the
+      C++ library and language."
+
+  + P0670R4 - *Function reflection* - Matúš Chochlík, Axel Naumann, David Sankel
+    + <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0670r4.html>
+    + "The functionality introduced here allows for reflection of
+      calls of concrete functions. This enables, for instance, GUI
+      generation, building a catalogue for remote procedure calls,
+      documentation generation, and signal/slot frameworks. Like
+      P0194, this proposal omits attributes, templates, and
+      reification (i.e. conversion of a meta object to the base
+      level): all warrant a separate paper. We would welcome a paper
+      especially on static reflection of attributes, matching the
+      interface-style of P0194 and this paper! Linkage and friends
+      will be part of a follow-up paper to P0194; they will have a
+      combined "effect" on P0194 and this paper." 
+
+  + P1240R0 - *Scalable Reflection in C++*
+    + <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1240r0.pdf>
+
+  + P0707 - *Metaclasses: Generative C++* - Herb Sutter
+    + <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0707r3.pdf>
+
+
+
+
+

@@ -1095,7 +1095,6 @@ SIMD CPU instructions.
  #+END_SRC
 
 
-
 *** std::variant 
 
  C++17 new std::variant which comes from Boost.Variant provides a
@@ -1621,3 +1620,590 @@ SIMD CPU instructions.
      Product => id = 200 ; name = Colombian coffee ; price = 100.56
  #+END_SRC
 
+*** Format Utility Library 
+
+The C++20 format library, modeled after [[https://github.com/fmtlib/fmt][fmtlib]], allows formatting
+strings in a extensible, concise and type-safe way in a similar
+fashion to C-printf and Python text formatting features. Despite the
+C++20 format utility library benefits, most C++ compilers still do
+not implement this library yet and not all features of fmtlib were
+ported to C++20. 
+
+Note: This experiment was carried out on MSVC comiler 19.29.30037 on a
+Windows 10 QEMU Virtual Machine running on a Linux host.
+
+References: 
+
+  + [[https://en.cppreference.com/w/cpp/utility/format/format][Cppreference - std::format]]
+
+  + [[https://en.cppreference.com/w/cpp/utility/format/formatter][Cppreference - std::formatter]] 
+
+Fmtlib (for comparison)
+  
+  + http://fmtlib.net/latest/index.html
+
+  + https://github.com/fmtlib/fmt 
+
+
+  *Sample code* 
+
+File: _cpp20-format.cpp_ 
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+  #include <string> 
+  #include <format>
+  #include <vector> 
+
+  int main()
+  {
+
+    std::puts("\n=============== EXPERIMENT 1 ==========================");
+    {
+      std::cout << std::format(" true == {0} ; false == {1} \n", true, false)
+                << std::endl;
+    }
+  
+
+    std::puts("\n=============== EXPERIMENT 2 / Numeric base ==========\n");
+    {
+
+       auto fm = std::format(" [BASES] => dec: {0:d} ; hex = 0x{0:X} "
+                             " ; oct = {0:o} ; bin = 0b{0:b} \n", 241 );
+       std::cout << fm << std::endl;
+    }
+
+    std::puts("\n============== EXPERIMENT 3 / Numeric output ===========\n");
+    {
+
+      double x = 20.0;
+      std::cout << std::format("The square root of x = {}\n", std::sqrt(x));
+
+      x = 28524.0;
+    
+      std::cout << std::format(" log(x) = {:.2F}  (2 digit precision)\n", std::log(x));
+      std::cout << std::format(" log(x) = {:+.6F} (6 digit precision)\n", std::log(x));
+      std::cout << std::format(" 2000 * log(x) = {:+.6G} (6 digit precision)\n", 1e5 * std::log(x));
+
+      std::cout << std::format("  log(x) = {0:+.8E} ; sqrt(x) = {1:+8E} (8 digit precision)\n",
+                               std::log(x), std::sqrt(x));
+   
+    }
+
+    std::puts("\n============ EXPERIMENT 4 - Print numeric table ==================");
+    {
+
+      int i = 0;
+      for(double x = 0.0; x <= 4.0; x += 0.5)
+      {
+        auto s = std::format("{0:8d}{1:10.5F}{2:10.5F}\n", i++, x, std::exp(x));
+        std::cout << s;
+      }
+    }
+  
+    return 0;
+  }
+#+END_SRC
+
+ *Building and running* 
+
+Building: 
+
+#+BEGIN_SRC sh 
+  $ %comspec%  /k "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+  $ cl.exe cpp20-format.cpp /std:c++latest /EHsc /Zi /DEBUG
+
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.29.30037 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+
+  /std:c++latest is provided as a preview of language features from the latest C++
+  working draft, and we're eager to hear about bugs and suggestions for improvements.
+  However, note that these features are provided as-is without support, and subject
+  to changes or removal as the working draft evolves. See
+  https://go.microsoft.com/fwlink/?linkid=2045807 for details.
+#+END_SRC
+
+Running: 
+
+#+BEGIN_SRC sh 
+  $ .\cpp20-format.exe
+
+  =============== EXPERIMENT 1 ==========================
+   true == true ; false == false
+
+
+  =============== EXPERIMENT 2 / Numeric base ==========
+
+   [BASES] => dec: 241 ; hex = 0xF1  ; oct = 361 ; bin = 0b11110001
+
+
+  ============== EXPERIMENT 3 / Numeric output ===========
+
+  The square root of x = 4.47213595499958
+   log(x) = 10.26  (2 digit precision)
+   log(x) = +10.258501 (6 digit precision)
+   2000 * log(x) = +1.02585E+06 (6 digit precision)
+    log(x) = +1.02585011E+01 ; sqrt(x) = +1.688905E+02 (8 digit precision)
+
+  ============ EXPERIMENT 4 - Print numeric table ==================
+         0   0.00000   1.00000
+         1   0.50000   1.64872
+         2   1.00000   2.71828
+         3   1.50000   4.48169
+         4   2.00000   7.38906
+         5   2.50000  12.18249
+         6   3.00000  20.08554
+         7   3.50000  33.11545
+         8   4.00000  54.59815
+
+#+END_SRC
+
+*** Ranges Library / Algorithms
+
+Documentation:
+ 
+  + https://en.cppreference.com/w/cpp/ranges
+
+ *Files*
+
+File: _ranges-algorithms.cpp_
+
+#+BEGIN_SRC cpp
+    #include <iostream>
+    #include <iostream>
+    #include <vector>
+    #include <deque>
+
+    #include <algorithm>
+    #include <ranges>
+
+
+    template<typename Element>
+    std::ostream&
+    operator<<(std::ostream& os, std::vector<Element> const& xs )
+    {
+        os << "[" << xs.size() << "]( ";
+        for(const auto&  x: xs)
+        os << x << " ";
+        return os << " )";
+    }
+
+    template<typename Element>
+    std::ostream&
+    operator<<(std::ostream& os, std::deque<Element> const& xs )
+    {
+        os << "[" << xs.size() << "]( ";
+        for(const auto&  x: xs)
+        os << x << " ";
+        return os << " )";
+    }
+
+
+
+    int main()
+    {
+
+        // ---------------------------------------- //
+
+        auto printLambda = [](auto x){
+            std::cout << " x = " << x << std::endl;
+        };
+
+
+        //-------------------------------------------//
+        std::puts("\n === EXPERIMENT 1 A - for_each ===");
+        #if 1
+        {
+
+            std::vector<int> xs = {8, 9, 20, 25};
+            std::cout << " => Print numbers" << std::endl;
+            std::ranges::for_each(xs, printLambda);
+
+            std::deque<std::string> words = {"c++", "c++17", "C++20", "asm", "ADA"};
+            std::cout << " => Print words" << std::endl;
+            std::ranges::for_each(words, printLambda);
+        }
+        #endif
+
+        std::puts("\n === EXPERIMENT 1 B - for_each ===");
+        {
+            std::string astr = "bolts";
+            std::ranges::for_each(astr, printLambda);
+        }
+
+        std::puts("\n === EXPERIMENT 2 - sort ===");
+        {
+            std::vector<double> xs2 = {10.45, -30.0, 45.0, 8.2, 100.0, 10.6};
+            std::cout << " Reverse vector" << std::endl;
+            std::cout << " BEFORE xs2 = " << xs2 << std::endl;
+            std::ranges::sort(xs2);
+            std::cout << " AFTER xs2 = " << xs2 << std::endl;
+        }
+
+
+        std::puts("\n === EXPERIMENT 3 - fill ===");
+        {
+            std::vector<int> xs2(10, 0);
+
+            //std::cout << " BEFORE  A xs2 = " << view::all(xs2 )<< std::endl;
+            std::cout << " BEFOREB B xs2 = " << xs2 << std::endl;
+
+            std::ranges::fill(xs2, 10);
+            std::cout << " AFTER 1 => x2 = " << xs2 << std::endl;
+
+            std::ranges::fill(xs2, 5);
+            std::cout << " AFTER 2 => x2 = " << xs2 << std::endl;
+        }
+
+
+        std::puts("\n === EXPERIMENT 4 - reverse ===");
+        {
+            std::deque<std::string> words = {"c++", "c++17", "C++20", "asm", "ADA"};
+            std::cout << " BEFORE => words = " << words << std::endl;
+            std::ranges::reverse(words);
+            std::cout << " AFTER => words = " << words << std::endl;
+        }
+
+        std::puts("\n === EXPERIMENT 6 - find ===");
+        {
+            std::vector<int> xvec = {1, 2, 5, 10, 1, 4, 1, 2};
+
+            auto it = std::ranges::find(xvec, 10);
+            if(it != xvec.end()){
+                std::cout << " [OK] Found value == 10 => *it = " << *it << std::endl;
+                std::cout << " Position = "
+                        << std::ranges::distance(xvec.begin(), it)
+                        << std::endl;
+            }
+            else {
+                std::cout << " [FAIL] Not found  value " << std::endl;
+
+            }
+        }
+
+
+
+    }
+#+END_SRC
+
+Building: 
+
+#+BEGIN_SRC sh 
+  $ g++ -std=c++20 -O2 -Wall -pedantic main.cpp && ./a.out
+#+END_SRC
+
+Program output: (GCC 11 - [[https://coliru.stacked-crooked.com/a/d73b4fa783e34777][coliru - online C++20 compiler]] )
+
+#+BEGIN_SRC sh 
+    === EXPERIMENT 1 A - for_each ===
+    => Print numbers
+    x = 8
+    x = 9
+    x = 20
+    x = 25
+    => Print words
+    x = c++
+    x = c++17
+    x = C++20
+    x = asm
+    x = ADA
+
+    === EXPERIMENT 1 B - for_each ===
+    x = b
+    x = o
+    x = l
+    x = t
+    x = s
+
+    === EXPERIMENT 2 - sort ===
+    Reverse vector
+    BEFORE xs2 = [6]( 10.45 -30 45 8.2 100 10.6  )
+    AFTER xs2 = [6]( -30 8.2 10.45 10.6 45 100  )
+
+    === EXPERIMENT 3 - fill ===
+    BEFOREB B xs2 = [10]( 0 0 0 0 0 0 0 0 0 0  )
+    AFTER 1 => x2 = [10]( 10 10 10 10 10 10 10 10 10 10  )
+    AFTER 2 => x2 = [10]( 5 5 5 5 5 5 5 5 5 5  )
+
+    === EXPERIMENT 4 - reverse ===
+    BEFORE => words = [5]( c++ c++17 C++20 asm ADA  )
+    AFTER => words = [5]( ADA asm C++20 c++17 c++  )
+
+    === EXPERIMENT 6 - find ===
+    [OK] Found value == 10 => *it = 10
+    Position = 3
+#+END_SRC
+*** Ranges Library / Views 
+
+File: _views.cpp_
+
+#+BEGIN_SRC cpp
+  #include <iostream>
+  #include <vector>
+  #include <ranges>
+  #include <algorithm>
+
+  namespace views = std::ranges::views;
+
+  template<typename Element>
+  std::ostream&
+  operator<<(std::ostream& os, std::vector<Element> const& xs )
+  {
+      os << "[" << xs.size() << "]( ";
+      for(const auto&  x: xs)
+         os << x << " ";
+      return os << " )";
+  }
+
+  int main()
+  {
+    auto data = std::vector<int>{ -40, 20, 100, -80, 100, -5, 2, 73, 19, 11, 125};
+
+    // Note: Those computations are performed lazily
+    auto result = data | views::transform([](int x){ return 3 * x + 25; })
+                       | views::filter([](int x){ return x >= 0; })
+                       | views::drop(3)
+                       | views::reverse
+                       | views::filter([](int x){ return x >= 0; })
+                       ;
+ 
+    std::cout << "\n --- C++ Ranges - Iterating over view -----------" << std::endl;
+
+    int i = 0;
+
+    for(auto k: result)
+    {
+        std::cout << " result[" << i++ << "] = " << k << std::endl;
+    }
+
+    std::cout << "\n --- C++ Ranges - Copying a view to a vector -------" << std::endl;
+
+    auto result_vector =  std::vector(result.begin(), result.end());
+    std::cout << "result_vector = " << result_vector << std::endl;
+
+    return 0;
+  }
+#+END_SRC
+
+Building with GCC-11 docker:
+
+#+BEGIN_SRC sh 
+    $ docker run --rm --interactive --tty --workdir /cwd --volume=$PWD:/cwd gcc:latest
+    $ g++ views.cpp -o views.bin -std=c++20 -Wall -Wextra -g 
+#+END_SRC
+
+Running: 
+
+#+BEGIN_SRC sh 
+    $ ./views.bin 
+    --- C++ Ranges - Iterating over view -----------
+    result[0] = 400
+    result[1] = 58
+    result[2] = 82
+    result[3] = 244
+    result[4] = 31
+    result[5] = 10
+
+    --- C++ Ranges - Copying a view to a vector -------
+    result_vector = [6]( 400 58 82 244 31 10  )
+#+END_SRC
+*** std::span library 
+
+The C++20 templated class std::span is a _non-owning_ view of a
+contiguous sequence of objects, such as buffers represented by
+pointer and size, arrays, static allocated arrays, heap-allocated
+arrays, std::array, std::vector and std::string. This class wraps a
+pointer to the first sequence element and sequence size. Non-owning
+means that the std::span neither allocates nor releases memory related
+to the sequence pointed by the class.
+
+Benefits and observations: 
+
+  + A function that takes a std::span as parameter can accept
+    std::string, std::vector, std::array, pointer-size pair (buffers)
+    and C-style arrays without any code modification or creating more
+    overloading functions for each of the stated types.
+    
+  + Avoid bugs related to C-style arrays and C-style buffers that are
+    originated rom arrays decaying to pointers. 
+
+Documentation: 
+
+  + [[https://en.cppreference.com/w/cpp/container/span][cppreference - std::span]]
+  + [[https://docs.microsoft.com/en-us/cpp/standard-library/span-class?view=msvc-160][Microsoft - MSVC - std::span]]
+
+Other implementations:
+
+  + [[https://github.com/microsoft/GSL/blob/main/include/gsl/span][gsl::span]]  (GSL - Library)
+  + [[https://github.com/abseil/abseil-cpp/blob/master/absl/types/span.h#L153][absl::span]] (Google's abseil library)
+     
+ *Example code* 
+
+File: _main.cpp_ ([[https://coliru.stacked-crooked.com/a/a892d95fd8ff8574][Online Compiler]])
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+  #include <iomanip>
+  #include <memory>
+  #include <vector>
+  #include <array>
+  #include <algorithm>
+  #include <numeric>
+  #include <span>
+
+  void display_span(const char* name, std::span<int> xs)
+  {
+      std::cout << "  => " << name << " = [ ";
+      for(auto const& x: xs){ std::cout << x << ", "; }
+      std::cout <<  " ]\n";
+  }
+
+  void display_sum(const char* name, std::span<int> xs)
+  {
+      auto result = std::accumulate(xs.begin(), xs.end(), 0);
+      std::cout << " [SUM] sum(" << name << ") = " << result << std::endl;
+  }
+
+  template<typename T>
+  void disp(const char* label, T&& value)
+  {
+      std::cout << std::setw(5)  << "  =>> "
+                << std::setw(10) << label
+                << std::setw(4) << "="
+                << std::setw(6) << value
+                << std::endl;
+  }
+
+
+
+  int main()
+  {
+
+
+      std::puts("\n ==== EXPERIMENT 1 - std::span variable =====================\n");
+      {
+          // Variable span, non owning view that can refere to any contiguous memory,
+          // C-array buffers; buffers (pointer, size) tuple; std::vector; std::array
+          std::span<int> sp;
+
+          int carray [] = {10, 5, 8, 5, 6, 15};
+          sp = carray;
+
+          int* ptr_data = sp.data();
+          display_sum("carray", carray);
+          display_span("carray [A]", sp);
+          display_span("carray [B]", carray);
+          disp(" *(carray.data + 0) ", *ptr_data);
+          disp(" *(carray.data + 0) ", *(ptr_data + 1));
+
+
+          // Display buffer defined by tuple (pointer, size)
+          int*   buffer_ptr  = carray;
+          size_t buffer_size = std::size(carray);
+          sp = std::span(buffer_ptr, buffer_size);
+          display_span("buffer", sp);
+        
+          std::cout << std::endl;
+
+          std::vector<int> vector1 = {10, 256, -15, 20, -8};
+          sp = vector1; // View refers to vector1
+          display_sum("vector1", vector1);
+          display_span("vector1 [A]", sp);
+          display_span("vector1 [B]", sp);
+
+          // Just a nice C++ wrapper for a C stack-allocated or static-allocated array
+          // It encapsulates the array: int [] std_array = {100, ...}
+          std::array<int, 7> std_array = {100, -56, 6, 87, 61, 25, 151};
+          sp = std_array;
+          display_sum("std_array", std_array);
+          display_span("std_array [A]", sp);
+          display_span("std_array [B]", sp);
+      }
+
+      std::puts("\n ==== EXPERIMENT 2 - std::span with std algorithms  ======\n");
+      {
+          int carray [] = {8, 10, 5, 90, 0, 14};
+          std::span<int> sp;
+          sp = carray;
+          display_sum("carray", carray);
+          display_span("carray <before>", sp);
+          std::sort(sp.begin(), sp.end());
+          display_span("carray <after>", sp);
+
+          auto sum = std::accumulate(sp.begin(), sp.end(), 0);
+          std::cout << " [INFO] sum of all elements  = " << sum << std::endl;
+      }
+
+      std::puts("\n ==== EXPERIMENT 3 - std::span methods ==================\n");
+
+       {
+           int carrayA [] = {10, 15, -8, 251, 56, 15, 100};
+           auto sp = std::span{carrayA};        
+
+           std::cout << std::boolalpha;
+
+           // Returns true if the view points to an empty location
+           disp("sp.empty()", sp.empty());
+           // Returns the number of elements
+           disp("sp.size()", sp.size());
+           // Returns the total size in bytes
+           disp("sp.size_byte()", sp.size_bytes());                  
+
+           // --- Access to elements with array-index operator [] -------//
+           // Note: The bound checking only happens in the debug build.
+           //       In the release build, it is disabled.
+           disp("sp[0]", sp[0]);
+           disp("sp[4]", sp[4]);
+           disp("sp[5]", sp[5]);
+
+           sp[0] = 100;
+ 
+       }
+
+
+      return 0;
+  }
+#+END_SRC
+
+Building: 
+
+#+BEGIN_SRC sh 
+ $ g++ -std=c++20 -O2 -Wall -pedantic -pthread main.cpp && ./a.out
+#+END_SRC
+
+Running: 
+
+#+BEGIN_SRC sh 
+    ==== EXPERIMENT 1 - std::span variable =====================
+
+    [SUM] sum(carray) = 49
+    => carray [A] = [ 10, 5, 8, 5, 6, 15,  ]
+    => carray [B] = [ 10, 5, 8, 5, 6, 15,  ]
+    =>>  *(carray.data + 0)    =    10
+    =>>  *(carray.data + 0)    =     5
+    => buffer = [ 10, 5, 8, 5, 6, 15,  ]
+
+    [SUM] sum(vector1) = 263
+    => vector1 [A] = [ 10, 256, -15, 20, -8,  ]
+    => vector1 [B] = [ 10, 256, -15, 20, -8,  ]
+    [SUM] sum(std_array) = 374
+    => std_array [A] = [ 100, -56, 6, 87, 61, 25, 151,  ]
+    => std_array [B] = [ 100, -56, 6, 87, 61, 25, 151,  ]
+
+    ==== EXPERIMENT 2 - std::span with std algorithms  ======
+
+    [SUM] sum(carray) = 127
+    => carray <before> = [ 8, 10, 5, 90, 0, 14,  ]
+    => carray <after> = [ 0, 5, 8, 10, 14, 90,  ]
+    [INFO] sum of all elements  = 127
+
+    ==== EXPERIMENT 3 - std::span methods ==================
+
+    =>> sp.empty()   = false
+    =>>  sp.size()   =     7
+    =>> sp.size_byte()   =    28
+    =>>      sp[0]   =    10
+    =>>      sp[4]   =    56
+    =>>      sp[5]   =    15
+
+#+END_SRC

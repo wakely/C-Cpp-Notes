@@ -52,6 +52,7 @@
      runtime, create generalized algorithms, functions, simplify event
      handling, callbacks and design patterns.  
 ** Singleton 
+*** Overview 
 
 Singleton is a creational design pattern where there is only a single
 instance of a class and client code is forbidden from creating new
@@ -107,7 +108,7 @@ Example where singletons are found:
     + std::cerr => Encapsulates console stderr - standard error output
     + std::clog 
 
- *See also* 
+ *Further Reading* 
 
   + [[https://en.wikipedia.org/wiki/Singleton_pattern][Singleton pattern - Wikipedia]]
 
@@ -132,6 +133,7 @@ Example where singletons are found:
   + [[https://www.codeproject.com/Articles/307233/Singleton-Pattern-Positive-and-Negative-Aspects-2][Singleton Pattern – Positive and Negative Aspects - CodeProject]]
 
   + https://wiki.unity3d.com/index.php/Singleton (Games C#)
+*** Example 1 - FileRepository Class
 
 
  *Example Code* 
@@ -314,7 +316,299 @@ Compiling and running ([[file:src/design-patterns/singleton1.cpp][file:src/desig
    File = fileX3.pdf
    [LOG] File Respository Deleted. Ok.
 #+END_SRC
+*** Example 2 - OpenGL GLFW Keyboard Manager 
 
+The following singleton class allows registering multiple capturing
+lambda callbacks for a given keyboard key. The purpose of the class
+KeyboardManager is to provide an easier way to pass capturing C++11
+lambdas to the function [[https://www.glfw.org/docs/3.3/group__input.html#ga1caf18159767e761185e49a3be019f8d][glfwSetKeyCallback()]]. Passing capturing
+lambdas to glfwSetKeyCallback() directly is not possible as this
+function lacks an extra void pointer for passing user data. In order
+to overcome this issue, a Singleton class was used as global variable
+for passing lambda to the GLFW callback.
+
+Relevant type signatures: 
+
+#+BEGIN_SRC cpp 
+  GLFWkeyfun glfwSetKeyCallback	(  GLFWwindow * window
+                                 , GLFWkeyfun 	callback 
+                                );
+	
+  // C notation for function pointer type alias. 
+  typedef void(* GLFWkeyfun) (GLFWwindow *, int, int, int, int);
+
+  // C++ notation for function pointer type alias.  
+  using GLFWkeyfun = void (*) (GLFWwindow *, int, int, int, int);
+#+END_SRC
+
+
+File: _glfw_kbd_singleton.cpp_ 
+
+#+BEGIN_SRC cpp 
+  // Brief: Draw curve copying data to the GPU 
+  #include <iostream>
+  #include <vector> 
+  #include <array>
+  #include <functional>
+  #include <map>
+  #include <cmath>
+  #include <cassert>
+
+  // -------- OpenGL headers ---------//
+  #define GL_GLEXT_PROTOTYPES 1 // Necessary for OpenGL >= 3.0 functions
+  #define GL3_PROTOTYPES      1 // Necessary for OpenGL >= 3.0 functions
+
+  #include <GL/gl.h>
+  #include <GLFW/glfw3.h>
+
+  // #include <GL/glew.h>
+  #include <GL/glu.h>
+  #include <GL/glut.h>
+
+  // Singleton object for registering lambda event handlers for GLFW keyboard typing events.
+  class KeyboardManager
+  {
+  public:
+      using KeyCallback = std::function<void (GLFWwindow* window)>;
+      using KeyCallbackDB = std::map<int, KeyCallback>;
+  private:
+      KeyCallbackDB m_keydb{};
+      GLFWwindow*   m_window = nullptr;
+    
+      // Private constructor for not allowing client code creating more 
+      // than one instance.
+      KeyboardManager()
+      {
+         std::cerr << " [TRACE] KeyboardManager - Singleton initialized." << "\n";
+      }   
+      // Forbid client code from creating a copy or using the
+      // copy constructor.
+      KeyboardManager(const KeyboardManager&){}     
+  public:
+      ~KeyboardManager() = default;
+
+      // This is the unique way to get singleton instance. 
+      static KeyboardManager& getInstance()
+      {
+          static KeyboardManager instance{};
+          return instance;
+      }
+
+      KeyboardManager& 
+      set_window(GLFWwindow* window)
+      {
+          m_window = window;
+
+          // =>> Note: This lambda must be non-capturing. Otherwise, it will result 
+          // in compile-time error. 
+          // 
+          // =>> Note: All this redundancy and boilerplate code is need because 
+          //     the function glfwSetKeyCallback() lacks an extra void* pointer 
+          //     for passing custom user data.
+          ::glfwSetKeyCallback(m_window 
+              ,[](GLFWwindow* window, int key, int scancode, int action, int mods)
+              {
+                  std::cerr << " [TRACE] glfwSetKeyCallback() key = " 
+                            << key << " / char " << (char) key <<  '\n';
+                  // Get singletion instance 
+                  KeyboardManager& instance = KeyboardManager::getInstance();
+                  auto it = instance.m_keydb.find(key);
+                  if(it == instance.m_keydb.end()){ return; }
+                  // Call callback functions.
+                  it->second(window);
+              });         
+           return *this;
+      }
+
+      KeyboardManager& 
+      add_keyCallback(int key, KeyCallback callback)
+      {
+          this->m_keydb[key] = callback;
+          return *this;
+      }    
+
+  };
+
+
+  int main(int argc, char** argv)
+  {
+      // Initialize GLFW 
+      if ( !glfwInit() ){ return -1; }
+
+      glutInit(&argc, argv);
+
+      /* Create a windowed mode window and its OpenGL context */
+      GLFWwindow* window = glfwCreateWindow(640, 480, "Simple triangle draw", NULL, NULL);
+      if (!window)
+      {
+          glfwTerminate();
+          return -1;
+      }
+     .... ...    .... ...    .... ...    .... ... 
+     .... ...    .... ...    .... ...    .... ... 
+
+      // Get singleton instance and set window.
+      KeyBoardMager& kdb = KeyboardManager::getInstance().set_window(window);
+
+      GLenum draw_type = GL_TRIANGLES;
+
+      // Register events 
+      kdb.add_keyCallback('A', [&draw_type](GLFWwindow* win){ draw_type = GL_TRIANGLES; });    
+      kdb.add_keyCallback('B', [&draw_type](GLFWwindow* win){ draw_type = GL_LINE_LOOP; });
+
+      kdb.add_keyCallback('C', [&draw_type](GLFWwindow* win){ draw_type = GL_LINES;      });
+      kdb.add_keyCallback('D', [&draw_type](GLFWwindow* win){ draw_type = GL_LINE_STRIP; });
+      kdb.add_keyCallback('F', [&draw_type](GLFWwindow* win){ draw_type = GL_LINE;       }); 
+
+
+      // Positive rotatation of 10 degrees around Z axis (counter - clockwise)
+      kdb.add_keyCallback(GLFW_KEY_RIGHT, [&](GLFWwindow* win)
+          {  
+              std::cerr << " [TRACE] Postive rotation around Z axis " << '\n';
+              angle = angle + 10.0;
+              glUniform1f(uniform_angle, angle);
+          });   
+
+     ...    ...    ...    ...    ...    ... 
+     ...    ...    ...    ...    ...    ... 
+
+      // ============== R E N D E R - L O O P ===========================//
+      //
+
+      /* Loop until the user closes the window */
+      while (!glfwWindowShouldClose(window))
+      {
+         ....        ....        ....        ....        .... 
+         ....        ....        ....        ....        .... 
+      } 
+
+  } // ------ End of main() ---------------------------------------------//
+
+#+END_SRC
+*** Example 3 - Generic Singleton 
+
+This code contains a reusable-generic singleton template class, which
+is applied to the previous case for calling lambdas from a C++
+function that accepts function pointer and does not contain an extra
+void pointer for allowing the calling code to pass state or
+non-capturing lambdas. 
+
+Generic singleton templated class: 
+
+#+BEGIN_SRC cpp 
+  template<typename Impl>
+  class CRTP_Singleton
+  {
+  protected:
+      CRTP_Singleton() = default;
+  public:
+    
+      CRTP_Singleton(const CRTP_Singleton&) = delete;
+      CRTP_Singleton& operator=(CRTP_Singleton const&) = delete;
+
+      static Impl& getInstance()
+      {  
+          static Impl impl;
+          return impl;  
+      }
+
+  };
+#+END_SRC
+
+Singleton class that inherits CRTP_Singleton: 
+
+#+BEGIN_SRC cpp 
+  // Singleton object for registering lambda event handlers for GLFW keyboard typing events.
+  class KeyboardManager: public CRTP_Singleton<KeyboardManager>
+  {
+      friend KeyboardManager::CRTP_Singleton<KeyboardManager>;
+  public:
+
+      using KeyCallback = std::function<void (GLFWwindow* window)>;
+      using KeyCallbackDB = std::map<int, KeyCallback>;
+  protected:
+
+      KeyCallbackDB m_keydb{};
+      GLFWwindow*   m_window = nullptr;
+    
+      // Private constructor for not allowing client code creating more 
+      // than one instance.
+      KeyboardManager(){ }
+  public:
+      ~KeyboardManager() = default;
+
+      KeyboardManager& 
+      set_window(GLFWwindow* window)
+      {
+          m_window = window;
+          assert( m_window != nullptr );
+      
+      ::glfwSetKeyCallback(m_window 
+              ,[](GLFWwindow* window, int key, int scancode, int action, int mods)
+              {
+                  std::cerr << " [TRACE] glfwSetKeyCallback() key = " 
+                            << key << " / char " << (char) key <<  '\n';
+                  // Get singleton instance 
+                  KeyboardManager& instance = KeyboardManager::getInstance();
+                  auto it = instance.m_keydb.find(key);
+                  if(it == instance.m_keydb.end()){ return; }
+                  std::fprintf(stderr, " [TRACE] Execute callback function. \n");
+                  // Call callback functions.
+                  it->second(window);
+              });         
+           return *this;
+      }
+
+      KeyboardManager& 
+      add_keyCallback(int key, KeyCallback callback)
+      {
+
+          std::fprintf(stderr, " [TRACE] Add callback key. \n");
+          this->m_keydb[key] = callback;
+          return *this;
+      }    
+
+  };
+
+#+END_SRC
+
+Class usage in main() function: 
+
+#+BEGIN_SRC cpp 
+      ... ... ... ... .... .... 
+      ... ... ... ... .... .... 
+
+      GLFWwindow* window = glfwCreateWindow(640, 480, "Simple triangle draw", NULL, NULL);
+
+      if (!window)
+      {
+           std::fprintf(stderr, " [ERROR] Unable to open GLFW Window. \n");    
+          glfwTerminate();
+          return -1;
+      }
+      ... ... ... ... .... .... 
+
+     // Get singleton instance and set window.
+     auto& kdb = KeyboardManager::getInstance().set_window(window);
+
+     GLenum draw_type = GL_LINE_LOOP;
+
+     // Register events 
+     kdb.add_keyCallback('A', [&draw_type](GLFWwindow* win){ draw_type = GL_TRIANGLES; });    
+
+     // Positive rotatation of 10 degrees around Z axis (counter - clockwise)
+     kdb.add_keyCallback(GLFW_KEY_RIGHT, [&](GLFWwindow* win)
+         {  
+             std::cerr << " [TRACE] Postive rotation around Z axis " << '\n';
+             angle = angle + 10.0;
+             glUniform1f(uniform_angle, angle);
+         });  
+
+
+      ... ... ... ... .... .... 
+      ... ... ... ... .... .... 
+      ... ... ... ... .... .... 
+#+END_SRC
 ** Named constructor - static factory method
 
 The named constructor or static factory design pattern uses static
@@ -844,15 +1138,15 @@ Example:
       auto user1 =
               UserBuilder()
               .setID(1065)
-              .setName("Enrico")
-              .setLastName("Fermi")
+              .setName("Blaise")
+              .setLastName("Pascal")
               .setEmail("dummyEmail@service1.co.uk")
               .build();
       auto user2 =
               UserBuilder()
               .setID(2001)
-              .setName("Stanislaw")
-              .setLastName("Ulam")
+              .setName("Nikola")
+              .setLastName("Tesla")
               .setEmail("wsx752@couk.com.sk")
               .build();
       user0.show();
@@ -875,15 +1169,15 @@ Running:
 
    User{
      id        = 1065
-     name      = Enrico
-     last name = Fermi
+     name      = Blaise
+     last name = Pascal
      email     = dummyEmail@service1.co.uk
    }
 
    User{
      id        = 2001
-     name      = Stanislaw
-     last name = Ulam
+     name      = Nikola
+     last name = Tesla
      email     = wsx752@couk.com.sk
    }
 #+END_SRC
@@ -1911,6 +2205,1288 @@ Running:  ([[file:src/design-patterns/composite1.cpp][file:src/design-patterns/c
     [TRACE] Destroy group - id = << groupA
     [TRACE] Destroy group - id = << GroupB
 #+END_SRC
+** Observer-Observable 
+*** Overview 
+
+The observer design pattern is a behavioral design pattern introduced
+by GOF(Gang-of-Four book), which defines a one-to-many dependency
+between a subject (a.k.a observable) and observers that are notified
+by the subject object whenever its state change. 
+
+This pattern is widely used in GUI graphical user interfaces for
+decoupling the application state and business logic from the graphical
+user interface. For instance, many GUI applications that provide
+Comboboxes, Listboxes or selection boxes widgets does not allow adding 
+elements to those widgets directly. Instead, they provide observable
+objects, such as ListModel which notifies the subscribed, or attached
+widgets, about its changes. When any new element is added to a
+hypothetical ListModel object, it notifies the dependent widgets such as
+ListBoxes, Comboboxes and tables which update themselves. The benefit
+of this approach is that it allows changing the user interface widgets
+without modifying the application logic. 
+
+Also known as: 
+
+  * observer design pattern 
+  * publisher/subscriber
+  * subject/observer 
+
+Use-cases and potential applications: 
+
+  * GUI - Graphical User Interfaces
+  * Chart Applications 
+  * CAD - Computer Aided Design Software
+  * Spreadsheets 
+  * Object-oriented callbacks
+  * Event-driven systems
+  * "Reactive programming" buzzword (ReactiveX)
+
+Other Variants: 
+
+  + MVC - Model View Controller design pattern for GUIs
+  + MVP - Model View Presenter design pattern for GUIs 
+  + "Reactive programming"
+  + Two-way data bindings from .NET WPF (Windows Presentation Foundation)
+  + Observable property from .NET
+  + Observable variables from Java and Android
+  + Signals and slots from Qt Framework 
+
+Known uses: 
+
+  * Java: java.util.Observer
+  * .NET (C#): System.IObservable and System.IObserver  
+  * Java Swing
+  * QT GUI C++ Framework 
+ 
+Parts: 
+
+  + _Subject_ (aka Observable) - Keeps references to all _observer_
+    objects and notifies them whenever its state changes.
+
+    + Typical Methods:
+      + Subject.subscribe(Observer) => Register observer for further notifications.
+      + Subject.register(Observer) => Register observer for further notifications.
+      + Subject.attach(Observer) => Register observer for further notifications.
+      + Subject.detach(Observer) => Remove observer, unsubscribe from notifications.
+      + Subject.notify() => Notify all observers by calling the method .notify()
+
+  + _Observer_ - Object that subscribes to the _subject_ notifications and
+    are called by the subject whenever there is a state change.
+
+    + Typical methods:
+      + .update()
+      + .notify() 
+
+Potential problems: 
+
+  + When notified, an observer object should complete its computation
+    as fast as possible, otherwise it will block the remaining
+    observers from being notified.
+
+  + If the computation performed by any observer, when a notification
+    arrives, blocks the current thread, all other remaining observers
+    will not be able to receive notifications from the subject object.
+
+  + Possible callback hell. Every observer is just a object-oriented callback. 
+
+Mechanisms to send data to observers:
+
+ + Pull model. Observer executes Subject.getData() to get data from subject.
+
+ + Push model. The subject pass its data as argument of observers'
+   update method. =for o in observers do o.update(subject.data)=
+
+ *See also* 
+
+General: 
+
+  + [[https://en.wikipedia.org/wiki/Observer_pattern][Observer pattern - Wikipedia]]
+
+  + [[https://stackoverflow.com/questions/15594905/difference-between-observer-pub-sub-and-data-binding][model view controller - Difference between Observer, Pub/Sub, and Data Binding - Stack Overflow]]
+
+  + [[http://www.cs.williams.edu/~freund/cs326/cs326-dependencies.pdf][CS 326 - Dependency and Decoupling]]
+
+  + [[https://www.cs.mcgill.ca/~hv/classes/CS400/01.hchen/doc/observer/observer.html][McGill - Observer Design Pattern]]
+
+  + [[https://docs.microsoft.com/en-us/previous-versions/msp-n-p/ee817669(v=pandp.10)?redirectedfrom=MSDN][Exploring the Observer Design Pattern | Microsoft Docs]]
+
+  + [[https://docs.microsoft.com/en-us/dotnet/standard/events/observer-design-pattern][Microsft - Observer Design Pattern]]
+
+  + http://ima.udg.edu/~sellares/EINF-ES1/ObserverToni.pdf
+
+  + [[http://se.inf.ethz.ch/old/teaching/ss2007/0050/slides/07_softarch_patterns_observer_6up.pdf][Software Architecture - Lecture 7: Patterns, Observer, MVC]] - Betrand Meyer
+
+  + [[https://www.codeproject.com/Articles/888/Applying-Observer-Pattern-in-C-Applications][Applying Observer Pattern in C++ Applications - CodeProject]]
+
+  + [[https://www.codeproject.com/Articles/38108/Propagator-in-C-An-Alternative-to-the-Observer-Des][Propagator in C# - An Alternative to the Observer Design Pattern - CodeProject]]
+
+  + [[http://archive.www6.in.tum.de/www6/pub/Main/TeachingWs2013MSE/2_OderskyDeprecatingObservers.pdf][Deprecating the Observer Pattern]] - EPFL Report (Paper)
+
+Observer Pattern Variants. 
+
+  + [[https://mvc.givan.se/papers/MVP_Model-View-Presenter_The_Taligent_Programming_Model_for_C++_and_Java.pdf][MVP: Model-View-Presenter - The Taligent Programming Model for C++ and Java]]
+
+  + [[https://signalslot.readthedocs.io/en/latest/pattern.html][Signal/Slot design pattern — signalslot 0.1.1 documentation]]
+
+  + [[https://doc.qt.io/qt-5/signalsandslots.html][Signals & Slots | Qt Core 5.15.0]]
+
+  + [[https://www.boost.org/doc/libs/1_74_0/doc/html/signals2.html][Chapter 35. Boost.Signals2 - 1.74.0]] (Boost library)
+
+  + [[http://reactivex.io/][ReactiveX]] - "The Observer pattern done right. ReactiveX is a
+    combination of the best ideas from the Observer pattern, the
+    Iterator pattern, and functional programming"
+
+  + [[https://ayende.com/blog/4107/an-easier-way-to-manage-inotifypropertychanged][An easier way to manage INotifyPropertyChanged - Ayende @ Rahien]]
+
+  + [[https://www.codeproject.com/Articles/796075/Implement-Observer-Pattern-in-NET-3-Techniques][Implement Observer Pattern in .NET (3 Techniques) - CodeProject]]
+
+  + [[https://www.codeproject.com/Articles/166530/A-Chained-Property-Observer][A Chained Property Observer - CodeProject]]
+
+  + [[https://docs.microsoft.com/en-us/archive/msdn-magazine/2001/april/net-an-introduction-to-delegates][.NET: An Introduction to Delegates | Microsoft Docs]] 
+
+  + [[https://docs.microsoft.com/en-us/dotnet/api/system.iobservable-1][.NET - System.IObserver<T>]]
+
+  + [[https://docs.microsoft.com/en-us/dotnet/api/system.iobservable-1][.NET - System.IObservable<T>]]
+
+  + [[https://docs.microsoft.com/en-us/dotnet/api/system.collections.objectmodel.observablecollection-1?view=netcore-3.1][ObservableCollection<T> Class (System.Collections.ObjectModel) | Microsoft Docs]]
+
+  + [[https://developer.android.com/reference/android/databinding/ObservableList][ObservableList  |  Android Developers]]
+
+  + [[https://developer.android.com/topic/libraries/data-binding/observability][Work with observable data objects  |  Android Developers]]
+
+  + [[https://developer.android.com/reference/android/databinding/Observable.OnPropertyChangedCallback][Observable.OnPropertyChangedCallback  |  Android Developers]]
+
+  + [[https://www.developer.com/java/data/understanding-java-observable-and-javafx-observable.html][Understanding Java Observable and JavaFX Observable - Developer.com]]
+
+  + [[https://dzone.com/articles/javafx-collections-observablelist-and-observablema][JavaFX Collection's ObservableList and ObservableMap - DZone]]
+*** Implementation 1 - Classical Implementation 
+
+This implementation is based on classical observer-design pattern and
+defines two interfaces IObservable, which all observable objects
+inherit from, and IObserver, which all observer objects inherit
+from. This sample application defines a counter observable object that
+notifies all observers when its state changes. The application also
+provides three observers, a console observer which prints the console
+(terminal) and two Qt5 Gui observers which displays that counter
+value. 
+
+ + All Sources: https://gist.github.com/9331193ae1f9b05e4949160a4e024e84
+
+File: _CMakeLists.txt_ 
+
+#+BEGIN_SRC cmake 
+   cmake_minimum_required(VERSION 3.9)
+   project(observer-design-pattern1)
+
+   #====== Global Configurations ==================#
+
+   set(CMAKE_CXX_STANDARD 17)
+   set(CMAKE_VERBOSE_MAKEFILE ON)
+   set(CMAKE_INCLUDE_CURRENT_DIR ON)
+   set(CMAKE_AUTOUIC ON)
+   set(CMAKE_AUTOMOC ON)
+   set(CMAKE_AUTORCC ON)
+   set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+   find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+
+   #=============== Target Configurations ============#
+
+          add_executable( observer1 observer-pattern1.cpp )
+   target_link_libraries( observer1 Qt5::Core Qt5::Gui Qt5::Widgets)
+#+END_SRC
+
+File: _observer-pattern1.cpp_ 
+
+#+BEGIN_SRC cpp 
+   #include <iostream>
+   #include <iomanip>
+
+   #include <QtWidgets>
+   #include <QApplication>
+   #include <QSysInfo>
+
+   struct IObserver;
+
+   struct IObservable 
+   {
+       /** Subscribe to observable notifications */
+       virtual void addObserver(IObserver* obs) = 0;
+
+       /** Notify all observers */
+       virtual void notify() = 0; 
+       virtual     ~IObservable() = default;
+   };
+
+   struct IObserver 
+   {
+       virtual void update(IObservable* sender) = 0;
+       virtual     ~IObserver() = default;
+   };
+
+   class BasicObservable: public IObservable 
+   {
+       std::vector<IObserver*> m_observers{};
+   public:
+
+       void addObserver(IObserver* obs) override 
+       {
+           m_observers.push_back(obs);
+           obs->update(this);
+       }
+
+       /** Notify all observers */
+       void notify() override  
+       {
+           for(const auto obs: m_observers){ obs->update(this); }
+       }    
+   };
+
+   class CounterModel: public BasicObservable
+   {
+       int m_counter = 0;
+   public: 
+
+       void increment() 
+       { 
+           m_counter += 1;
+           this->notify();
+       }
+       void decrement() 
+       {
+           m_counter -= 1;
+           this->notify();
+       }
+       void reset()
+       { 
+           m_counter = 0;  
+           this->notify();
+       }
+
+       void set(int n)
+       {
+           m_counter = n;
+           this->notify();
+       }
+
+       int get() const { return m_counter; }
+   };
+
+   /** Concrete observer that prints the subject state in the console (terminal) */
+   class ConsoleView: public IObserver 
+   {
+       /* override: IObserver::update() */
+       void update(IObservable* sender) override 
+       {
+           /* Note: It can result in undefined behavior. */
+           int cnt = static_cast<CounterModel*>(sender)->get();
+           std::cout << " [CONSOLE] Counter state changed to = " << cnt << '\n';
+       }
+   };
+
+
+   class FormView: public IObserver {
+       QWidget      m_win{};
+       QFormLayout* m_form;
+       QPushButton* m_btn_increment;
+       QPushButton* m_btn_decrement;
+       QLabel*      m_label;
+
+       CounterModel& m_model;
+   public:
+
+       FormView(CounterModel& model): m_model(model)
+       {
+           m_win.setWindowTitle("Form View");
+           m_form = new QFormLayout(&m_win);
+           m_btn_increment = new QPushButton("[+]");
+           m_btn_decrement = new QPushButton("[-]");
+           m_label         = new QLabel("0");
+
+           m_form->addRow("Increment",     m_btn_increment);
+           m_form->addRow("Decrement",     m_btn_decrement);
+           m_form->addRow("Counter value", m_label);
+
+           m_win.show(); 
+
+           /** ------ Setup event handlers ------------------- **/
+
+           QObject::connect(m_btn_decrement, &QPushButton::clicked, 
+               [self = this]{ 
+                   self->m_model.decrement();
+               });
+
+           QObject::connect(m_btn_increment, &QPushButton::clicked, 
+               [this](){ 
+                   m_model.increment(); 
+               });
+       }
+
+       /* override: IObserver::update() */
+       void update(IObservable* sender) override 
+       {
+           int cnt = static_cast<CounterModel*>(sender)->get();
+           m_label->setText(QString::number(cnt)); 
+           std::cout << " [QT GUI] Counter state changed to = " << cnt << '\n';
+       }
+   };
+
+   class LabelView: public IObserver
+   {
+       QLabel m_label;
+   public:
+       LabelView() 
+       {   
+           m_label.setWindowTitle("Label View");
+           m_label.resize(400, 300);
+           m_label.show();
+       }
+
+       /* override: IObserver::update() */
+       void update(IObservable* sender) override 
+       {
+           int cnt = static_cast<CounterModel*>(sender)->get();
+           m_label.setText(" [LABEL Observer] Counter value = " + QString::number(cnt));
+       }
+
+   };
+
+
+   int main(int argc, char** argv)
+   {
+       // Useful for debugging
+       std::cout << " [INFO] QTVersion = " << ::qVersion() << std::endl;
+
+
+       QApplication app(argc, argv);
+
+       CounterModel model;     
+       ConsoleView  observerA{};
+       FormView     observerB{model};
+       LabelView    observerC{};
+
+       model.addObserver(&observerA);
+       model.addObserver(&observerB);
+       model.addObserver(&observerC);
+
+       return app.exec();
+   }
+#+END_SRC
+
+Building and running: 
+
+#+BEGIN_SRC sh 
+  # Get sources 
+  $ git clone https://gist.github.com/9331193ae1f9b05e4949160a4e024e84 observer1 && cd observer1
+
+  # Build  
+  $ cmake -H. -B_build -DCMAKE_BUILD_TYPE=Debug && cmake --build _build --target 
+ 
+  # Run: 
+  $ _build/observer1b 
+#+END_SRC
+
+GUI Screenshot: 
+
+[[file:images/observer-desing-pattern1.png][file:images/observer-desing-pattern1.png]]
+*** Implementation 2 - Using Callbacks 
+
+In this implementation, the observer object is replaced by a
+std::function<> callback which makes the code more loose coupled as
+any objects from any class and lambdas can be used as observers. 
+
+GIST: 
+
+ + https://gist.github.com/ff0cb5ac26bba23fc4c17c8bb8df070d
+
+File: _CMakeLists.txt_ 
+
+#+BEGIN_SRC cmake 
+     cmake_minimum_required(VERSION 3.9)
+     project(observer-design-pattern2)
+
+     #====== Global Configurations ==================#
+
+     set(CMAKE_CXX_STANDARD 17)
+     set(CMAKE_VERBOSE_MAKEFILE ON)
+     set(CMAKE_INCLUDE_CURRENT_DIR ON)
+     set(CMAKE_AUTOUIC ON)
+     set(CMAKE_AUTOMOC ON)
+     set(CMAKE_AUTORCC ON)
+     set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+     find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+
+     #=============== Target Configurations ============#
+
+     add_executable( observer2 observer-pattern2.cpp )
+     target_link_libraries( observer2 Qt5::Core Qt5::Gui Qt5::Widgets)
+#+END_SRC
+
+File: _observer-pattern2.cpp_ 
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+  #include <iomanip>
+  #include <functional> 
+
+  #include <QtWidgets>
+  #include <QApplication>
+  #include <QSysInfo>
+
+  using ObserverCallback = std::function<void (void* sender)>;
+
+  struct IObservable 
+  {
+      /** Subscribe to observable notifications */
+      virtual void addObserver(ObserverCallback obs) = 0;
+
+      /** Notify all observers */
+      virtual void notify() = 0; 
+      virtual     ~IObservable() = default;
+  };
+
+  class Observable: public IObservable 
+  {
+      void* m_sender = nullptr;
+      std::vector<ObserverCallback> m_observers{};
+    
+  public:
+
+      Observable(){ }
+      Observable(void* sender): m_sender(sender){ }
+    
+      void addObserver(ObserverCallback callback) override 
+      {
+          m_observers.push_back(callback);
+          callback(m_sender);
+      }
+
+      /** Notify all observers */
+      void notify() override  
+      {
+          for(const auto callback: m_observers){ callback(m_sender); }
+      }    
+  };
+
+  class CounterModel
+  {
+      int m_counter{0};
+      Observable m_obs{this};
+  public: 
+      void increment() { m_counter += 1; m_obs.notify(); }
+      void decrement() { m_counter -= 1; m_obs.notify(); }
+      int  get() const { return m_counter; }
+
+      void onCounterChanged(ObserverCallback callback)
+      {
+          m_obs.addObserver(callback);
+      }
+  };
+
+  class FormView {
+      QWidget      m_win{};
+      QFormLayout* m_form;
+      QPushButton* m_btn_increment;
+      QPushButton* m_btn_decrement;
+      QLabel*      m_label;
+
+      CounterModel& m_model;
+  public:
+
+      FormView(CounterModel& model): m_model(model)
+      {
+          m_win.setWindowTitle("Form View");
+          m_form = new QFormLayout(&m_win);
+          m_btn_increment = new QPushButton("[+]");
+          m_btn_decrement = new QPushButton("[-]");
+          m_label         = new QLabel("0");
+
+          m_form->addRow("Increment",     m_btn_increment);
+          m_form->addRow("Decrement",     m_btn_decrement);
+          m_form->addRow("Counter value", m_label);
+
+          m_win.show(); 
+
+          /** ------ Setup event handlers ------------------- **/
+
+          QObject::connect(m_btn_decrement, &QPushButton::clicked, 
+              [self = this]{ 
+                  self->m_model.decrement();
+              });
+        
+          QObject::connect(m_btn_increment, &QPushButton::clicked, 
+              [this](){ 
+                  m_model.increment(); 
+              });
+      }
+
+      void update(void* sender)  
+      {
+          int cnt = reinterpret_cast<CounterModel*>(sender)->get();
+          m_label->setText(QString::number(cnt)); 
+          std::cout << " [QT GUI] Counter state changed to = " << cnt << '\n';
+      }
+  };
+
+  class LabelView
+  {
+      QLabel m_label;
+  public:
+      LabelView() 
+      {   
+          m_label.setWindowTitle("Label View");
+          m_label.resize(400, 300);
+          m_label.show();
+      }
+
+      void notify(void* sender)
+      {
+          int cnt = reinterpret_cast<CounterModel*>(sender)->get();
+          m_label.setText(" [LABEL Observer] Counter value = " + QString::number(cnt));
+      }
+
+  };
+
+
+  int main(int argc, char** argv)
+  {
+      QApplication app(argc, argv);
+
+      CounterModel model;     
+    
+      model.onCounterChanged([](void* sender){
+          int cnt = static_cast<CounterModel*>(sender)->get();
+          std::cout << " [CONSOLE VIEW] Counter state changed to = " << cnt << '\n';
+      });
+
+      FormView   observerB{model};
+      LabelView  observerC{};
+
+      model.onCounterChanged([&](void* sender){
+          observerB.update(sender);
+      });
+    
+      model.onCounterChanged([&](void* sender){ 
+          observerC.notify(sender); 
+      });
+
+      return app.exec();
+  }
+#+END_SRC
+** Chain of Responsibility 
+*** Overview 
+
+The Chain-of-responsibility design pattern is a behavioral design
+pattern, introduced by the GOF book, which allows decoupling the
+sender of a request object from the objects that handle the
+request. In this pattern, _request_ objects, also called _commands_ or
+_events_, are passed through a chain of _handler objects_ that process a
+request or forward it to the next handler in the chain without the
+sender know which handler will process the request. 
+
+ + Note: GOF means (Gang-of-Four Book) - _Elements of Reusable_
+   _Object-Oriented Software_ - Eric Gamma et al.
+
+ + Note: The _request_ is also referred by some sources as _command_ or
+   _event_. 
+
+
+Possible use-cases: 
+
+  + Request processing
+
+  + Event handling
+
+  + Error handling 
+
+  + Data validation
+
+  + Replace nested if-else statements allowing this piece code to be
+    extended without modifying it. (Open-close - OOP -
+    Object-Oriented-Programming principle from SOLID).
+
+Intent, according to GOF book - Elements of Reusable Object-Oriented
+Software:
+
+#+BEGIN_QUOTE
+  Avoid coupling the sender of a request to its receiver by giving
+  more than one object a chance to handle the request. Chain the
+  receiving objects and pass the request along the chain until an
+  object handles it. 
+#+END_QUOTE
+
+Further Reading: 
+
+  + [[https://en.m.wikipedia.org/wiki/Chain-of-responsibility_pattern][Chain of responsiblity design pattern - Wikipedia]]
+
+  + [[https://codenuclear.com/chain-of-responsibility-design-pattern-in-java/][Chain of responsiblity design pattern in Java - Code Nuclear]]
+
+  + [[https://sii.pl/blog/chain-of-responsibility-an-elegant-way-to-handle-complex-validation/][Chain of responsiblity - An Elegant Way ot handle complex validation]]
+
+  + [[https://blog.ploeh.dk/2019/07/22/chain-of-responsibility-as-catamorphisms/][Chain of Responsility as catamorphisms]] (Mark Seemann)
+
+  + [[https://blogs.sap.com/2020/02/26/abap-with-coffee-and-chain-of-responsibilitycor-oo-pattern/][ABAP with Coffee and Chain of Responsibility(CoR) OO Pattern]] - SAP
+    company (Sreejith Ramachandran)
+
+  + [[https://www.codeproject.com/Articles/1047753/Using-Chain-Of-Responsibility-Instead-of-if-else-S][Using Chain Of Responsibility Instead of if/else Statement]] (Fitim Skenderi)
+
+*** Http Request handling - Implementation 1 
+
+The following code simulates a http server that receives a http
+requests and sends a response which depends on the http request. This
+hypothetical http server has the following routes: 
+ 
+  + '/' or '' for ~http://www.mysite.com/~ (GET http method)
+
+  + '/download' for ~http://www.mysite.com/download~ (GET http method)
+
+  + '/upload' for  ~http://www.mysite.com/upload~ (POST http method)
+
+  + Any other path (aka resource) that does not exist.  For
+    ~http://www.mysite.com/do-not-exist~ (GET http method) => Returns
+    404 not found http response.
+
+
+All this code is available at GIST: 
+
+  + GIST: https://gist.github.com/b915ecb586be56802bf221a24936a654
+
+File: _chain-of-responsibility1.cpp_ 
+
+#+BEGIN_SRC cpp 
+   #include <iostream>
+   #include <string> 
+
+   enum class HttpMethod {
+       GET, POST, DELETE, PUT, HEAD, PATCH, UKNOWN_METHOD
+   };
+
+   struct HttpRequest {
+        std::string  path    = "/";
+        HttpMethod   method  = HttpMethod::GET;
+        std::string  payload = "";
+        // Missing - http headers ---- //
+
+        bool isGET()    const { return method == HttpMethod::GET;    }
+        bool isPOST()   const { return method == HttpMethod::POST;   }
+        bool isDELETE() const { return method == HttpMethod::DELETE; }
+   };
+
+   /** Process server Http GET request and returns a response. */
+   void dispatch_request(HttpRequest const& req)
+   {
+      // Http route:  http://www.mysite.com/
+      if(req.isGET() && ( req.path == "/" || req.path == ""))
+      {
+          std::printf(" => Serve index page, web site homepage \n");
+
+      // Http route:  http://www.mysite.com/download 
+      } else if( req.isGET() && req.path == "/download" ) 
+      {
+           std::printf(" => Serve http://www.mysite.com/dowload page. ");
+
+       // Http route:  http://www.mysite.com/upload 
+       } else if( req.isPOST() && req.path == "/upload") 
+       {
+          std::printf(" => Upload document to web server \n");
+
+        // Http route:  http://www.mysite.com/<error-failure>
+        } else {
+            std::printf(" => Error: 404 - Not Found resource: '%s' \n", req.path.c_str());
+        }
+   }
+
+
+   int main(int argc, char** argv)
+   {
+       auto req1 = HttpRequest{ "/", HttpMethod::GET, "" };
+       dispatch_request(req1);
+
+       auto req2 = HttpRequest{ "/error/resource", HttpMethod::GET, "" };
+       dispatch_request(req2); 
+
+       auto req3 = HttpRequest{ "/upload", HttpMethod::POST, "file data" };
+       dispatch_request(req3);
+
+
+       return 0;
+   }
+#+END_SRC
+
+Compiling: 
+
+#+BEGIN_SRC sh 
+  $ g++ chain-of-responsibility1.cpp -o cor1 -std=c++1z -Wall -Wextra
+
+  $ ./cor1 
+   => Serve index page, web site homepage 
+   => Error: 404 - Not Found resource: '/error/resource' 
+   => Upload document to web server   
+#+END_SRC
+
+Some drawbacks of the previous code are: adding new http routes or resources,
+requires modification of the _dispatch_request()_ function which
+violates the _open-close_ principle of object-oriented programming which
+states that the code should be open for extension but closed to
+modification. 
+*** Http Request handling - Implementation 2 (old c++ style) 
+
+This implementation of the chain-of-responsibility design pattern is
+similar to the one presented by the GOF book. A handler object checks
+whether the request can be handled, otherwise the handler forwards the
+request to next handler in the chain. In this particular case, the
+request is a _http request_ and the handler is an object that checks if
+it can serve the http request by sending a _http response_ back to the
+client side (request sender). Otherwise, the current handler forwards the
+request to the next http handler in the chain until the last handler
+is reached. 
+
+The advantage of this implementation using the chain-of-responsibility
+design pattern over the previous one using nested if else is that new
+http handlers (http routes or http resources) can be added without
+changing the server code. 
+
+Note: This implementation was designed in old C++ style (C++98)
+without using smart pointers. 
+
+File: _chain-of-responbility2.cpp_ 
+
+#+BEGIN_SRC cpp 
+   #include <iostream>
+   #include <string> 
+
+   enum class HttpMethod {
+      GET, POST, DELETE, PUT, HEAD
+   };
+
+   /** Request object - encapsulates a http request */
+   struct HttpRequest {
+       std::string  path    = "/";
+       HttpMethod   method  = HttpMethod::GET;
+       std::string  payload = "";
+       // Missing - http headers implementation ---- //
+
+       bool isGET()    const { return method == HttpMethod::GET;    }
+       bool isPOST()   const { return method == HttpMethod::POST;   }
+       bool isDELETE() const { return method == HttpMethod::DELETE; }
+   };
+
+   /** Interface class for generic node of chain of responsibility */
+   class IHttpHandler {
+   public:
+       virtual void handle(const HttpRequest& req) = 0;
+       virtual void set_next(IHttpHandler* next) = 0;
+       virtual ~IHttpHandler() = default; 
+   };
+
+   class BasicHttpHandler: public IHttpHandler {
+   protected:
+      /** Note: the keyword 'protected' allows derived classes
+       *  (aka subclasses) to access the 'm_next' pointer. But 
+       *  this keyword forbids any external code from accessing 
+       *  the pointer m_next.
+       */
+      IHttpHandler* m_next = nullptr;
+
+   public:
+       BasicHttpHandler(IHttpHandler* next = nullptr)
+        : m_next(next){ }
+
+
+       virtual ~BasicHttpHandler() {
+          delete m_next;
+          m_next = nullptr;
+       }
+
+       /** Set next request in the chain */
+       void set_next(IHttpHandler* next)
+       {
+          m_next = next;
+       }
+
+   };
+
+   class HttpGetHandler: public BasicHttpHandler {
+      std::string m_path; 
+   public:
+
+       HttpGetHandler(std::string path): m_path(path){ }
+
+       void handle(const HttpRequest& req) override
+       {
+           // Checks whether this handler object can process the request. 
+           if(req.method == HttpMethod::GET && m_path == req.path) {
+                   std::printf( " [RESPONSE] <HttpGetHandler> Return Html and http response with " 
+                                "status code 200 for resource: %s \n", m_path.c_str());
+           } else {
+                   // If the request cannot be handle, this hanlder forwards the request to 
+                   // the next handler in the chain. 
+                   m_next->handle(req); 
+           }
+       }
+
+   };
+
+   class HttpUploadHandler: public BasicHttpHandler {
+
+       void handle(const HttpRequest& req) override
+       {
+          if( req.method == HttpMethod::POST && req.path == "/upload" ) 
+               std::printf( " [RESPONSE] <HttpUploadHandler> Uploading data: '%s' \n"
+                            , req.payload.c_str());
+          else 
+               m_next->handle(req); 
+       }
+
+   };
+
+   class HttpError404Handler: public BasicHttpHandler {	
+       void handle(const HttpRequest& req) override
+       {
+           std::printf(" [RESPONSE] <HttpError404Handler>" 
+                       " Error 404 Not found resource: %s \n", req.path.c_str());
+       }
+
+   };
+
+   struct HttpServer 
+   {
+       // First handler in the chain 
+       IHttpHandler* m_hnd; 
+
+       HttpServer() {
+           IHttpHandler* hnd_index =  new HttpGetHandler("/");
+
+           IHttpHandler* hnd_download = new HttpGetHandler("/download");
+           hnd_index->set_next(hnd_download);
+
+           IHttpHandler* hnd_upload = new HttpUploadHandler();
+           hnd_download->set_next(hnd_upload);
+
+           IHttpHandler* hnd_error = new HttpError404Handler(); 
+           hnd_upload->set_next(hnd_error);
+
+           m_hnd = hnd_index;		
+       }
+
+       ~HttpServer() {
+            delete m_hnd; 
+            m_hnd = nullptr;
+       }
+
+       void dispatch_request(const HttpRequest& req)
+       {
+            std::printf("\n [TRACE] Process request => path = %s \n", req.path.c_str());
+            m_hnd->handle(req);
+            std::printf(" ---------------------------------------\n");
+       }
+   };
+
+
+   int main(int argc, char** argv)
+   {
+       HttpServer server;
+
+       auto req1 = HttpRequest{ "/", HttpMethod::GET, "" };
+       server.dispatch_request(req1); 
+
+       auto req2 = HttpRequest{ "/error/resource", HttpMethod::GET, "" };
+       server.dispatch_request(req2); 	
+
+       auto req3 = HttpRequest{ "/upload", HttpMethod::POST, "file data" };
+       server.dispatch_request(req3); 	
+
+
+       return 0;
+   }
+
+#+END_SRC
+
+Build and running: 
+
+#+BEGIN_SRC sh 
+  $ g++  chain-of-responsibility2.cpp -o cor2 -std=c++1z -Wall -Wextra
+  
+  $ ./cor2 
+
+   [TRACE] Process request => path = / 
+   [RESPONSE] <HttpGetHandler> Return Html and http response with status code 200 for resource: / 
+   ---------------------------------------
+
+   [TRACE] Process request => path = /error/resource 
+   [RESPONSE] <HttpError404Handler> Error 404 Not found resource: /error/resource 
+   ---------------------------------------
+
+   [TRACE] Process request => path = /upload 
+   [RESPONSE] <HttpUploadHandler> Uploading data: 'file data' 
+   ---------------------------------------  
+#+END_SRC
+
+*** Http Request handling - Implementation 3 (modern c++ style) 
+
+This implementation is similar to the implementation 2, but the
+advantage of the current approach is the usage of smart pointers and
+less code repetition. 
+
+File: _chain-of-responsibility3.cpp_ 
+
+#+BEGIN_SRC cpp 
+   #include <iostream>
+   #include <string> 
+   #include <memory>
+
+   enum class HttpMethod {
+      GET, POST, DELETE, PUT, HEAD
+   };
+
+   /** Request object - encapsulates a http request */
+   struct HttpRequest {
+       std::string  path    = "/";
+       HttpMethod   method  = HttpMethod::GET;
+       std::string  payload = "";
+       // Missing - http headers implementation ---- //
+
+       bool isGET()    const { return method == HttpMethod::GET;    }
+       bool isPOST()   const { return method == HttpMethod::POST;   }
+       bool isDELETE() const { return method == HttpMethod::DELETE; }
+   };
+
+   /** Interface class for generic node of chain of responsibility */
+   class IHttpHandler {
+   public:
+       /** Predicate that checks whether request can be handled */
+       virtual bool can_handle(const HttpRequest& req) = 0;
+
+       /** Process (aka handle) request */
+       virtual void do_handle(const HttpRequest& req) = 0;
+
+       virtual void handle(const HttpRequest& req) = 0;
+
+       ~IHttpHandler() = default; 
+   };
+
+   class BasicHttpHandler: public IHttpHandler {
+         std::shared_ptr<IHttpHandler> m_next;
+
+   public:
+       BasicHttpHandler(std::shared_ptr<IHttpHandler> next = nullptr)
+          : m_next(next){ }
+
+       virtual ~BasicHttpHandler() = default;
+
+       void set_next(std::shared_ptr<IHttpHandler> next)
+       {
+           m_next = next;
+       }
+
+       /** Note: The keyword 'final' causes compile-time error if this 
+        * method is overriden by any class derived from this one. 
+        */
+       void handle(const HttpRequest& req) final 
+       {
+           if(this->can_handle(req)) 
+             this->do_handle(req);
+           else if(m_next != nullptr)
+              m_next->handle(req);
+           else 
+              throw std::runtime_error(" There is no handle for this request.");
+       }
+   };
+
+   class HttpGetHandler: public BasicHttpHandler {
+        std::string m_path; 
+   public:
+       HttpGetHandler(std::string path): m_path(path){ }
+
+       bool can_handle(const HttpRequest& req) override
+       {
+            return req.method == HttpMethod::GET && m_path == req.path;
+       }
+
+       void do_handle(const HttpRequest& req) override
+       {
+
+           std::printf( " [RESPONSE] <HttpGetHandler> Return Html and http response with " 
+                                    "status code 200 for resource: %s \n", m_path.c_str());
+       }
+
+   };
+
+   class HttpUploadHandler: public BasicHttpHandler {
+
+        bool can_handle(const HttpRequest& req) override
+        {
+             return req.method == HttpMethod::POST && req.path == "/upload";
+        }
+
+        void do_handle(const HttpRequest& req) override
+        {
+              std::printf( " [RESPONSE] <HttpUploadHandler> Uploading data: '%s' \n"
+                          , req.payload.c_str());
+        }
+   };
+
+   class HttpError404Handler: public BasicHttpHandler {
+       bool can_handle(const HttpRequest& req) override
+       {
+           return true; 
+       }
+
+       void do_handle(const HttpRequest& req) override
+       {
+           std::printf(" [RESPONSE] <HttpError404Handler>" 
+                      " Error 404 Not found resource: %s \n", req.path.c_str());
+       }
+
+   };
+
+   struct HttpServer 
+   {
+       std::shared_ptr<IHttpHandler> m_hnd; 
+
+       HttpServer() {
+              auto hnd_index = std::make_shared<HttpGetHandler>("/");
+
+              auto hnd_download = std::make_shared<HttpGetHandler>("/download");
+              hnd_index->set_next(hnd_download);
+
+              auto hnd_upload = std::make_shared<HttpUploadHandler>();
+              hnd_download->set_next(hnd_upload);
+
+              auto hnd_error = std::make_shared<HttpError404Handler>(); 
+              hnd_upload->set_next(hnd_error);
+
+              m_hnd = hnd_index;		
+      }
+
+       void dispatch_request(const HttpRequest& req)
+       {
+            std::printf("\n [TRACE] Process request => path = %s \n", req.path.c_str());
+            m_hnd->handle(req);
+            std::printf(" ---------------------------------------\n");
+       }
+   };
+
+
+   int main(int argc, char** argv)
+   {
+        HttpServer server;
+
+        auto req1 = HttpRequest{ "/", HttpMethod::GET, "" };
+        server.dispatch_request(req1); 
+
+        auto req2 = HttpRequest{ "/error/resource", HttpMethod::GET, "" };
+        server.dispatch_request(req2); 	
+
+        auto req3 = HttpRequest{ "/upload", HttpMethod::POST, "file data" };
+        server.dispatch_request(req3); 	
+
+
+        return 0;
+   }
+
+#+END_SRC
+
+Compiling and running: 
+
+#+BEGIN_SRC sh 
+   $ g++  chain-of-responsibility3.cpp -o cor3 -std=c++1z -Wall -Wextra
+ 
+   $ ./cor3
+
+    [TRACE] Process request => path = / 
+    [RESPONSE] <HttpGetHandler> Return Html and http response with status code 200 for resource: / 
+    ---------------------------------------
+
+    [TRACE] Process request => path = /error/resource 
+    [RESPONSE] <HttpError404Handler> Error 404 Not found resource: /error/resource 
+    ---------------------------------------
+
+    [TRACE] Process request => path = /upload 
+    [RESPONSE] <HttpUploadHandler> Uploading data: 'file data' 
+    ---------------------------------------
+#+END_SRC
+
+*** Http Request handling - Implementation 4 (modern c++ style + functional) 
+
+This implementation of chain-of-responsibility design pattern replaces
+the linked list of http handlers by an array of handlers. Another
+modification is the introduction of the class AdapterHandler which
+allows creating http handlers (http routes) using C++ lambdas which
+makes possible to create new http handlers without creating new
+classes. Thus, the class AdapterHandler makes this code more
+functional-programming friendly. 
+
+File: _chain-of-responsibility4.cpp_. 
+
+#+BEGIN_SRC cpp 
+    #include <iostream>
+    #include <string>
+    #include <vector>  
+    #include <memory>
+
+    enum class HttpMethod {
+       GET, POST, DELETE, PUT, HEAD
+    };
+
+    /** Request object - encapsulates a http request */
+    struct HttpRequest {
+         std::string  path    = "/";
+         HttpMethod   method  = HttpMethod::GET;
+         std::string  payload = "";
+         // Missing - http headers implementation ---- //
+
+         bool isGET()    const { return method == HttpMethod::GET;    }
+         bool isPOST()   const { return method == HttpMethod::POST;   }
+         bool isDELETE() const { return method == HttpMethod::DELETE; }
+    };
+
+    /** Interface class for generic node of chain of responsibility */
+    class IHttpHandler {
+    public:
+        /** Predicate that checks whether request can be handled */
+        virtual bool can_handle(const HttpRequest& req) = 0;
+
+        /** Process (aka handle) http request and returns http response. */
+        virtual void handle(const HttpRequest& req) = 0;
+
+        ~IHttpHandler() = default; 
+    };
+
+    class HttpGetHandler: public IHttpHandler {
+        std::string m_path; 
+    public:
+        HttpGetHandler(std::string path): m_path(path){ }
+
+        bool can_handle(const HttpRequest& req) override
+        {
+            return req.method == HttpMethod::GET && m_path == req.path;
+        }
+
+        void handle(const HttpRequest& req) override
+        {
+            std::printf( " [RESPONSE] <HttpGetHandler> Return Html and http response with " 
+                         "status code 200 for resource: %s \n", m_path.c_str());
+        }
+
+    };
+
+    /* This class allows creating http handlers (transaction handlers)
+     * using C++ lambdas. 
+     */
+    template<typename predicate_t, typename action_t>
+    class AdapterHandler: public IHttpHandler 
+    {
+      predicate_t m_predicate; 
+      action_t    m_action;
+      public:
+
+      AdapterHandler(predicate_t predicate, action_t action)
+        :  m_predicate(predicate), m_action(action) { }
+
+      bool can_handle(const HttpRequest& req) override
+      {
+          return m_predicate(req);
+      }
+
+      void handle(const HttpRequest& req) override
+      {
+         return m_action(req);
+      }
+
+    };
+
+
+    struct HttpServer 
+    {
+          std::vector<std::shared_ptr<IHttpHandler>> m_handlers; 
+
+          HttpServer() {
+                 addHandler(std::make_shared<HttpGetHandler>("/"));
+                 addHandler(std::make_shared<HttpGetHandler>("/download"));
+
+                 addLambdaHandler(
+                   [](const HttpRequest& req)
+                   { 
+                       return req.method == HttpMethod::POST && req.path == "/upload";     
+                   }
+                  ,[](const HttpRequest& req)
+                   { 
+                           std::printf( " [RESPONSE] <HttpUploadHandler> Uploading data: '%s' \n"
+                                       , req.payload.c_str());        
+                    }
+                 );
+
+                addLambdaHandler(
+                    [](const HttpRequest& req){ return true; }
+                   ,[](const HttpRequest& req){ 
+                                   std::printf(" [RESPONSE] <HttpError404Handler>" 
+                                               " Error 404 Not found resource: %s \n", req.path.c_str());
+                   }
+                );
+        }
+
+        void addHandler(std::shared_ptr<IHttpHandler> hnd)
+        {
+            m_handlers.push_back(hnd);
+        }
+
+       template<typename predicate_t, typename action_t>
+       void addLambdaHandler(predicate_t pred, action_t action)
+       {
+         using T = AdapterHandler<predicate_t, action_t>;
+         auto hnd = std::make_shared<T>(pred, action);
+         m_handlers.push_back( hnd );
+       }
+
+       void dispatch_request(const HttpRequest& req)
+       {
+          std::printf("\n [TRACE] Process request => path = %s \n", req.path.c_str());
+          for(const auto& hnd: m_handlers) 
+            if(hnd->can_handle(req)) {
+                hnd->handle(req); 
+                return;
+            }
+
+         std::printf(" ---------------------------------------\n");
+      }
+    };
+
+
+    int main(int argc, char** argv)
+    {
+        HttpServer server;
+
+        auto req1 = HttpRequest{ "/", HttpMethod::GET, "" };
+        server.dispatch_request(req1); 
+
+        auto req2 = HttpRequest{ "/error/resource", HttpMethod::GET, "" };
+        server.dispatch_request(req2); 	
+
+        auto req3 = HttpRequest{ "/upload", HttpMethod::POST, "file data" };
+        server.dispatch_request(req3); 	
+
+        return 0;
+    }
+#+END_SRC 
+
+Build and running: 
+
+#+BEGIN_SRC sh 
+   $ g++ chain-of-responsibility4.cpp -o cor4 -std=c++1z -Wall -Wextra
+
+   $ ./cor4
+
+    [TRACE] Process request => path = / 
+    [RESPONSE] <HttpGetHandler> Return Html and http response with status code 200 for resource: / 
+
+    [TRACE] Process request => path = /error/resource 
+    [RESPONSE] <HttpError404Handler> Error 404 Not found resource: /error/resource 
+
+    [TRACE] Process request => path = /upload 
+    [RESPONSE] <HttpUploadHandler> Uploading data: 'file data'
+#+END_SRC
 ** Visitor 
 *** Overview 
 
@@ -2908,6 +4484,124 @@ Further Reading:
 
  + [[https://www.fluentcpp.com/2018/09/18/how-to-remove-pointers-from-a-vector-in-cpp/][How to Remove Pointers from a Vector in C++ - Fluent C++]]
  + [[http://amse.ru/courses/cpp2/2011_03_14.html][C++. STL algorithms]] (in Russian)
+** Virtual Friend Function Idiom 
+
+A C++ friend function is a free function with access to a class
+protected and private member variables and member functions. Unlike
+virtual member functions (aka virtual methods), which are resolved at
+runtime and can be overridden by each derived class, friend functions
+cannot be declared as virtual and be overridden by each derived class
+for customizing the function behavior for each different
+implementation.  The virtual friend function idiom emulates the
+virtual member function by forwarding the method call to a member
+function.
+
+This technique can be used for implementing stream insertion (<<) and
+extraction operator for reading and writing derived classes from
+streams. 
+
+In the following code, the idiom is used for printing a class
+hierarchy and customizing the behavior of the stream insertion
+operator (<<), which is a friend function, for each derived class. 
+
+File: _virtual-friend-function.cpp_ 
+
+#+BEGIN_SRC cpp 
+  #include <iostream> 
+  #include <string> 
+
+  // Shape interface 
+  class IShape
+  {
+  // Protected =>> Means that only derived classes 
+  // can access this function.     
+  protected:
+         // Print object to the stream object 
+         virtual void print_me(std::ostream& os) const = 0;
+  public:
+      virtual void draw() const = 0;
+      virtual ~IShape() = default;
+    
+      // Friend function => (Just a free function)
+      friend std::ostream& operator<<(std::ostream& os, const IShape& shape)
+      {
+           shape.print_me(os);
+           return os;
+      }
+  };
+
+  class Circle: public IShape
+  {
+  private:
+      double radius = 0.0;
+    
+      void print_me(std::ostream& os) const override 
+      {
+          os << " IShape(Cicle) with radius = " << radius;
+      }
+    
+  public:  
+      Circle(double radius): radius(radius){ }
+    
+      void draw() const override {
+          // Implementation here ....
+      }
+  };
+
+
+  class Square: public IShape
+  {
+  private:
+      double length = 0.0;
+    
+      void print_me(std::ostream& os) const override 
+      {
+          os << " IShape(Square) with length = " << length;
+      }
+    
+  public:  
+      Square(double length): length(length){ }
+    
+      void draw() const override {
+          // Implementation here ....
+      }
+  };
+
+
+  int main(int argc, char** argv)
+  {
+      Square shapeA{5};
+      Circle shapeB{10}; 
+    
+      /* 
+       ,*  virtual-friend-function.cpp: In function ‘int main(int, char**)’:
+       ,* virtual-friend-function.cpp:67:30: error: 
+       ,*    ‘virtual void Square::print_me(std::ostream&) const’ is private *      within this context
+       |     shapeA.print_me(std::cout);
+       ,*/
+          // shapeA.print_me(std::cout);  // Compile-time error.
+    
+      std::cout << " [INFO] shape A = " << shapeA << '\n';
+      std::cout << " [INFO] shape B = " << shapeB << '\n';
+    
+      return 0;
+  }
+#+END_SRC
+
+
+Building: 
+
+#+BEGIN_SRC sh 
+  $ g++ virtual-friend-function.cpp -o out.bin -std=c++1z -Wall -Wextra -g
+#+END_SRC
+
+Running: 
+
+#+BEGIN_SRC sh 
+  $ ./out.bin
+   [INFO] shape A =  IShape(Square) with length = 5
+   [INFO] shape B =  IShape(Cicle) with radius = 10
+#+END_SRC
 
 ** RAII idiom - Resource Aquisition Is Initialization
 *** Overview 
@@ -3619,10 +5313,6 @@ used by boost::noncopyable [[https://github.com/inducer/boost-python-ublas-subse
 
 
 
-
-
-
-
 ** Copy and swap idiom 
 
 The copy-and-swap idiom is a widely used technique for implementing
@@ -4215,6 +5905,466 @@ References and further reading:
  + [[https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Interface_Class][More C++ Idioms/Interface Class - Wikibooks, open books for an open world]]
  + [[https://accu.org/index.php/journals/269][ACCU - Separating Interface and Implementation in C++]]
  + [[https://www.boost.org/doc/libs/1_63_0/libs/smart_ptr/sp_techniques.html][Smart Pointer Programming Techniques - 1.63.0]]
+** CRTP - Curious Recurring Template Pattern
+*** Overview 
+
+It is a variation of GOF template design pattern where an algorithm
+defined by the base class is customized or specified by the derived 
+class. However, unlike the GOF one, this version uses C++ template
+metaprogramming for emulating dynamic polymorphism or inheritance
+at compile time. So it makes the code faster by eliminating virtual
+function-calls.
+
+Features: 
+ + Coined by James Coplien - 1995
+ + Static polymorphism technique based on template metaprogramming for
+   speeding up the code eliminating virtual functions.
+
+Use cases:
+ + Reduce virtual function call overhead - by simulating dynamic
+   polymorphism through static polymorphism. 
+ + Implement state machines.
+ + Implement high performance numerical libraries.
+ + Code injection.
+
+Libraries using this pattern:
+ + Boost.Iterator
+ + Boost.Python
+ + Boost.Serialization 
+
+Also known as: 
+ + Code injection
+ + Barton‐Nackman Trick
+ + Mixin - Name used outside C++ community 
+
+*** Eliminating Virtual Member Function 
+
+ *Approach 1 - GOF - OOP template pattern* 
+
+ - Code 1: GOF Template method design pattern using virtual functions.
+
+ #+BEGIN_SRC cpp 
+   class IntervalSummation{
+   public:
+           // Algorithm or entry point which calls the derived class method.
+           // This is the template method 
+           double summation(int lower, int upper) const{
+                   double sum = 0;
+                   for(int i = lower; i <= upper; i++)
+                           sum += this->stepFn(i);
+                   return sum; 
+           }
+   protected:
+           // Hook method or to be defined by the derived class
+           virtual double stepFn(double x) const = 0 ;
+   };
+
+   class SumOfSquares: public IntervalSummation{
+   private:
+           double stepFn(double x) const { return x * x; }
+   };
+
+   class SumOfCubes: public IntervalSummation{
+   private:
+           double stepFn(double x) const { return x * x * x; }
+   };
+
+   void clientCode(const IntervalSummation& obj){
+           std::cout << "Summation at [0, 15] = " << obj.summation(0, 15) << std::endl;
+   }
+#+END_SRC
+
+  *Approach 2 - CRTP generic programming pattern* 
+
+ + Code 2: Code rewritten using CRTP for eliminating virtual function
+   calls. The advantage is that this code can run faster than the
+   previous one, however the cost is the higher complexity, loss of
+   readability and runtime polymorphism. For instance, now is not
+   possible to store multiple implementations of IntervalSummation in
+   a data structure or refer to them with the same pointer.
+
+ + File: [[file:src/design-patterns/crtp1.cpp][file:src/design-patterns/crtp1.cpp]]
+ + Online Compiler: https://rextester.com/ZLZH2040
+
+#+BEGIN_SRC cpp 
+  template<class Implementation>
+  class IntervalSummation{
+  public:
+          // Get reference to implementation 
+          Implementation& self(){
+                  return *static_cast<Implementation*>(this);
+          }
+          // Overload method 
+          const Implementation& self() const {
+                  return *static_cast<Implementation const * const>(this);
+          } 	
+          double summation(int lower, int upper) const {
+          double sum = 0;
+          for(int i = lower; i <= upper; i++)
+                sum += self().stepFn(i);
+          return sum; 
+          }
+  };
+
+  class SumOfSquares: public IntervalSummation<SumOfSquares>{
+  public:
+          double stepFn(double x) const { return x * x; }
+  };
+
+  class SumOfCubes: public IntervalSummation<SumOfCubes>{
+  public:
+          double stepFn(double x) const { return x * x * x; }
+  };
+
+  template<class T>
+  void clientCode(const IntervalSummation<T>& obj){
+          std::cout << "Summation at [0, 15] = " << obj.summation(0, 15) << std::endl;
+  }
+
+#+END_SRC
+
+Running: 
+
+#+BEGIN_SRC sh 
+  $ clang++ crtp.cpp -o crtp.bin -std=c++1z -Wall -Wextra  && ./crtp.bin
+  Sum of squares in [0, 10] = 385
+  Sum of cubes   in [0, 10] = 3025
+  Summation at [0, 15] = 1240
+  Summation at [0, 15] = 14400
+#+END_SRC
+
+References: 
+
+ + [[https://www.codeproject.com/Tips/537606/Cplusplus-Prefer-Curiously-Recurring-Template-Patt][C++: Prefer Curiously Recurring Template Pattern (CRTP) to Template Pattern - CodeProject]]
+ + [[https://mklimenko.github.io/english/2018/07/02/platform-dependent-crtp/][CRTP-based platform-dependent optimizations | GNSS C++ solutions]]
+ + http://stevedewhurst.com/once_weakly/once-weakly20170328/once-weakly20170328.pdf
+ + [[http://enki-tech.blogspot.com/2012/08/c11-generic-singleton.html][Enki :: Technical Blog: C++11: A generic Singleton]]
+ + IDENTIFYING PROGRAMMING IDIOMS IN C++ GENERIC LIBRARIES -
+   <https://etd.ohiolink.edu/rws_etd/document/get/kent1259116053/inline>
+ + [[http://www.masaers.com/2014/01/22/CRTP-operator-hijacking.html][Using CRTP to easily hijack operators in c++11 | masaers’ blog]]
+ + https://github.com/nojhan/crtp_functor_ttp
+ + [[https://web.archive.org/web/20060211034709/http://devnet.developerpipeline.com/documents/s=9843/cuj0601diggins/][Developer::Pipelines | Building More Flexible Types with Mixins]]
+ + [[https://accu.org/index.php/journals/296][ACCU :: Better Encapsulation for the Curiously Recurring Template Pattern]]
+ + [[http://www.di.unipi.it/~nids/docs/templates_vs_inheritance.html][Replacing Virtual Methods with Templates]]
+ + http://gsd.web.elte.hu/lectures/bolyai/2018/mixin_crtp/mixin_crtp.pdf
+ + https://faithandbrave.hateblo.jp/entry/20071206/1196934096
+ + [[https://nativecoding.wordpress.com/2015/06/05/virtual-methods-vs-crtp-benchmark-2/][Virtual Methods vs CRTP Benchmark – Native Coding]]
+ + https://nativecoding.wordpress.com/2015/01/11/important-c-idioms/
+ + http://barngoggles.com/visitor-with-crtp/
+
+Best Links: 
+
+ + https://nativecoding.wordpress.com/2015/01/11/important-c-idioms/
+ + https://marcoarena.wordpress.com/2012/04/29/use-crtp-for-polymorphic-chaining/
+ + http://thothonegan.tumblr.com/post/157363120503/crtp-curiously-recurring-template-pattern
+
+Videos: 
+
+ + Curiously Recurring Template Pattern (CRTP) -
+   <https://www.youtube.com/watch?v=C3Pi5GlIfjs>
+
+ + 
+
+ + 
+*** Generating operator overloading free functions 
+
+The CRTP design pattern can be used for generating operator free
+functions and  avoiding code repetition when implementing them. 
+
+ + File:  [[file:src/design-patterns/crtp-operators.cpp][file:src/design-patterns/crtp-operators.cpp]]
+ + Online Compiler: https://rextester.com/PBI36673
+
+
+ *Example:*
+
+Class EqualityOperator: 
+  + Requirement: the _Impl_ class must implement the member function:
+    + _bool T::equal(T const& rhs) const_
+
+#+BEGIN_SRC cpp 
+  template<typename Impl>
+  class EqualityOperator
+  {
+  public:
+
+      friend bool operator==(Impl const& lhs, Impl const& rhs)
+      {
+          return lhs.equal(rhs);
+      }
+
+      friend bool operator!=(Impl const& lhs, Impl const& rhs)
+      {
+          return lhs.equal(rhs);
+      }
+
+  };
+#+END_SRC
+
+Class AddOperator: 
+
+  + Imlements the operator (+) free functions. 
+  + Requirement => The class _Impl_ must implement the member function:
+    + Impl Impl::add(T const& T) const
+
+#+BEGIN_SRC cpp 
+  template<typename Impl, typename T>
+  struct AddOperator
+  {
+  public:
+
+      friend Impl operator+(Impl const& lhs, T const& rhs)
+      {
+          return lhs.add(rhs);
+      }
+
+      friend Impl operator+(T const& lhs, Impl const& rhs)
+      {
+          return rhs.add(lhs);
+      }
+  };
+#+END_SRC
+
+Class StreamInsertionOperator:
+
+  + Implements the operator (<<) stream-insertion operator for the
+    class Impl.
+
+  + Requirement: The class Impl must implement the following member function:
+    + void printme(std::ostream& os) const 
+
+#+BEGIN_SRC cpp 
+  template<typename Impl>
+  struct StreamInsertionOperator
+  {
+  public:
+
+      friend std::ostream& operator<<(std::ostream& os, Impl const& rhs)
+      {
+          rhs.printme(os);
+          return os;
+      }
+
+  };
+#+END_SRC
+
+Class Point2D: 
+  + Inherits and all previous CRTP classes and implements their
+    requirements (implicit interface).
+
+#+BEGIN_SRC cpp 
+  class Point2D: public EqualityOperator<Point2D>
+               , public AddOperator<Point2D, int>
+               , public StreamInsertionOperator<Point2D>
+  {
+  public:
+      int x;
+      int y;
+      Point2D(int x, int y): x(x), y(y) { }
+
+
+      // Required by:
+      void printme(std::ostream& os) const
+      {
+          os << "Point2D[ x = " << x << " ; y = " << y << " ] " << std::endl;
+      }
+
+  private:
+      // Allows class EqualityOperator<Point2D> to access private
+      // members of this class.
+      friend class EqualityOperator<Point2D>;
+      friend struct AddOperator<Point2D, int>;
+
+      // Required by: EqualityOperator<Point2D>
+      bool equal(Point2D const& rhs) const
+      {
+          return x == rhs.x && y == rhs.y;
+      }
+
+      // Required by: AddOperator<Point2D, int>
+      Point2D add(int rhs) const
+      {
+          return Point2D(this->x + rhs, this->y + rhs);
+      }
+
+  };
+#+END_SRC
+
+Function: main()
+
+#+BEGIN_SRC cpp 
+  Point2D p1(10, 20);
+  Point2D p2(25, 30);
+  Point2D p3(10, 20);
+
+  std::cout << std::boolalpha;
+
+  std::cout << " p1 === p2 ? => " << (p1 == p2) << std::endl;
+  std::cout << " p1 === p3 ? => " << (p1 == p3) << std::endl;
+
+  std::cout <<" p1 + 10 = " << p1 + 10 << std::endl;
+  std::cout <<" 10 + p1 = " << 10 + p1 << std::endl;
+#+END_SRC
+
+Output of main():
+
+#+BEGIN_SRC sh 
+ $ ./crtp-operators.bin 
+
+ p1 === p2 ? => false
+ p1 === p3 ? => true
+ p1 + 10 = Point2D[ x = 20 ; y = 30 ] 
+
+ 10 + p1 = Point2D[ x = 20 ; y = 30 ] 
+#+END_SRC
+
+*** CRTP with more concise notation 
+
+The following code uses the convenience templated function rcast<>
+provide a more concise notation for expressing the code intent and
+takes care of const qualifiers. 
+
+File: _crtp.cpp_
+
+#+BEGIN_SRC cpp 
+  #include <iostream>
+  #include <string>
+  #include <iomanip> 
+
+  // Convenience function for CRTP pattern.
+  template<typename Dest, typename Src>
+  inline Dest& rcast(Src* td){ return *reinterpret_cast<Dest*>(td); }
+
+  // Convenience templated function for CRTP pattern. This overload can be 
+  // called from member functions functions with const annotation. Such as: 
+  //   ReturType MyClass::someMemberFunc(arg0, ...) const 
+  template<typename Dest, typename Src>
+  inline const Dest& rcast(const Src* td){ return *reinterpret_cast<const Dest*>(td); }
+
+  template<typename Impl>
+  struct CurvePlotter
+  {
+      // Version 1 => Using convenience function rcast<T>(), which 
+      // saves typing and expresses the intent in a more explicit way.
+      //
+      void tabulate_1(double start, double stop, double step) const 
+      {
+          std::cout << " ======== Version 1 =========" << '\n';
+          rcast<Impl>(this).show_function_name();
+        
+          for(double x = start; x < stop; x += step)
+          {
+              double y = rcast<Impl>(this).eval(x);
+              std::cout << std::setw(10) << x << std::setw(10) << y << '\n';
+          }
+      }
+    
+
+     // Version 2 => Implementation 2 => Without using convenience function.     
+      void tabulate_2(double start, double stop, double step) const 
+      {
+          std::cout << " ======== Version 2 =========" << '\n';
+        
+          reinterpret_cast<Impl const*>(this)->show_function_name();
+        
+          for(double x = start; x < stop; x += step)
+          {
+              double y = reinterpret_cast<const Impl*>(this)->eval(x);
+              std::cout << std::setw(10) << x << std::setw(10) << y << '\n';
+          }        
+      }
+  };
+
+  class LinearPlotter: public CurvePlotter<LinearPlotter>
+  {
+    double m_a, m_b;
+  public:
+      LinearPlotter(double a, double b): m_a(a), m_b(b) { }
+      void show_function_name() const { std::cout << " Curver name = linear " << '\n';  }
+      double eval(double x) const { return m_a * x + m_b; }    
+  };
+
+
+  class QuadraticPlotter: public CurvePlotter<QuadraticPlotter>
+  {
+      double m_a, m_b, m_c;
+  public:
+      QuadraticPlotter(double a, double b, double c): m_a(a), m_b(b), m_c(c){ }
+    
+      void show_function_name() const { std::cout << " Curver name = quadratic " << '\n';  }
+      double eval(double x) const { return m_a * x * x + m_b * x + m_c; }
+  };
+
+  int main()
+  {
+      auto plt_lin = LinearPlotter(3.0, 5.0);
+      plt_lin.tabulate_1(-5.0, 6.0, 1.0);
+      plt_lin.tabulate_2(-5.0, 6.0, 1.0);
+    
+      auto plt_quad = QuadraticPlotter(2.0, -10.0, 25.0);
+      plt_quad.tabulate_1(-5.0, 6.0, 1.0);
+      plt_quad.tabulate_2(-5.0, 6.0, 1.0);
+  }
+#+END_SRC
+
+Building and running: 
+
+#+BEGIN_SRC sh 
+   $ clang++ crtp.cpp -o out.bin -std=c++1z -g -Wall -Wextra
+
+  $ ./out.bin                                                                                                                                                                                                                             
+   ======== Version 1 =========                                                                                                                                                                                                           
+   Curver name = linear                                                                                                                                                                                                                   
+          -5       -10                                                                                                                                                                                                                    
+          -4        -7                                                                                                                                                                                                                    
+          -3        -4                                                                                                                                                                                                                    
+          -2        -1                                                                                                                                                                                                                    
+          -1         2                                                                                                                                                                                                                    
+           0         5                                                                                                                                                                                                                    
+           1         8                                                                                                                                                                                                                    
+           2        11                                                                                                                                                                                                                    
+           3        14                                                                                                                                                                                                                    
+           4        17                                                                                                                                                                                                                    
+           5        20                                                                                                                                                                                                                    
+   ======== Version 2 =========                                                                                                                                                                                                           
+   Curver name = linear                                                                                                                                                                                                                   
+          -5       -10                                                                                                                                                                                                                    
+          -4        -7                                                                                                                                                                                                                    
+          -3        -4                                                                                                                                                                                                                    
+          -2        -1                                                                                                                                                                                                                    
+          -1         2                                                                                                                                                                                                                    
+           0         5                                                                                                                                                                                                                    
+           1         8                                                                                                                                                                                                                    
+           2        11                                                                                                                                                                                                                    
+           3        14                                                                                                                                                                                                                    
+           4        17                                                                                                                                                                                                                    
+           5        20                                                                                                                                                                                                                    
+   ======== Version 1 =========                                                                                                                                                                                                           
+   Curver name = quadratic                                                                                                                                                                                                                
+          -5       125                                                                                                                                                                                                                    
+          -4        97                                                                                                                                                                                                                    
+          -3        73                                                                                                                                                                                                                    
+          -2        53                                                                                                                                                                                                                    
+          -1        37                                                                                                                                                                                                                    
+           0        25                                                                                                                                                                                                                    
+           1        17                                                                                                                                                                                                                    
+           2        13                                                                                                                                                                                                                    
+           3        13                                                                                                                                                                                                                    
+           4        17                                                                                                                                                                                                                    
+           5        25                                                                                                                                                                                                                    
+   ======== Version 2 =========                                                                                                                                                                                                           
+   Curver name = quadratic                                                                                                                                                                                                                
+          -5       125                                                                                                                                                                                                                    
+          -4        97                                                                                                                                                                                                                    
+          -3        73                                                                                                                                                                                                                    
+          -2        53                                                                                                                                                                                                                    
+          -1        37                                                                                                                                                                                                                    
+           0        25
+           1        17
+           2        13
+           3        13
+           4        17
+           5        25                                                                              
+#+END_SRC
 ** Type Erasure Pattern 
 *** Overview  
 
@@ -4771,320 +6921,6 @@ Compilation Output:
    [TRACE] Property [basis-points] set to value = 80
    => plist[0]->Name() = basis-points plist[0]->Get<int>() = 80
 #+END_SRC
-
-** CRTP - Curious Recurring Template Pattern
-*** Overview 
-
-It is a variation of GOF template design pattern where an algorithm
-defined by the base class is customized or specified by the derived 
-class. However, unlike the GOF one, this version uses C++ template
-metaprogramming for emulating dynamic polymorphism or inheritance
-at compile time. So it makes the code faster by eliminating virtual
-function-calls.
-
-Features: 
- + Coined by James Coplien - 1995
- + Static polymorphism technique based on template metaprogramming for
-   speeding up the code eliminating virtual functions.
-
-Use cases:
- + Reduce virtual function call overhead - by simulating dynamic
-   polymorphism through static polymorphism. 
- + Implement state machines.
- + Implement high performance numerical libraries.
- + Code injection.
-
-Libraries using this pattern:
- + Boost.Iterator
- + Boost.Python
- + Boost.Serialization 
-
-Also known as: 
- + Code injection
- + Barton‐Nackman Trick
- + Mixin - Name used outside C++ community 
-
-*** Example - Eliminating Virtual Member Function 
-
- *Approach 1 - GOF - OOP template pattern* 
-
- - Code 1: GOF Template method design pattern using virtual functions.
-
- #+BEGIN_SRC cpp 
-   class IntervalSummation{
-   public:
-           // Algorithm or entry point which calls the derived class method.
-           // This is the template method 
-           double summation(int lower, int upper) const{
-                   double sum = 0;
-                   for(int i = lower; i <= upper; i++)
-                           sum += this->stepFn(i);
-                   return sum; 
-           }
-   protected:
-           // Hook method or to be defined by the derived class
-           virtual double stepFn(double x) const = 0 ;
-   };
-
-   class SumOfSquares: public IntervalSummation{
-   private:
-           double stepFn(double x) const { return x * x; }
-   };
-
-   class SumOfCubes: public IntervalSummation{
-   private:
-           double stepFn(double x) const { return x * x * x; }
-   };
-
-   void clientCode(const IntervalSummation& obj){
-           std::cout << "Summation at [0, 15] = " << obj.summation(0, 15) << std::endl;
-   }
-#+END_SRC
-
-  *Approach 2 - CRTP generic programming pattern* 
-
- + Code 2: Code rewritten using CRTP for eliminating virtual function
-   calls. The advantage is that this code can run faster than the
-   previous one, however the cost is the higher complexity, loss of
-   readability and runtime polymorphism. For instance, now is not
-   possible to store multiple implementations of IntervalSummation in
-   a data structure or refer to them with the same pointer.
-
- + File: [[file:src/design-patterns/crtp1.cpp][file:src/design-patterns/crtp1.cpp]]
- + Online Compiler: https://rextester.com/ZLZH2040
-
-#+BEGIN_SRC cpp 
-  template<class Implementation>
-  class IntervalSummation{
-  public:
-          // Get reference to implementation 
-          Implementation& self(){
-                  return *static_cast<Implementation*>(this);
-          }
-          // Overload method 
-          const Implementation& self() const {
-                  return *static_cast<Implementation const * const>(this);
-          } 	
-          double summation(int lower, int upper) const {
-          double sum = 0;
-          for(int i = lower; i <= upper; i++)
-                sum += self().stepFn(i);
-          return sum; 
-          }
-  };
-
-  class SumOfSquares: public IntervalSummation<SumOfSquares>{
-  public:
-          double stepFn(double x) const { return x * x; }
-  };
-
-  class SumOfCubes: public IntervalSummation<SumOfCubes>{
-  public:
-          double stepFn(double x) const { return x * x * x; }
-  };
-
-  template<class T>
-  void clientCode(const IntervalSummation<T>& obj){
-          std::cout << "Summation at [0, 15] = " << obj.summation(0, 15) << std::endl;
-  }
-
-#+END_SRC
-
-Running: 
-
-#+BEGIN_SRC sh 
-  $ clang++ crtp.cpp -o crtp.bin -std=c++1z -Wall -Wextra  && ./crtp.bin
-  Sum of squares in [0, 10] = 385
-  Sum of cubes   in [0, 10] = 3025
-  Summation at [0, 15] = 1240
-  Summation at [0, 15] = 14400
-#+END_SRC
-
-References: 
-
- + [[https://www.codeproject.com/Tips/537606/Cplusplus-Prefer-Curiously-Recurring-Template-Patt][C++: Prefer Curiously Recurring Template Pattern (CRTP) to Template Pattern - CodeProject]]
- + [[https://mklimenko.github.io/english/2018/07/02/platform-dependent-crtp/][CRTP-based platform-dependent optimizations | GNSS C++ solutions]]
- + http://stevedewhurst.com/once_weakly/once-weakly20170328/once-weakly20170328.pdf
- + [[http://enki-tech.blogspot.com/2012/08/c11-generic-singleton.html][Enki :: Technical Blog: C++11: A generic Singleton]]
- + IDENTIFYING PROGRAMMING IDIOMS IN C++ GENERIC LIBRARIES -
-   <https://etd.ohiolink.edu/rws_etd/document/get/kent1259116053/inline>
- + [[http://www.masaers.com/2014/01/22/CRTP-operator-hijacking.html][Using CRTP to easily hijack operators in c++11 | masaers’ blog]]
- + https://github.com/nojhan/crtp_functor_ttp
- + [[https://web.archive.org/web/20060211034709/http://devnet.developerpipeline.com/documents/s=9843/cuj0601diggins/][Developer::Pipelines | Building More Flexible Types with Mixins]]
- + [[https://accu.org/index.php/journals/296][ACCU :: Better Encapsulation for the Curiously Recurring Template Pattern]]
- + [[http://www.di.unipi.it/~nids/docs/templates_vs_inheritance.html][Replacing Virtual Methods with Templates]]
- + http://gsd.web.elte.hu/lectures/bolyai/2018/mixin_crtp/mixin_crtp.pdf
- + https://faithandbrave.hateblo.jp/entry/20071206/1196934096
- + [[https://nativecoding.wordpress.com/2015/06/05/virtual-methods-vs-crtp-benchmark-2/][Virtual Methods vs CRTP Benchmark – Native Coding]]
- + https://nativecoding.wordpress.com/2015/01/11/important-c-idioms/
- + http://barngoggles.com/visitor-with-crtp/
-
-Best Links: 
-
- + https://nativecoding.wordpress.com/2015/01/11/important-c-idioms/
- + https://marcoarena.wordpress.com/2012/04/29/use-crtp-for-polymorphic-chaining/
- + http://thothonegan.tumblr.com/post/157363120503/crtp-curiously-recurring-template-pattern
-
-Videos: 
-
- + Curiously Recurring Template Pattern (CRTP) -
-   <https://www.youtube.com/watch?v=C3Pi5GlIfjs>
-
- + 
-
- + 
-*** Example - Generating operator free functions 
-
-The CRTP design pattern can be used for generating operator free
-functions and  avoiding code repetition when implementing them. 
-
- + File:  [[file:src/design-patterns/crtp-operators.cpp][file:src/design-patterns/crtp-operators.cpp]]
- + Online Compiler: https://rextester.com/PBI36673
-
-
- *Example:*
-
-Class EqualityOperator: 
-  + Requirement: the _Impl_ class must implement the member function:
-    + _bool T::equal(T const& rhs) const_
-
-#+BEGIN_SRC cpp 
-  template<typename Impl>
-  class EqualityOperator
-  {
-  public:
-
-      friend bool operator==(Impl const& lhs, Impl const& rhs)
-      {
-          return lhs.equal(rhs);
-      }
-
-      friend bool operator!=(Impl const& lhs, Impl const& rhs)
-      {
-          return lhs.equal(rhs);
-      }
-
-  };
-#+END_SRC
-
-Class AddOperator: 
-
-  + Imlements the operator (+) free functions. 
-  + Requirement => The class _Impl_ must implement the member function:
-    + Impl Impl::add(T const& T) const
-
-#+BEGIN_SRC cpp 
-  template<typename Impl, typename T>
-  struct AddOperator
-  {
-  public:
-
-      friend Impl operator+(Impl const& lhs, T const& rhs)
-      {
-          return lhs.add(rhs);
-      }
-
-      friend Impl operator+(T const& lhs, Impl const& rhs)
-      {
-          return rhs.add(lhs);
-      }
-  };
-#+END_SRC
-
-Class StreamInsertionOperator:
-
-  + Implements the operator (<<) stream-insertion operator for the
-    class Impl.
-
-  + Requirement: The class Impl must implement the following member function:
-    + void printme(std::ostream& os) const 
-
-#+BEGIN_SRC cpp 
-  template<typename Impl>
-  struct StreamInsertionOperator
-  {
-  public:
-
-      friend std::ostream& operator<<(std::ostream& os, Impl const& rhs)
-      {
-          rhs.printme(os);
-          return os;
-      }
-
-  };
-#+END_SRC
-
-Class Point2D: 
-  + Inherits and all previous CRTP classes and implements their
-    requirements (implicit interface).
-
-#+BEGIN_SRC cpp 
-  class Point2D: public EqualityOperator<Point2D>
-               , public AddOperator<Point2D, int>
-               , public StreamInsertionOperator<Point2D>
-  {
-  public:
-      int x;
-      int y;
-      Point2D(int x, int y): x(x), y(y) { }
-
-
-      // Required by:
-      void printme(std::ostream& os) const
-      {
-          os << "Point2D[ x = " << x << " ; y = " << y << " ] " << std::endl;
-      }
-
-  private:
-      // Allows class EqualityOperator<Point2D> to access private
-      // members of this class.
-      friend class EqualityOperator<Point2D>;
-      friend struct AddOperator<Point2D, int>;
-
-      // Required by: EqualityOperator<Point2D>
-      bool equal(Point2D const& rhs) const
-      {
-          return x == rhs.x && y == rhs.y;
-      }
-
-      // Required by: AddOperator<Point2D, int>
-      Point2D add(int rhs) const
-      {
-          return Point2D(this->x + rhs, this->y + rhs);
-      }
-
-  };
-#+END_SRC
-
-Function: main()
-
-#+BEGIN_SRC cpp 
-  Point2D p1(10, 20);
-  Point2D p2(25, 30);
-  Point2D p3(10, 20);
-
-  std::cout << std::boolalpha;
-
-  std::cout << " p1 === p2 ? => " << (p1 == p2) << std::endl;
-  std::cout << " p1 === p3 ? => " << (p1 == p3) << std::endl;
-
-  std::cout <<" p1 + 10 = " << p1 + 10 << std::endl;
-  std::cout <<" 10 + p1 = " << 10 + p1 << std::endl;
-#+END_SRC
-
-Output of main():
-
-#+BEGIN_SRC sh 
- $ ./crtp-operators.bin 
-
- p1 === p2 ? => false
- p1 === p3 ? => true
- p1 + 10 = Point2D[ x = 20 ; y = 30 ] 
-
- 10 + p1 = Point2D[ x = 20 ; y = 30 ] 
-#+END_SRC
-
-
 ** Virtual Copy Constructor Idiom - Prototype Pattern 
 *** Overview 
 
@@ -5383,10 +7219,211 @@ Testign in ROOT REPL:
   >> 
 
 #+END_SRC
+** QT Parent-child memory management 
+
+QT does not uses smart pointers for widgets memory management, instead
+it uses raw pointers and parent-child relationship for organizing
+widgets as tree data structure. In the parent-child relationship
+memory management technique, every child object (heap-allocated) is
+owned by a single parent and every parent is responsible for releasing
+the memory allocated for its children object. When a parent object is
+destroyed, all its children are also destroyed. The root widget
+object, which is often stack allocated, calls the destructor of its
+children objects, and each of its children objects also call the
+destructors of its offspring. 
+
+Note: This is similar to the composite design pattern.  
+
+References: 
+
+  + [[https://doc.qt.io/qt-5/objecttrees.html][Qt5 - Object Trees & Ownership]]
+
+  + [[https://stackoverflow.com/questions/2491707/memory-management-in-qt][Stackoverflow - Memory management in Qt?]] 
+
+  *Sample Code* 
+
+File: _parent-child.cpp_
+
+#+BEGIN_SRC cpp 
+  #include <iostream> 
+  #include <string> 
+  #include <vector>
+
+  class Widget 
+  {
+  public:
+      virtual  ~Widget() = default;
+      Widget() = default;
+
+      // Make class non-copiable. 
+      Widget(const Widget&)          = delete;
+      Widget& operator=(const Widget&) = delete;
+    
+      virtual const char* name() const = 0;
+      virtual void display()     const = 0;
+  };
+
+  // Convenience function for CRTP pattern.
+  template<typename Dest, typename Src>
+  inline Dest& rcast(Src* td){ return *reinterpret_cast<Dest*>(td); }
+
+  // Convenience templated function for CRTP pattern. This overload can be 
+  // called from member functions functions with const annotation. Such as: 
+  //   ReturType MyClass::someMemberFunc(arg0, ...) const 
+  template<typename Dest, typename Src>
+  inline const Dest& rcast(const Src* td){ return *reinterpret_cast<const Dest*>(td); }
+
+  template<typename Impl>
+  class Container: public Widget 
+  {
+      std::vector<Widget*> m_children{};
+  public:    
+      Container() = default;
+
+      void addChild(Widget* child)
+      {
+          m_children.push_back(child);
+      }
+    
+      void display() const override
+      {
+          std::fprintf(  stdout, " [TRACE] Display container (id = %d) / type = '%s' \n"
+                       , rcast<Impl>(this).getid() , name());
+          for(auto ch: m_children){ ch->display(); }
+      }
+    
+      // Delete all child widget;
+      ~Container() 
+      {
+          for(auto ch: m_children){ delete ch; }
+        
+          // CRTP is used because it is not possible to call 
+          // virtual method from destructor.
+          std::printf(  " [TRACE] Delete container (id = %d) (type = %s) \n"
+                      , reinterpret_cast<Impl*>(this)->getid()
+                      , rcast<Impl>(this).type() 
+                     );       
+      }
+  };
+
+
+  class VerticalContainer: public Container<VerticalContainer> 
+  {
+      int m_id = 0;
+  public:
+      VerticalContainer() = default;
+      VerticalContainer(int id) { m_id = id; }
+      int getid() const { return m_id; }    
+      const char* name() const { return "vcontainer"; } 
+      const char* type() const { return "vcontainer"; } 
+  };
+
+  class HorizontalContainer: public Container<HorizontalContainer>
+  {
+      int m_id = 0;
+  public:
+      HorizontalContainer() = default;
+      HorizontalContainer(int id) { m_id = id; }
+      int getid() const { return m_id; }
+      const char* name() const { return "hcontainer"; } 
+      const char* type() const { return "hcontainer"; } 
+  };
+
+
+  class Label: public Widget
+  {
+      int m_id = -1;
+  public:
+      Label(int id){ m_id = id; }
+      const char* name() const { return "label"; }
+      int getid() const { return m_id; }
+      void display() const 
+      {
+          std::printf(" [TRACE] Display label (n = %d) \n", m_id);
+      }
+    
+       ~Label(){ std::printf(" [TRACE] Label deleted (n = %d) \n", m_id); }
+  };
+
+
+  class Button: public Widget
+  {
+      int m_id = -1;
+  public:
+      Button(){ m_id = 0; }
+      Button(int id){ m_id = id; }
+      const char* name() const { return "button"; }    
+    
+      void display() const 
+      {
+          printf(" [TRACE] Display button (id = %d) \n", m_id);
+      }
+    
+      ~Button(){ printf(" [TRACE] Button deleted  (n = %d) \n", m_id); }
+  };
+
+  int main()
+  {
+      // Root object (allocated on stack)
+      // will own all sub-objects. 
+      VerticalContainer vbox{0};
+    
+      vbox.addChild( new Label(15) );
+    
+      auto hbox = new HorizontalContainer{0};
+      hbox->addChild( new Button(0) );
+      hbox->addChild( new Button(1) );    
+    
+      // vbox2 will own the label objects with IDs (100 and 200).
+      auto vbox2 = new VerticalContainer{1};
+      vbox2->addChild( new Label(100));
+      vbox2->addChild( new Label(200));
+      hbox->addChild(vbox2);
+      vbox.addChild( hbox );
+    
+      vbox.addChild( new Button(2) );    
+      vbox.addChild( new Label(17) );
+    
+      vbox.display();
+      printf("\n =========== [TERMINATED] ================\n");
+      return 0;
+  }
+#+END_SRC
+
+Building and running: 
+
+#+BEGIN_SRC sh 
+  $ clang++ parent-child.cpp -o out.bin -std=c++1z -Wall -Wextra -g   
+
+  $ ./out.bin                                                                                        
+   [TRACE] Display container (id = 0) / type = 'vcontainer'                                          
+   [TRACE] Display label (n = 15)                                                                    
+   [TRACE] Display container (id = 0) / type = 'hcontainer'                                          
+   [TRACE] Display button (id = 0)                                                                   
+   [TRACE] Display button (id = 1)                                                                   
+   [TRACE] Display container (id = 1) / type = 'vcontainer'                                          
+   [TRACE] Display label (n = 100)                                                                   
+   [TRACE] Display label (n = 200)                                                                   
+   [TRACE] Display button (id = 2)                                                                   
+   [TRACE] Display label (n = 17) 
+
+   =========== [TERMINATED] ================
+   [TRACE] Label deleted (n = 15) 
+   [TRACE] Button deleted  (n = 0) 
+   [TRACE] Button deleted  (n = 1) 
+   [TRACE] Label deleted (n = 100) 
+   [TRACE] Label deleted (n = 200) 
+   [TRACE] Delete container (id = 1) (type = vcontainer) 
+   [TRACE] Delete container (id = 0) (type = hcontainer) 
+   [TRACE] Button deleted  (n = 2) 
+   [TRACE] Label deleted (n = 17) 
+   [TRACE] Delete container (id = 0) (type = vcontainer) 
+#+END_SRC
+
 ** Cross platform code with conditional compilation
 
-Note: It is not a design pattern, but a for methodology for
-developing cross platform applications in C++.
+Note: It is not a design pattern, but a methodology for developing
+cross platform applications in C++. 
 
    1. Avoid relying on platform-specific features as much as
       possible.
@@ -5407,15 +7444,38 @@ developing cross platform applications in C++.
       building systems such as CMake that are widely supported on
       several operating systems and IDEs.
 
-   5. [[https://jenkins.io/][Jenkins]] CI for simultaneous and automate cross-platform compilation
+   5. Use _fixed width integers_ <csdtint> header: std::int8_t,
+      std::uint8_t, std::int32_t, std::int64_t ... for code related to
+      _serialization_, _network protocols_ and _device drivers_ or _embedded_
+      _systems_. The byte sizes of the types int, short, long long long
+      are not guaranteed to be the same accross all platforms,
+      operating systems and processor architectures. For instance, a C
+      or C++ application, built on Windows 64 bits machine, that
+      attempts to read a value with type _long_ from a file created on a
+      Linux machine will read the data in incorrect way and may even
+      corrupting the data, if the application attempts to update the
+      value.
+      * Note: Another issue that should be taken into consideration in
+        serialization and network-related code is the _platform_
+        _endianess_ which is the order which the bytes of numeric types
+        are placed in the memory.
+
+   6. [[https://jenkins.io/][Jenkins]] CI for simultaneous and automate cross-platform compilation
       * Continuous Integration server can be used for
         cross-platform compilation and integration testing. Jenkins has
         the master-slave(agent) architecture where the master
         coordinates and agents executes the builds in different machines
-        or platforms. This approach allows aromatic simultaneous
+        or platforms. This approach allows automatic simultaneous
         buildings of an application for multiple operating systems, such
         as Windows, Linux and OSX by running a Jenkins *slave/agent* node
         in each operating system where the software will be built.
+      * Summary:
+        + Jenkins can be used for building native code artifacts for
+          many platforms at the same time. A jenkins node (agent)
+          running Linux can build Linux ELF executables; a jenkins
+          node running on Windows, can build Windows *.exe, and *.dll
+          artifacts and another node on MacOSX can build artifacts for
+          MacOSX, such as *.dylib and Mach-O executables.
       * See:
         + [[https://www.emidee.net/ue4/2018/03/30/Build-a-UE4-multi-platforms-game-on-jenkins.html][Multi-platforms UE4 game on Jenkins | MICHAEL DELVA]]
         + [[https://wiki.jenkins.io/plugins/servlet/mobile?contentId=753710#content/view/753710][Confluence Mobile - Jenkins Wiki]]

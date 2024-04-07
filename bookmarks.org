@@ -5,7 +5,7 @@
 
 * Bookmarks 
 ** Places 
-*** Waypoints
+*** General 
 
  *Places:*
 
@@ -430,6 +430,54 @@ Peripherals and interfaces:
  + [[https://stackoverflow.com/search?q=RS485][RS485]]
 
  + [[https://stackoverflow.com/questions/tagged/modbus][modbus]] (Not a peripheral, it is a protocol)
+** Code Standards and guidelines 
+
+ + [[https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#main][ISO C++ Core Guidelines]] - "This is a set of core guidelines for
+   modern C++, C++17, C++14, and C++11, taking likely future
+   enhancements and ISO Technical Specifications (TSs) into
+   account. The aim is to help C++ programmers to write simpler, more
+   efficient, more maintainable code."
+
+   + [[http://www.modernescpp.com/index.php/c-core-guidelines-constructors-assignments-and-desctructors][C++ Core Guidelines: The Rule of Zero, Five, or Six - ModernesCpp.com]]
+   + [[http://www.modernescpp.com/index.php/c-core-guidelines-when-you-can-t-throw-an-exception][C++ Core Guidelines: finally in C++ - ModernesCpp.com]]
+   + [[http://www.modernescpp.com/index.php/c-core-guidelines-constructors][C++ Core Guidelines: Constructors - ModernesCpp.com]]
+   + [[http://www.modernescpp.com/index.php/c-core-guidelines-more-rules-to-concurrency-and-parallelism][C++ Core Guidelines: More Rules to Concurrency and Parallelism - ModernesCpp.com]]
+   + [[http://www.modernescpp.com/index.php/c-core-guidelines-concurrency-and-lock-free-programming][C++ Core Guidelines: Concurrency and lock-free Programming - ModernesCpp.com]]
+   + [[http://www.modernescpp.com/index.php/c-core-guidelines-rules-to-error-handling][C++ Core Guidelines: Rules for Error Handling - ModernesCpp.com]]
+   + [[http://www.modernescpp.com/index.php/c-core-guidelines-type-erasure][C++ Core Guidelines: Type Erasure - ModernesCpp.com]]
+
+ + [[https://developer.mozilla.org/en-US/docs/Mozilla/Using_CXX_in_Mozilla_code][Using C++ in Mozilla code - Mozilla | MDN]] 
+
+ + [[https://wiki.openstack.org/wiki/CppCodingStandards#Using_Namespaces_Properly][CppCodingStandards - OpenStack]] - "Note that coding standards and
+   guidelines will never be perfect and that not everyone will agree
+   with every guideline or naming convention. The purpose of the
+   guidelines and standards are to maintain consistency in the source
+   code." 
+
+ + [[https://google.github.io/styleguide/cppguide.html][Google C++ Style Guide]]
+
+ + [[http://drake.mit.edu/styleguide/cppguide.html][Google C++ Style Guide for Drake]]
+
+ + [[https://developer.lsst.io/cpp/style.html][DM C++ Style Guide — LSST DM Developer Guide Current documentation]]
+
+ + [[https://users.ece.cmu.edu/~eno/coding/CppCodingStandard.html][C++ Coding Standard]]
+
+ + [[https://juce.com/discover/stories/coding-standards][Coding Standards | JUCE]] - Juce code standard and its rationale and
+   motivation.
+
+ + [[https://raw.githubusercontent.com/wiki/bloomberg/bde/CodingStandards.pdf][Bloomberg BDE Code Standard]] ( [[https://web.archive.org/web/20190115163005/https://raw.githubusercontent.com/wiki/bloomberg/bde/CodingStandards.pdf][WebArchive]] )
+
+ *Embedded Systems Coding Standards* 
+
+ * *MISRA-C:2004 Guidelines for the use of the C language in critical systems*
+   + <https://web.archive.org/web/20170517013604/http://caxapa.ru:80/thumbs/468328/misra-c-2004.pdf>
+
+ * *Guidelines for the use of the C++14 language in critical and safety-related systems*
+   + <https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_RS_CPP14Guidelines.pdf>
+
+ * *Autosar Guideline for the use of C++14 language in critical safety-related systems*
+   + [[https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-10/AUTOSAR_RS_CPP14Guidelines.pdf][AUTOSAR_RS_CPP14Guidelines.pdf]]
+   + Web archive: [[https://web.archive.org/web/20190302192508/https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-10/AUTOSAR_RS_CPP14Guidelines.pdf][AUTOSAR_RS_CPP14Guidelines.pdf]]
 
 ** Software Design 
 *** General 
@@ -874,7 +922,7 @@ multiple socket connections and multiple IO within a single thread.
   * [[http://man7.org/linux/man-pages/man2/ioctl_console.2.html][ioctl_console(2) - Linux manual page]]
 
   * [[http://man7.org/linux/man-pages/man2/ioctl_tty.2.html][ioctl_tty(2) - Linux manual page]]
-** HPC - High Performance Computing - Programming for Performance 
+** Optimization and HPC - High Performance Computing
 *** Concepts Maps 
 
 Performance 
@@ -946,6 +994,10 @@ Parallelism
 
    + *Optimization of Computer Programs in C*
      + http://icps.u-strasbg.fr/~bastoul/local_copies/lee.html
+
+  + *Pragmatic Optimization in Modern Programming - Mastering Compiler Optimizations* - Marina Kolpakova
+    + <https://www.slideshare.net/MarinaKolpakova/pragmatic-optimization-in-modern-programming-mastering-compiler-optimizations>
+
 *** Cache Effects and Memory Alignment 
 
    + *The Elements of Cache Programming Style* - Chris B. Sears
@@ -1125,6 +1177,679 @@ Note: It would be better stated as "Cache-oriented design."
 
    + *Branch predictor*
      + https://en.wikipedia.org/wiki/Branch_predictor
+*** SIMD and GPU 
+
+   + [[https://software.intel.com/sites/landingpage/IntrinsicsGuide/#expand=94,94,94,94&text=mm_add][Intel Intrisics Guide]] (SIMD MMX, AVX and so on)
+     + Brief: "The Intel Intrinsics Guide is an interactive reference
+       tool for Intel intrinsic instructions, which are C style
+       functions that provide access to many Intel instructions -
+       including Intel® SSE, AVX, AVX-512, and more - without the need
+       to write assembly code."
+
+   + [[https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.170.2755&rep=rep1&type=pdf][Paper - Debunking the 100X GPU vs. CPU Myth: An Evaluation of Throughput Computing on CPU and GPU]] [PDF]
+     + Brief: "Recent advances in computing have led to an explosion
+       in the amount of data being generated. Processing the
+       ever-growing data in a timely manner has made throughput
+       computing an important aspect for emerging applications. Our
+       analysis of a set of important throughput computing kernels
+       shows that there is an ample amount of parallelism in these
+       kernels which makes them suitable for today’s multi-core CPUs
+       and GPUs. In the past few years there have been many studies
+       claiming GPUs deliver substantial speedups (between 10X and
+       1000X) over multi-core CPUs on these kernels. To understand
+       where such large performance difference comes from, we perform
+       a rigorous performance analysis and find that after applying
+       optimizations appropriate for both CPUs and GPUs the
+       performance gap between an Nvidia GTX280 processor and the
+       Intel Core i7 960 processor narrows to only 2.5x on average. In
+       this paper, we discuss optimization techniques for both CPU and
+       GPU, analyze what architecture features contributed to
+       performance differences between the two architectures, and
+       recommend a set of architectural features which provide
+       significant improvement in architectural efficiency for
+       throughput kernels."
+
+   + [[http://const.me/articles/simd/simd.pdf][SIMD for C++ Developers]] (Konstantin) [PDF]
+     + Brief: "Most of this article is focused on PC target
+       platform. Some assembly knowledge is recommended, but not
+       required, as the main focus of the article is SIMD intrinsics,
+       supported by all modern C and C++ compilers. The support for
+       them is cross-platform, same code will compile for Windows,
+       Linux, legacy OSX (before ARM64 M1 switch), and couple recent
+       generations of game consoles (except Nintendo which uses ARM
+       processors)."
+
+   + [[https://www.cs.umd.edu/users/meesh/cmsc411/website/projects/SIMDproj/project.html][Into The Fray With SIMD]] - (Keith Slutskin and Kasima Tharpipitchai)
+     + Brief: "This page is devoted to helping other students
+       understand Single Instruction Multiple Data processors, using
+       AltiVec and MMX as examples.  This page aims to explore their
+       development, their differences, and the impact that they've had
+       on technology and the current industry.  We also provide an
+       area for students to test what they have learned.  We hope that
+       the reader will take away a better understanding of SIMD from
+       this document.  These comparisons between AltiVec and MMX can
+       show what kinds of design choices must be made to move from
+       theory to real world implementation.  This might provide some
+       insight into multiprocessing theory and technology."
+
+   + [[https://web.archive.org/web/20160729202308/https://d3f8ykwhia686p.cloudfront.net/1live/intel/An_Introduction_to_Vectorization_with_Intel_Fortran_Compiler_021712.pdf][An Introduction to Vectorization with the Intel Fortran Compiler]] [PDF]
+
+   + [[https://web.archive.org/web/20161229100052/https://www.nersc.gov/assets/Uploads/ISC15-IXPUG-WS-LanguageImpactOnVectorization-Fortran.pdf][Language Impact on Vectorization: Vector Programming in Fortran]] [PDF] - Zuze Institute Berlin.
+
+   + [[https://hal.inria.fr/hal-01688488/document][Basics of Vectorization for Fortran Applications]] [PDF] - Inria /  HAL archives ouvertes.
+     + Brief: "This document presents a general view of vectorization
+       (use of vector/SIMD instructions) for Fortran applications. The
+       vectorization of code becomes increasingly important as most of
+       the performance in current and future processor (in
+       floating-point operations per second, FLOPS) depends on its
+       use. Still, the automatic vectorization done by the compiler
+       may not be an option in all cases due to dependencies,
+       ambiguity, or sparse data access. In order to cover the basics
+       of vectorization, this document explains the operation of
+       vector instructions for different architectures, how code
+       vectorization can be done, and how to test if your code has
+       vectorized well. This document is intended mainly for use by
+       developers and engineers with basic knowledge of computer
+       architecture and programming in Fortran. It was designed to
+       serve as a starting point for people working on the
+       vectorization of applications, and does not address the subject
+       in all its details." 
+
+   + NVidia -  [[https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capabilities][CUDA C++ Programming Guide - CUDA Toolkit Documentation]] 
+     + Brief: "The Graphics Processing Unit (GPU)1 provides much
+       higher instruction throughput and memory bandwidth than the CPU
+       within a similar price and power envelope. Many applications
+       leverage these higher capabilities to run faster on the GPU
+       than on the CPU (see GPU Applications). Other computing
+       devices, like FPGAs, are also very energy efficient, but offer
+       much less programming flexibility than GPUs. This difference in
+       capabilities between the GPU and the CPU exists because they
+       are designed with different goals in mind. While the CPU is
+       designed to excel at executing a sequence of operations, called
+       a thread, as fast as possible and can execute a few tens of
+       these threads in parallel, the GPU is designed to excel at
+       executing thousands of them in parallel (amortizing the slower
+       single-thread performance to achieve greater throughput). The
+       GPU is specialized for highly parallel computations and
+       therefore designed such that more transistors are devoted to
+       data processing rather than data caching and flow control."  
+
+   + [[https://www.sigarch.org/simd-instructions-considered-harmful/][ACM SIGARCH - SIMD Instructions Considered Harmful]] [ESSAY]
+
+   + [[https://sites.cs.ucsb.edu/~tyang/class/240a17/slides/SIMD.pdf][SIMD Programming CS 240A, 2017]] [PDF]
+
+   + [[https://d-nb.info/1079362460/34][Extending C++ for Explicit Data-Parallel Programming via SIMD Vector Types]]
+
+   + [[https://erik-engheim.medium.com/arm-x86-and-risc-v-microprocessors-compared-92bf0d46fd52][ARM, x86 and RISC-V Microprocessors Compared]] - Erik Engheim
+     + Brief: "A comparison of different design choices in the
+       assembly language of three important microprocessor
+       instruction-sets."
+
+   + [[https://erik-engheim.medium.com/armv9-what-is-the-big-deal-4528f20f78f3][ARMv9: What is the Big Deal?. What is a Scalable Vector Extension…]] - by Erik Engheim
+
+   + [[https://www.eidos.ic.i.u-tokyo.ac.jp/~tau/lecture/parallel_distributed/2018/slides/pdf/simd2.pdf][SIDM programming - Kenjiro Taura ]] [PDF]  
+
+   + The C++ Scientist - [[https://johanmabille.github.io/blog/2014/11/20/performance-considerations-about-simd-wrappers/][Performance Considerations About SIMD Wrappers]]
+
+   + The C++ Scientist - [[https://johanmabille.github.io/blog/2014/10/09/writing-c-plus-plus-wrappers-for-simd-intrinsics-1/][Writing C++ Wrappers for SIMD Intrinsics (1)]]
+
+   + The C++ Scientist - [[https://johanmabille.github.io/blog/2014/10/10/writing-c-plus-plus-wrappers-for-simd-intrinsics-2/][Writing C++ Wrappers for SIMD Intrinsics (2)]]
+
+   + The C++ Scientist - [[https://johanmabille.github.io/blog/2014/10/10/writing-c-plus-plus-wrappers-for-simd-intrinsics-3/][Writing C++ Wrappers for SIMD Intrinsics (3)]]
+
+   + The C++ Scientist - [[https://johanmabille.github.io/blog/2014/10/13/writing-c-plus-plus-wrappers-for-simd-intrinsics-4/][Writing C++ Wrappers for SIMD Intrinsics (4)]]
+
+   + The C++ Scientist - [[https://johanmabille.github.io/blog/2014/10/25/writing-c-plus-plus-wrappers-for-simd-intrinsics-5/][Writing C++ Wrappers for SIMD Intrinsics (5)]]
+
+   + Intel: [[https://software.intel.com/content/www/us/en/develop/video-series/short-series.html][Parallel Programming and Optimization with Intel® Xeon Phi™ Coprocessors]]
+     + Brief: "Created by Colfax International and Intel, and based on
+       the book, Parallel Programming and Optimization with Intel®
+       Xeon Phi™ Coprocessors, this short video series provides an
+       overview of practical parallel programming and optimization
+       with a focus on using the Intel® Many Integrated Core
+       Architecture (Intel® MIC Architecture)."
+
+   + [[https://danluu.com/assembly-intrinsics/][Danluu - Assembly v. intrinsics]]
+
+   + [[https://www.youtube.com/watch?app=desktop&v=vf9wE9fIb0A][Joel Falco - Boost.SIMD]] [VIDEO]
+
+   + [[https://www.w3.org/2020/06/machine-learning-workshop/talks/simd_operations_in_webgpu_for_ml.html][W3C - SIMD operations in WebGPU for ML - by Mehmet Oguz Derin]]
+
+   + [[https://developer.arm.com/architectures/instruction-sets/simd-isas][ARM Developer - SIMD ISAs]] - Official ARM company page about ARM
+     SIMD instructions for vectorization and faster array computation.
+
+*** CPU Microarchitectures 
+ 
+  *General features of server, desktop, and embedded systems application processors*
+ 
+   * _Desktop-grade CPU IC_ (Integrated Circuit) / Desktop-grade  Processors 
+     + Smaller number of cores
+     + Focus on balance between power efficiency and performance 
+     + Integrated GPU
+     + Integrated MMU (Memory Management Unit) for supporting virtual memory
+     + Lacks supoort for ECC RAM memory 
+
+   * _Server-grade CPU IC_ (Integrated Circuit) / Server-grade  Processors 
+     + Lacks integrated GPU (iGPU) => Cannot be used for games or
+       anything that requires a GPU. 
+     + Has more cores per CPU IC (more threads)
+     + Has larger caches
+     + Focus on performance even at expense of more power usage.
+     + Supports [[https://en.wikipedia.org/wiki/ECC_memory][ECC]] (Error Correction Code) RAM memory
+     + More expensive than Desktop-grade CPUs
+     + Supports NUMA (Non Unified Memory Memory Access)
+     + More PCI Lanes
+     + Integrated MMU (Memory Management Unit) for supporting virtual memory
+
+   * _Embedded-systems grade processor_ (Application Processor)
+     + Unlike, server-grade and desktop-grade processors, application
+       processors are focused on embedded systems, consequentely, they
+       are often low-power and may contain integrated peripherals such
+       as PWM, I2C, UART and etc. Most of those processors are based
+       on ARM, PowerPC or MIPS  architecture. 
+     + Focus on _reliability_, _low-power_ and controlling physical
+       devices. Widely used on devices such as: smart phones, tablets,
+       network routers, robots, appliances, printers, drones, security
+       cameras, iOT (Internet Of Things) and so on. Those processors
+       can also be found on Raspberry PI and Beaglebone Black
+       develpment board.
+     + Low power requirements for battery powered devices and operate
+       without fans.
+     + Operate at lower frequency than server-grade or desktop-grade
+       processors for minimizing the power consumption.
+     + May contain more than one CPU core. 
+     + May contain integrated flash memory for storing a firmware or bootloader.
+     + May contain integrated GPU (Graphics Processing Unit)
+     + May not contain a FPU (Floating Point Unit)
+     + Often contain a MMU (Memory Management Unit) for supporting
+       operating systems like Linux, BSD, Windows CE, VxWorks and so
+       on. 
+     + Integrated peripherals for controlling external devices. These
+       peripherals are often: GPIO (General Purpose IO) - digital IO;
+       PWM (Pulse-Width Modulation), used for controlling power
+       supplies, motors etc; event counters; SPI bus - Serial Peripheral
+       Interface; I2C bus comunication peripheral;  UART for RS232
+       communication; USB - Universal Serial Bus; JTAG support and more.
+     + The main difference between an application processor and a
+       microcontroller is that microcontrollers lack support for external
+       RAM memory, external flash memory, external eeprom memory and
+       _MMU_ (Memory Management Unit), necessary for running operating
+       systems, such as Linux or BSD, that need virtual memory.
+     + Example:
+       + [[https://www.ti.com/product/AM3358][ARM Cortex-A8 - AM3358 Sitara Texas Instruments]]
+         + Used by the development board SBC (Single Board Computer) - Beaglebone Black.
+         + [[https://www.ti.com/lit/ds/symlink/am3358.pdf?ts=1620708976308&ref_url=https%25253A%25252F%25252Fwww.google.ca%25252F][AM3358 Sitara - Data Sheet {PDF}]]
+       + [[https://datasheets.raspberrypi.org/bcm2711/bcm2711-peripherals.pdf][Broadcom BCM2711 - ARM {PDF}]]
+         + Used by Raspberry PI ([[https://en.wikipedia.org/wiki/Raspberry_Pi][RPI]]) SBC (Single Board Computer) => Note:
+           This IC lacks ADC (Analog-To-Digital) converter
+           peripheral.
+         + Offical Web Site: [[https://www.broadcom.com/products/embedded-and-networking-processors/communications/bcm58712][Broadcom - bcm58712]]
+
+
+  *General* 
+
+  * Comparison of CPU microarchitectures
+    * https://en.m.wikipedia.org/wiki/Comparison_of_CPU_microarchitectures
+
+  * All microarchitectures:
+    * https://en.wikichip.org/wiki/list_of_microarchitectures
+
+  * OpenWRT WIki
+    * https://openwrt.org/docs/techref/hardware/cpu
+
+  * All Intel CPU and GPU Microarchitectures:
+    * https://en.wikichip.org/wiki/intel/microarchitectures
+
+  * All microprocessor chips (IC - Integrated Circuit)
+    + https://en.wikichip.org/wiki/Category:all_microprocessor_families
+
+  * AMD CPUIDs
+    + https://en.wikichip.org/wiki/amd/cpuid
+
+  * x86 ISA Extensions
+    + https://en.wikichip.org/wiki/x86/extensions
+
+  * Micro-Operation (µOP)
+    * https://en.wikichip.org/wiki/micro-operation
+
+  * Macro-Operations
+    * https://en.wikichip.org/wiki/Macro-Operations
+
+  * ARM Architecture and Microarchitecture (OFFICIAL)
+    * https://developer.arm.com/documentation/102404/0200/Architecture-and-micro-architecture
+
+  * The Microarchitecture of Intel, AMD, and VIA CPUs - An
+    optimization guide for assembly programmers and compilers makers -
+    (Agner Fog)
+    * https://www.agner.org/optimize/microarchitecture.pdf
+
+  * [[https://www.anandtech.com/show/10366/arm-built-on-cortex-license][ARM Details Built on ARM Cortex Technology License]]
+    * Explains details of two ARM IP licensing models: Cortex-License
+      and _architecture-license_, which allows manufacturers to
+      customize the CPU microarchitecture from scratch.
+
+  * [[https://semiaccurate.com/2013/08/07/a-long-look-at-how-arm-licenses-chips/][A long look at how ARM licenses chips]] 
+
+  * [[https://www.zdnet.com/article/arm-processors-everything-you-need-to-know-now/][ZDNET - ARM Processors - Everything You Need To Know]]
+
+  * [[https://community.arm.com/developer/ip-products/processors/b/processors-ip-blog/posts/innovation-on-arm-cortex-processors][How the ARM Architecture has fostered differentiation through diversity?]] (ARM Company)
+
+
+  *Intel Microarchitectures* 
+
+    + [[https://en.wikichip.org/wiki/intel/microarchitectures/broadwell_(client)][Broadwell - Microarchitectures - Intel]] (14nm - since 2014)
+      + Branded as: 5th generation Intel core for Desktops and the
+        server variants are branded as:  _Xeon E3 v4_, _Xeon E5 v4_, and
+        _Xeon E7 v4_.
+      + ISA Extensions: MOVBE, MMX, SSE, SSE2, SSE3, SSSE3, SSE4.1,
+        SSE4.2, POPCNT, AVX, AVX2, AES, PCLMUL, FSGSBASE, RDRND, FMA3,
+        F16C, BMI, BMI2, VT-x, VT-d, TXT, TSX, RDSEED, ADCX,
+        PREFETCHW. 
+
+    + [[https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(client)][Skylake (client) - Microarchitectures - Intel]] (14nm - since 2015)
+      + For desktops it is branded as: Core i3, Core i5 and Core i7
+      + ISA: x86-64
+      + ISA Extensions (with SIMD): MOVBE, MMX, SSE, SSE2, SSE3, SSSE3,
+        SSE4.1, SSE4.2, POPCNT, AVX, AVX2, AES, PCLMUL, FSGSBASE,
+        RDRND, FMA3, F16C, BMI, BMI2, VT-x, VT-d, TXT, TSX, RDSEED,
+        ADCX, PREFETCHW, CLFLUSHOPT, XSAVE, SGX, MPX
+
+    + [[https://en.wikichip.org/wiki/intel/microarchitectures/skylake_(server)][Skylake (server) - Microarchitectures - Intel]] (15 nm - since 2017)
+
+    + [[https://en.wikichip.org/wiki/intel/microarchitectures/coffee_lake][Intel Coffee Lake (CFL)]] (14 nm - since 2017)
+
+    + [[https://en.wikichip.org/wiki/intel/microarchitectures/lakefield][Lakefield (LKF) - Intel]] (10nm to 25nm - since 2019)
+      * High performance and low power microarchitecture.
+
+    + [[https://www.realworldtech.com/haswell-cpu/3/][Intel's Haswell CPU Microarchitectures]] (RealWorldTech)
+
+
+   *Intel CPUs (Central Processing Units)*
+
+    * [[https://en.wikichip.org/wiki/intel/celeron][Intel Celeron]] (since 1998) - Lowest tier of x86 family
+
+    * [[https://en.wikichip.org/wiki/intel/core_i5][Intel Core i5]] (since 2009)
+
+    * [[https://en.wikichip.org/wiki/intel/core_i7][Intel Core i7]] (since 2008)
+
+    * [[https://en.wikichip.org/wiki/intel/core_i9][Intel Core i9]] (since 2017) 
+
+
+  *AMD (Advanced Microdevices) Microarchitectures*  
+
+   * [[https://en.wikichip.org/wiki/amd/microarchitectures/zen][Zen - Microarchitectures - AMD]] (14 nm - since 2017)
+     * Branded as: Athlon, Ryzen 3, Ryzen 5, Ryzen 7, Ryzen 9 and
+       Ryzen Threadripper.
+
+  *AMD CPUs (Central Processing Units)*
+ 
+   * [[https://en.wikichip.org/wiki/amd/athlon][AMD Athlon]]
+
+   * [[https://en.wikichip.org/wiki/amd/ryzen_3][AMD Ryzen 3]]
+
+   * [[https://en.wikichip.org/wiki/amd/ryzen_5][AMD Ryzen 5]]
+
+   * [[https://en.wikichip.org/wiki/amd/ryzen_7][ADM Ryzen 7]]
+
+   * [[https://en.wikichip.org/wiki/amd/ryzen_9][AMD Ryzen 9]]
+
+   * [[https://en.wikichip.org/wiki/amd/ryzen_threadripper][ADM Ryzen Threadripper]] 
+
+   * [[https://en.wikichip.org/wiki/amd/epyc][AMD  EPYC]] (Server-grade CPU - since 2017) 
+
+
+  *ARM Holdings Microarchitectures* 
+
+   + [[https://en.wikichip.org/wiki/arm/aarch64][Arm 64 bits - AARCH64]]
+
+   + [[https://en.wikichip.org/wiki/arm_holdings/microarchitectures/cortex-a75][ARM Cortex A-75]] 
+
+   + [[https://en.wikichip.org/wiki/arm_holdings/microarchitectures/cortex-a76][ARM Cortex A-76]]
+
+   + [[https://en.wikichip.org/wiki/arm_holdings/microarchitectures/cortex-a77][ARM Cortex A-77]]
+
+   + [[https://en.wikichip.org/wiki/arm_holdings/microarchitectures/neoverse_n1][ARM Neoverse N1]] (Server-grade - ISA ARMv8.2)
+
+   + [[https://en.m.wikipedia.org/wiki/List_of_ARM_microarchitectures][List of ARM Microarchitectures]]
+
+
+  *Apple M1 / Apple Silicon* (ARM-Based)
+
+Note: based on ARM, but with _architecture-license_ which allows
+customizing the microarchitecture. 
+
+   + [[https://www.eejournal.com/article/whats-inside-apple-silicon-processors/][What's Inside Apple Silicon Processors?]] - EEJOURNAL
+
+   + [[https://m.youtube.com/watch?v=wSfp7WPOZ_A][Has Apple's M1 a special x86 TSO memory ordering mode? & Windows x86 emulation!]] [VIDEO]
+
+   + [[https://lemire.me/blog/2021/03/24/counting-cycles-and-instructions-on-the-apple-m1-processor/][Counting cycles and instructions on the Apple M1 processor]]  – Daniel Lemire's blog
+
+   + [[https://lemire.me/blog/2021/03/17/apples-m1-processor-and-the-full-128-bit-integer-product/][Apple’s M1 processor and the full 128-bit integer product]] -  Daniel Lemire's blog
+
+   + [[https://lemire.me/blog/2021/01/06/memory-access-on-the-apple-m1-processor/][Memory access on the Apple M1 processor]]  – Daniel Lemire's blog
+
+   + [[https://rosenzweig.io/blog/asahi-gpu-part-1.html][Rosenzweig – Dissecting the Apple M1 GPU, part I]]
+
+   + [[https://rosenzweig.io/blog/asahi-gpu-part-2.html][Rosenzweig – Dissecting the Apple M1 GPU, part II]]
+
+   + [[https://rosenzweig.io/blog/asahi-gpu-part-3.html][Rosenzweig – Dissecting the Apple M1 GPU, part III]]
+
+   + [[https://rosenzweig.io/blog/asahi-gpu-part-4.html][Rosenzweig – Dissecting the Apple M1 GPU, part IV]]
+
+   + [[https://www.sevarg.net/2021/01/09/arm-mac-mini-and-boinc/][The Apple M1, ARM/x86 Linux Virtualization, and BOINC]]
+
+*** Linear Algebra - BLAS/LAPACK/LINPACK 
+
+  + [[https://en.m.wikipedia.org/wiki/LAPACK][LAPACK - Linear Algebra Routines]]
+
+  + [[https://en.m.wikipedia.org/wiki/LINPACK][LINPACK - Linear Algebra Routines]]
+
+  + [[https://developer.apple.com/documentation/accelerate/solving_systems_of_linear_equations_with_lapack][Solving System of Linear Equations with LAPACK]] (Apple)
+
+  + [[https://www.netlib.org/lapack/][Netlib - LAPACK - Linear Algebra Package]]
+
+  + [[https://www.youtube.com/watch?v=jhxbk6AlCps][Scientific Computing Lecture 13: Linear Algebra with BLAS and LAPACK]] [VIDEO] - University of Toronto.
+
+  + [[https://www.youtube.com/watch?v=nVt24G_2VC0][Matrix Expressions and BLAS/LAPACK; SciPy 2013 Presentation]] [VIDEO]
+
+  + [[https://www.osti.gov/biblio/5604546][LAPACK Users' Guide - Relase 1.0]]
+    + Brief: "LAPACK is a transportable library of Fortran 77
+      subroutines for solving the most common problems in numerical
+      linear algebra: systems of linear equations, linear least
+      squares problems, eigenvalue problems and singular value
+      problems. LAPACK is designed to supersede LINPACK and EISPACK,
+      principally by restructuring the software to achieve much
+      greater efficiency on vector processors, high-performance
+      superscalar'' workstations, and shared-memory
+      multi-processors. LAPACK also adds extra functionality, uses
+      some new or improved algorithms, and integrates the two sets of
+      algorithms into a unified package. The LAPACK Users' Guide gives
+      an informal introduction to the design of the algorithms and
+      software, summarizes the contents of the package, describes
+      conventions used in the software and documentation, and includes
+      complete specifications for calling the routines. This edition
+      of the Users' guide describes Release 1.0 of LAPACK." 
+
+  + [[https://userinfo.surfsara.nl/systems/lisa/software/lapacke][Using LAPACK from C]]
+    + Brief: "LAPACK and BLAS are originally written in Fortran and
+      meant to be used in Fortran programs. Many vendors supply an
+      optimised version of the LAPACK and BLAS libraries. Naturally,
+      people who are programming in C or C++ and want to make use of
+      the efficient implementation of the LAPACK/BLAS libraries. Here
+      we will demonstrate how this can be done. At the end you find a
+      complete working example, together with a script to run the same
+      program using various interfaces and LAPACK libraries."
+
+  + [[https://math.nist.gov/tnt/][Template Numerical Toolkit - NIST]]
+
+  + [[https://eigen.tuxfamily.org/dox/TopicUsingBlasLapack.html][Using BLAS and LAPACK from Eigen]]
+    + Brief: "Since Eigen version 3.3 and later, any F77 compatible
+      BLAS or LAPACK libraries can be used as backends for dense
+      matrix products and dense matrix decompositions. For instance,
+      one can use Intel® MKL, Apple's Accelerate framework on OSX,
+      OpenBLAS, Netlib LAPACK, etc. Do not miss this page for further
+      discussions on the specific use of Intel® MKL (also includes
+      VML, PARDISO, etc.) In order to use an external BLAS and/or
+      LAPACK library, you must link you own application to the
+      respective libraries and their dependencies. For LAPACK, you
+      must also link to the standard Lapacke library, which is used as
+      a convenient think layer between Eigen's C++ code and LAPACK F77
+      interface. Then you must activate their usage by defining one or
+      multiple of the following macros (before including any Eigen's
+      header): ..."
+
+*** Videos Selection  
+
+   + Intel - [[https://www.youtube.com/watch?v=vgPFzblBh7w&t=0s][Architecture All Access: Modern CPU Architecture Part 1 – Key Concepts]]
+
+   + Intel -  [[https://www.youtube.com/watch?app=desktop&v=o_WXTRS2qTY][Architecture All Access: Modern CPU Architecture Part 2 – Microarchitecture Deep Dive]]
+     + Brief: "What is a CPU microarchitecture and what are the
+       building blocks inside a CPU? Boyd Phelps, CVP of Client
+       Engineering at Intel, takes us through key microarchitecture
+       concepts like pipelines, speculation, branch prediction as well
+       as the main building blocks in the front and back end of a
+       CPU. Want to learn about the history of CPU architecture?"
+
+   + Intel Video Series: [[https://software.intel.com/content/www/us/en/develop/video-series/short-series.html][Parallel Programming and Optimization with Intel® Xeon Phi™ Coprocessors]]
+     + Brief: "Created by Colfax International and Intel, and based on
+       the book, Parallel Programming and Optimization with Intel®
+       Xeon Phi™ Coprocessors, this short video series provides an
+       overview of practical parallel programming and optimization
+       with a focus on using the Intel® Many Integrated Core
+       Architecture (Intel® MIC Architecture)."
+
+   + Intel - [[https://www.youtube.com/watch?app=desktop&v=zOExFA6iX3k][The Dawn of Standardizing Heterogenous Parallel Programming with DPC++ | HPC DevCon]]
+     + Brief: "The variety of architectures has driven efforts to
+       provide programming models and languages—some proprietary, and
+       some driven by open communities and standards. None have
+       fulfilled the promise of being “the one” that will enable the
+       development community to preserve their programming investments
+       by leveraging existing code to target other architectures with
+       minimal changes. Learn more about Data Parallel C++ (DPC++) and
+       its foundations on SYCL and C++ from James Reinders." 
+
+   + [[https://www.youtube.com/watch?app=desktop&v=zeJ-kce1VLw][Inside Intel Compilers: Effective OpenMP SIMD Vectorization]]
+     + Brief: "The relentless pace of Moore’s Law will lead to modern
+       multi-core processors, coprocessors and GPU designs with
+       extensive on-die integration of SIMD execution units on CPU and
+       GPU cores to achieve better performance and power
+       efficiency. To make efficient use of the underlying SIMD
+       hardware, utilizing its wide vector registers and SIMD
+       instructions such as Xeon Phi™, SIMD vectorization plays a key
+       role of converting plain scalar C/C++/Fortran code into SIMD
+       code that operating on vectors of data each holding one or more
+       elements.Intel® Xeon processors and Xeon Phi™ coprocessors
+       combine abundant thread parallelism with SIMD vector
+       units. Efficiently exploiting SIMD vector units is one of the
+       most important aspects in achieving high performance of the
+       application code running on Intel® Xeon and Xeon Phi™.In this
+       paper, we present Intel® compiler framework that supports
+       OpenMP4.0/4.1 SIMD extensions, and also present a set of key
+       vectorization techniques such as function vectorization,
+       masking support, uniformity and linearity propagation,
+       alignment optimization, gather/scatter optimization, remainder
+       and peeling loop vectorization that are implemented inside the
+       Intel® C/C++ and Fortran product compilers for Intel® Xeon
+       processors and Xeon Phi™ coprocessors. A set of workloads from
+       several application domains is employed to conduct the
+       performance study of our SIMD vectorization techniques. The
+       performance results show that we achieved up to 3x to ~12x
+       performance gain on the Intel® Xeon processors and Xeon Phi™
+       coprocessors that illustrate how the power of compiler can be
+       harnessed with minimum programmer efforts to enable effective
+       SIMD parallelism. We also demonstrate a speedup ranging from
+       ~100x to ~2000x with the seamless integration of SIMD
+       vectorization and parallelization." 
+
+   + [[https://www.youtube.com/watch?app=desktop&v=rglmJ6Xyj1c][QCon London - Understanding CPU Microarchitecture to Increase Performance]]
+     + Brief: "Alex Blewitt presents the microarchitecture of modern
+       CPUs, showing how misaligned data can cause cache line false
+       sharing, how branch prediction works and when it fails, and how
+       to read CPU specific performance monitoring counters and use
+       that in conjunction with tools like perf and toplev to discover
+       where bottlenecks in CPU heavy code live."
+
+   + [[https://www.youtube.com/watch?app=desktop&v=8khWb-Bhhvs][CppCon 2018: Jefferson Amstutz "Compute More in Less Time Using C++ Simd Wrapper Libraries"]]
+     + Brief: "Leveraging SIMD (Single Instruction Multiple Data)
+       instructions are an important part of fully utilizing modern
+       processors. However, utilizing SIMD hardware features in C++
+       can be difficult as it requires an understanding of how the
+       underlying instructions work. Furthermore, there are not yet
+       standardized ways to express C++ in ways which can guarantee
+       such instructions are used to increase performance effectively.
+       This talk aims to demystify how SIMD instructions can benefit
+       the performance of applications and libraries, as well as
+       demonstrate how a C++ SIMD wrapper library can greatly ease
+       programmers in writing efficient, cross-platform SIMD
+       code. While one particular library will be used to demonstrate
+       elegant SIMD programming, the concepts shown are applicable to
+       practically every C++ SIMD library currently available
+       (e.g. boost.simd, tsimd, VC, dimsum, etc.), as well as the
+       proposed SIMD extensions to the C++ standard library. Lastly,
+       this talk will also seek to unify the greater topic of data
+       parallelism in C++ by connecting the SIMD parallelism concepts
+       demonstrated to other expressions of parallelism, such as
+       SPMD/SIMT parallelism used in GPU computing." 
+
+   + [[https://www.youtube.com/watch?app=desktop&v=UgaQCg-0ZoU][CppCon 2016: Nicolas Guillemot "SPMD Programming Using C++ and ISPC"]]
+     + Brief: "Love writing blazing fast SIMD code on CPU? Tired of
+       dealing with ugly intrinsics and clumsy SIMD float4 classes?
+       Has your compiler's auto-vectorization ever stopped working,
+       causing unpredictable performance regressions? Wish you could
+       write efficient SIMD code without locking yourself into a
+       specific instruction set, while still taking advantage of a
+       range of hardware from old desktops to new Intel Xeon Phi rigs?
+       The solution is here, and it's called SPMD! SPMD is an elegant
+       parallel programming technique for writing SIMD code, which
+       automates the tedious constructions normally required when
+       using intrinsics or assembly, breaks free of ties to specific
+       instruction sets, and still allows you to work at the
+       granularity of SIMD vectors when necessary."
+
+   + [[https://www.youtube.com/watch?app=desktop&v=H4nCLFNlfL8][Erwin Laure - Introduction to High Performance Computing]]
+     + Brief: Shows several use-cases and applications of
+       high-performance computing and parallel computing, including: physics, data mining,
+       oil exploration, financial and economics modelling, wheather
+       prediction and aerospace design.
+
+   + [[https://www.youtube.com/watch?app=desktop&v=PKK0B12L6zg][Intro to Compiler Directives for Accelerators]] (OpenACC compiler directive)
+     + Brif: "In this video from the University of Houston CACDS HPC
+       Workshop, Ty McKercher from NVIDIA presents: Intro to Compiler
+       Directives for Accelerators. Geoscientists need tools to allow
+       them to rapidly develop algorithms that run fast on
+       accelerators, while at the same time deliver portability and
+       improve productivity. They demand a single source code, with no
+       need to maintain multiple code paths, using a high-level
+       approach that presents a low learning curve. OpenACC provides
+       directives-based approaches to rapidly accelerating
+       applications for GPUs and other parallel architectures. This
+       talk will serve as an introduction to programming with OpenACC
+       2.0. Participants will learn how to apply compiler directives
+       to an existing application to parallelize the application for
+       accelerated architectures." 
+
+   + [[https://www.youtube.com/watch?app=desktop&v=a_m440rZ5h8][GPU programming with modern C++ - Michael Wong {ACCU 2019}]]
+     + Brief: "Parallel programming can be used to take advance of
+       multi-core and heterogeneous architectures and can
+       significantly increase the performance of software. It has
+       gained a reputation for being difficult, but is it really?
+       Modern C++ has gone a long way to making parallel programming
+       easier and more accessible; providing both high-level and
+       low-level abstractions. C++11 introduced the C++ memory model
+       and standard threading library which includes threads, futures,
+       promises, mutexes, atomics and more. C++17 takes this further
+       by providing high level parallel algorithms; parallel
+       implementations of many standard algorithms; and much more is
+       expected in C++20. The introduction of the parallel algorithms
+       also opens C++ to supporting non-CPU architectures, such as
+       GPU, FPGAs, APUs and other accelerators. This talk will show
+       you the fundamentals of parallelism; how to recognise when to
+       use parallelism, how to make the best choices and common
+       parallel patterns such as reduce, map and scan which can be
+       used over and again. It will show you how to make use of the
+       C++ standard threading library, but it will take this further
+       by teaching you how to extend parallelism to heterogeneous
+       devices, using the SYCL programming model to implement these
+       patterns on a GPU using standard C++."
+
+   + [[https://www.youtube.com/watch?app=desktop&v=Xd4NVV-Uy0I][CppCon 2018: Elmar Westphal "Using Template Magic to Automatically Generate Hybrid CPU/GPU-Code"]]
+     + Brief: "In this talk you’ll learn how you can write code that
+       will either compile into a CPU based loop or into a special
+       kind of function called “kernel" to be executed on a
+       GPU. You’ll get an introduction into the memory- and
+       threading-models of recent GPUs and are provided with examples
+       for (mostly) simple helper templates to manage them. You can
+       test and debug your code on CPU and scale out later. In the
+       end, you’ll be able to parallelise operations on vectors
+       without having to think much about the architecture. Template
+       magic will take of that for you.  Note: there are several ways
+       to leverage the compute power of GPUs for your
+       applications. There are pragma-based approaches like OpenACC or
+       recent versions of OpenMP. Or you can take more control and use
+       approaches like Nvidia’s CUDA, AMD’s similar HIP or the latest
+       versions of OpenCL. All of the latter are based on subsets of
+       the C++-14 standard with extensions to manage the execution of
+       code (at least) on GPUs. This session will cover a CUDA-C++
+       based approach, but the techniques shown should be applicable
+       to other models as well. Elmar Westphal, Forschungszentrum
+       Juelich Scientific Programmer"
+
+   + [[https://www.youtube.com/watch?app=desktop&v=h6Q-5Q2N5ck][CppCon 2016: Pablo Halpern "Introduction to Vector Parallelism"]]
+     + Brief: "Parallel programming is a hot topic, and everybody
+       knows that multicore processors and GPUs can be used to speed
+       up calculations. What many people don't realize, however, is
+       that CPUs provide another way to exploit parallelism -- one
+       that predates recent multicore processors, has less overhead,
+       requires no runtime scheduler, and can be used in combination
+       with multicore processing to achieve even more speedup. It's
+       called vector parallelism, and the hardware that implements it
+       goes by brand names like SSE, AVX, NEON, and Altivec. If your
+       parallel program does not use vectorization, you could be
+       leaving a factor of 4 to 16 in performance on the floor.  In
+       some ways, Vector programming is easier than thread-based
+       parallel programming because it provides ordering guarantees
+       that more closely resemble serial programming. Without an
+       intuitive framework by which to interpret them, the ordering
+       rules can be confusing, however, and restrictions on vector
+       code that don't apply to thread-parallel code must be kept in
+       mind. In this talk, we'll introduce you to the common elements
+       of most vector hardware, show what kind of C++ code can be
+       automatically vectorized by a smart compiler, and talk about
+       programmer-specified vectorization in OpenMP as well as
+       proposals making their way through the C++ standards
+       committee. You'll understand the rules of vectorization, so
+       that you can begin to take advantage of the vector units
+       already in your CPU. A basic understanding of C++11 lambda
+       expressions is helpful."
+
+   + [[https://www.youtube.com/watch?v=1kOGbxnpt6M][Heterogeneous Programming in C++ today - Michael Wong {ACCU 2018}]]
+     + Brief: "So why is the world rushing to add Massive Parallelism
+       to base languages when consortiums and companies have been
+       trying to fill that space for years? How is the landscape of
+       Heterogeneous Parallelism changing in the various standards,
+       and specifications? How will today’s programming models address
+       the needs of future Internet of Things, self-driving cars and
+       Machine Learning. I will give an overview as well as a deep
+       dive into what C, C++ is doing to add parallelism, but also how
+       consortiums like Khronos OpenCL/SYCL is pushing forward into
+       the High-level Modern C++ Language support for GPU/Accelerators
+       and SIMD programming. And ultimately, how these will converge
+       into the future C++ Standard through future C++20 proposals
+       such as executors, and affinity from my capacity of leading
+       many of these efforts as chair of Wg2 `s SG14."
+
+   + [[https://www.youtube.com/watch?v=5UVeh4_5B8I][Memory Resources in a Heterogeneous World - Michał Dominiak - CppCon 2019]]
+     + Brief: "CUDA Thrust is a C++ parallel programming library built
+       around the concepts and interfaces of the C++ standard
+       library. When faced with the need for a composable interface
+       for memory allocation in Thrust, we've reached to std::pmr -
+       but std::pmr is inherently based around raw pointers, embedded
+       deeply into signatures of virtual functions; this means it's
+       not a great fit for a library that enables the use of GPUs for
+       accelerated computation, which brings a need to handle
+       different memory spaces in a type-safe way. Additionally,
+       because accesses to memory are not uniform, the std::pmr model
+       of pool resources doesn't quite work for CUDA and similar
+       ecosystems. Thus came thrust::mr, which is a slight variation
+       on std::pmr."
+
+   + [[https://www.youtube.com/watch?v=LYeJ2FUYiqA][Efficient Array Computing in C++ with xtensor and Apache Arrow | SciPy 2017 | Sylvain Corlay]]
+     + Brief: "This talk will discuss joint work between the xtensor
+       and Apache Arrow open source projects, which can help enable
+       the development of machine learning and other numerical
+       computing applications. xtensor provides efficient
+       multidimensional array computing for C++14 using expression
+       templates, with Python bindings and NumPy
+       interoperability. Apache Arrow provides cross-language array
+       metadata and shared memory IO for moving tabular and
+       tensor-like array data efficiently between compute
+       environments."
+
+   + https://www.youtube.com/watch?v=FRkJCvHWdwQ
+
+   + [[https://www.youtube.com/watch?app=desktop&v=3d-6MZY2IRA][EECE.6540 - Heterogeneous Computing - SIMD and Hardware Multithreading]]
+
+   + [[https://www.youtube.com/watch?app=desktop&v=0bJAABWL7K0][Vector Forward Mode Automatic Differentiation on SIMD/SIMT architectures]]
 ** Embedded Systems and Device Drivers 
 *** Fundamentals
 
@@ -2151,64 +2876,6 @@ See also:
       Windows family of operating systems."
 
   + [[https://developer.apple.com/library/archive/documentation/DeviceDrivers/Conceptual/WritingDeviceDriver/CPluPlusRuntime/CPlusPlusRuntime.html][APPLE's => The libkern C++ Runtime]]
-** Code Standards and guidelines 
-
- + [[https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#main][ISO C++ Core Guidelines]] - "This is a set of core guidelines for
-   modern C++, C++17, C++14, and C++11, taking likely future
-   enhancements and ISO Technical Specifications (TSs) into
-   account. The aim is to help C++ programmers to write simpler, more
-   efficient, more maintainable code."
-
-   + [[http://www.modernescpp.com/index.php/c-core-guidelines-constructors-assignments-and-desctructors][C++ Core Guidelines: The Rule of Zero, Five, or Six - ModernesCpp.com]]
-   + [[http://www.modernescpp.com/index.php/c-core-guidelines-when-you-can-t-throw-an-exception][C++ Core Guidelines: finally in C++ - ModernesCpp.com]]
-   + [[http://www.modernescpp.com/index.php/c-core-guidelines-constructors][C++ Core Guidelines: Constructors - ModernesCpp.com]]
-   + [[http://www.modernescpp.com/index.php/c-core-guidelines-more-rules-to-concurrency-and-parallelism][C++ Core Guidelines: More Rules to Concurrency and Parallelism - ModernesCpp.com]]
-   + [[http://www.modernescpp.com/index.php/c-core-guidelines-concurrency-and-lock-free-programming][C++ Core Guidelines: Concurrency and lock-free Programming - ModernesCpp.com]]
-   + [[http://www.modernescpp.com/index.php/c-core-guidelines-rules-to-error-handling][C++ Core Guidelines: Rules for Error Handling - ModernesCpp.com]]
-   + [[http://www.modernescpp.com/index.php/c-core-guidelines-type-erasure][C++ Core Guidelines: Type Erasure - ModernesCpp.com]]
-
- + [[https://developer.mozilla.org/en-US/docs/Mozilla/Using_CXX_in_Mozilla_code][Using C++ in Mozilla code - Mozilla | MDN]] 
-
- + [[https://wiki.openstack.org/wiki/CppCodingStandards#Using_Namespaces_Properly][CppCodingStandards - OpenStack]] - "Note that coding standards and
-   guidelines will never be perfect and that not everyone will agree
-   with every guideline or naming convention. The purpose of the
-   guidelines and standards are to maintain consistency in the source
-   code." 
-
- + [[https://google.github.io/styleguide/cppguide.html][Google C++ Style Guide]]
-
- + [[http://drake.mit.edu/styleguide/cppguide.html][Google C++ Style Guide for Drake]]
-
- + [[https://developer.lsst.io/cpp/style.html][DM C++ Style Guide — LSST DM Developer Guide Current documentation]]
-
- + [[https://users.ece.cmu.edu/~eno/coding/CppCodingStandard.html][C++ Coding Standard]]
-
- + [[https://juce.com/discover/stories/coding-standards][Coding Standards | JUCE]] - Juce code standard and its rationale and
-   motivation.
-
- + [[https://raw.githubusercontent.com/wiki/bloomberg/bde/CodingStandards.pdf][Bloomberg BDE Code Standard]]
-   + <https://web.archive.org/web/20190115163005/https://raw.githubusercontent.com/wiki/bloomberg/bde/CodingStandards.pdf>
-
- *Embedded Systems Coding Standards* 
-
- * *MISRA-C:2004 Guidelines for the use of the C language in critical systems*
-   + <https://web.archive.org/web/20170517013604/http://caxapa.ru:80/thumbs/468328/misra-c-2004.pdf>
-
- * *Guidelines for the use of the C++14 language in critical and safety-related systems*
-   + <https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-03/AUTOSAR_RS_CPP14Guidelines.pdf>
-
- * *Autosar Guideline for the use of C++14 language in critical safety-related systems*
-   + [[https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-10/AUTOSAR_RS_CPP14Guidelines.pdf][AUTOSAR_RS_CPP14Guidelines.pdf]]
-   + Web archive: [[https://web.archive.org/web/20190302192508/https://www.autosar.org/fileadmin/user_upload/standards/adaptive/17-10/AUTOSAR_RS_CPP14Guidelines.pdf][AUTOSAR_RS_CPP14Guidelines.pdf]]
-
- * *Joint Strike Fighter Air Vehicle C++ Coding Standards* - Document Number 2RDU00001 Rev C  - 2005
-   + 2004 - <http://www.stroustrup.com/JSF-AV-rules.pdf>
-   + 2005 - <https://web.archive.org/web/20070417151407/http://www.research.att.com/~bs/JSF-AV-rules.pdf>
-   + <http://www.jsf.mil/downloads/down_documentation.htm>
-
- * *C++ in Safety-Critical Applications: The JSF++ Coding Standard*
-   + <http://micro-os-plus.github.io/develop/coding-style/>
-   + <http://www.phaedsys.org/principals/programmingresearch/prdata/SSE-Session-4_Stroustrup-Carroll.pdf>
 
 ** Standard Proposals  
 
@@ -2637,7 +3304,6 @@ Android (Based on Linux), QNX Rtos and so on.
        covering all the significant changes to Version 2.6 of the
        Linux kernel. Includes full-featured examples that programmers
        can compile and run without special hardware." 
-
 ** ABI - Application Binary Inteface
 *** Itanium Portable ABI 
 
